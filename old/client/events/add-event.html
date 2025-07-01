@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>USIU Campus Events - Discover Amazing Campus Life</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="w-full bg-[#283991] shadow-md fixed top-0 left-0 z-50">
+      <div
+        class="container mx-auto flex items-center justify-between px-6 py-4 md:py-3"
+      >
+        <!-- Logo and Title -->
+        <a href="/index.html" class="flex items-center space-x-3">
+          <img
+            src="../Images/usiu-events.png"
+            alt="USIU Campus Events Logo"
+            class="h-10 w-auto"
+          />
+          <span class="text-white font-extrabold text-xl select-none"
+            >USIU Campus Events</span
+          >
+        </a>
+
+        <!-- Desktop Menu -->
+        <ul class="hidden md:flex space-x-8 font-medium text-white">
+          <li>
+            <a
+              href="/index.html"
+              class="hover:text-[#ffcb06] transition duration-300"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="/events/index.html"
+              class="hover:text-[#ffcb06] transition duration-300"
+              >Events</a
+            >
+          </li>
+          <li>
+            <a
+              href="/clubs/index.html"
+              class="hover:text-[#ffcb06] transition duration-300"
+              >Clubs</a
+            >
+          </li>
+          <li>
+            <a
+              href="/login.html"
+              id="auth-button"
+              class="bg-[#ffcb06] text-[#283991] px-5 py-2 rounded-md font-semibold hover:bg-yellow-400 transition duration-300"
+            >
+              Login
+            </a>
+          </li>
+        </ul>
+
+        <!-- Mobile Hamburger Button -->
+        <button
+          id="menu-btn"
+          aria-label="Toggle Menu"
+          aria-expanded="false"
+          class="md:hidden focus:outline-none"
+        >
+          <svg
+            id="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden md:hidden bg-[#283991]">
+        <ul class="flex flex-col space-y-3 px-6 py-6 font-medium text-white">
+          <li>
+            <a
+              href="/index.html"
+              class="block hover:text-[#ffcb06] transition duration-300"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="/events/index.html"
+              class="block hover:text-[#ffcb06] transition duration-300"
+              >Events</a
+            >
+          </li>
+          <li>
+            <a
+              href="/clubs/index.html"
+              class="block hover:text-[#ffcb06] transition duration-300"
+              >Clubs</a
+            >
+          </li>
+          <li>
+            <a
+              href="/login.html"
+              id="auth-button"
+              class="block bg-[#ffcb06] text-[#283991] px-5 py-2 rounded-md font-semibold text-center hover:bg-yellow-400 transition duration-300"
+            >
+              Login
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <script>
+        // Mobile menu toggle
+        const btn = document.getElementById("menu-btn");
+        const menu = document.getElementById("mobile-menu");
+        const menuIcon = document.getElementById("menu-icon");
+
+        btn.addEventListener("click", () => {
+          const expanded = btn.getAttribute("aria-expanded") === "true";
+          btn.setAttribute("aria-expanded", !expanded);
+          menu.classList.toggle("hidden");
+
+          // Toggle hamburger <-> X icon
+          if (!menu.classList.contains("hidden")) {
+            menuIcon.setAttribute("d", "M6 18L18 6M6 6l12 12"); // X icon
+          } else {
+            menuIcon.setAttribute("d", "M4 6h16M4 12h16M4 18h16"); // hamburger icon
+          }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+          const authBtn = document.getElementById("auth-button");
+          const user = sessionStorage.getItem("user");
+
+          if (user) {
+            // If session exists, change to Logout
+            authBtn.textContent = "Logout";
+            authBtn.href = "#";
+            authBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              sessionStorage.removeItem("user");
+              alert("You have been logged out.");
+              location.reload(); // Reload to update UI
+            });
+          }
+        });
+      </script>
+    </nav>
+
+    <section class="bg-[#283991] text-white pt-20 pb-3 px-6 md:px-12">
+      <div class="container mx-auto max-w-4xl text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
+          Add New Event
+        </h1>
+        <p
+          class="text-[#7C84BC] text-lg md:text-xl max-w-3xl mx-auto md:mx-0 mb-10"
+        >
+          Use this form to create a new event and share it with the USIU
+          community. Please provide all the necessary details to ensure your
+          event gets the attention it deserves.
+        </p>
+      </div>
+
+      <script>
+        // Simple fade-in animation on load for the header section
+        const section = document.currentScript.parentElement;
+        section.style.opacity = 0;
+        section.style.transition = "opacity 1s ease-in-out";
+        window.addEventListener("load", () => {
+          section.style.opacity = 1;
+        });
+      </script>
+    </section>
+
+    <section
+      class="py-16 px-6 md:px-12 bg-[#ffffff] text-[#283991]"
+      id="add-event-section"
+    >
+      <div class="container mx-auto max-w-4xl">
+        <h2 class="text-3xl font-extrabold mb-8 text-[#283991] text-center">
+          Create a New Event
+        </h2>
+
+        <form
+          id="combined-event-form"
+          class="space-y-8 bg-white p-8 rounded-lg shadow-lg"
+          novalidate
+        >
+          <!-- Event Basic Info -->
+          <div class="space-y-4">
+            <h3
+              class="text-xl font-semibold mb-4 text-[#283991] border-b border-[#7C84BC] pb-2"
+            >
+              Event Details
+            </h3>
+
+            <label class="block font-semibold"
+              >Event Name <span class="text-red-600">*</span></label
+            >
+            <input
+              type="text"
+              id="event-name"
+              name="eventName"
+              required
+              placeholder="Enter event name"
+              class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+            />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block font-semibold"
+                  >Date <span class="text-red-600">*</span></label
+                >
+                <input
+                  type="date"
+                  id="event-date"
+                  name="eventDate"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+                />
+              </div>
+              <div>
+                <label class="block font-semibold"
+                  >Time <span class="text-red-600">*</span></label
+                >
+                <input
+                  type="time"
+                  id="event-time"
+                  name="eventTime"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+                />
+              </div>
+            </div>
+
+            <label class="block font-semibold"
+              >Location <span class="text-red-600">*</span></label
+            >
+            <input
+              type="text"
+              id="event-location"
+              name="eventLocation"
+              required
+              placeholder="Enter event location"
+              class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+            />
+
+            <label class="block font-semibold"
+              >Description <span class="text-red-600">*</span></label
+            >
+            <textarea
+              id="event-description"
+              name="eventDescription"
+              rows="4"
+              required
+              placeholder="Write a brief description"
+              class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06] resize-none"
+            ></textarea>
+
+            <label class="block font-semibold"
+              >Club/Department Hosting
+              <span class="text-red-600">*</span></label
+            >
+            <input
+              type="text"
+              id="event-host"
+              name="eventHost"
+              required
+              placeholder="Enter club or department name"
+              class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+            />
+
+            <label class="block font-semibold">Upload Event Image</label>
+            <input
+              type="file"
+              id="event-image"
+              name="eventImage"
+              accept="image/*"
+              class="w-full text-gray-700"
+            />
+          </div>
+
+          <!-- Agenda Items -->
+          <div>
+            <h3 class="text-xl font-semibold mb-4 text-[#ffcb06]">Agenda</h3>
+            <div class="sm:flex font-semibold text-gray-700 px-2 mb-1">
+              <div class="flex-1">Time</div>
+              <div class="flex-1">Activity</div>
+            </div>
+            <div id="agenda-list" class="space-y-4"></div>
+            <button
+              type="button"
+              id="add-agenda-btn"
+              class="mt-4 bg-[#ffcb06] text-[#283991] font-semibold px-6 py-2 rounded shadow hover:bg-yellow-400 transition"
+            >
+              + Add Agenda Item
+            </button>
+          </div>
+
+          <!-- Speakers -->
+          <div>
+            <h3 class="text-xl font-semibold mb-4 text-[#ffcb06]">
+              Key Speakers & Performers
+            </h3>
+            <div class="sm:flex font-semibold text-gray-700 px-2 mb-1">
+              <div class="flex-1">Name</div>
+              <div class="flex-1">Role</div>
+            </div>
+            <div id="speakers-list" class="space-y-4"></div>
+            <button
+              type="button"
+              id="add-speaker-btn"
+              class="mt-4 bg-[#ffcb06] text-[#283991] font-semibold px-6 py-2 rounded shadow hover:bg-yellow-400 transition"
+            >
+              + Add Speaker
+            </button>
+          </div>
+
+          <!-- Special Activities -->
+          <div>
+            <h3 class="text-xl font-semibold mb-2 text-[#ffcb06]">
+              Special Activities
+            </h3>
+            <textarea
+              id="special-activities"
+              name="specialActivities"
+              rows="4"
+              placeholder="Describe special activities"
+              class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06] resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Team Contact Information Section -->
+          <div class="border-t border-[#7C84BC] pt-8">
+            <h3
+              class="text-xl font-semibold mb-4 text-[#283991] border-b border-[#7C84BC] pb-2"
+            >
+              Team Contact Information
+            </h3>
+
+            <div class="space-y-6">
+              <div>
+                <label for="team-description" class="block font-semibold mb-2"
+                  >Team Description <span class="text-red-600">*</span></label
+                >
+                <textarea
+                  id="team-description"
+                  name="teamDescription"
+                  rows="3"
+                  required
+                  placeholder="Team description or message"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06] resize-none"
+                ></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="team-address" class="block font-semibold mb-2"
+                    >Address <span class="text-red-600">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="team-address"
+                    name="teamAddress"
+                    required
+                    placeholder="Enter address"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+                  />
+                </div>
+                <div>
+                  <label for="team-email" class="block font-semibold mb-2"
+                    >Email <span class="text-red-600">*</span></label
+                  >
+                  <input
+                    type="email"
+                    id="team-email"
+                    name="teamEmail"
+                    required
+                    placeholder="Enter email"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label for="team-phone" class="block font-semibold mb-2"
+                  >Phone <span class="text-red-600">*</span></label
+                >
+                <input
+                  type="tel"
+                  id="team-phone"
+                  name="teamPhone"
+                  required
+                  placeholder="Enter phone number"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+                />
+              </div>
+
+              <div>
+                <label class="block font-semibold mb-2"
+                  >Social Media Links</label
+                >
+                <div class="space-y-3">
+                  <input
+                    type="url"
+                    id="team-facebook"
+                    name="teamFacebook"
+                    placeholder="Facebook URL"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+                  />
+                  <input
+                    type="url"
+                    id="team-twitter"
+                    name="teamTwitter"
+                    placeholder="Twitter URL"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+                  />
+                  <input
+                    type="url"
+                    id="team-instagram"
+                    name="teamInstagram"
+                    placeholder="Instagram URL"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div>
+            <button
+              type="submit"
+              id="submit-btn"
+              class="w-full bg-[#ffcb06] text-[#283991] font-bold py-3 rounded-lg shadow-lg hover:bg-yellow-400 transition duration-300"
+            >
+              Create Event
+            </button>
+          </div>
+
+          <p id="form-message" class="mt-4 text-center font-semibold"></p>
+        </form>
+      </div>
+
+      <script>
+        // Helper to create element from HTML string
+        function createElementFromHTML(htmlString) {
+          const div = document.createElement("div");
+          div.innerHTML = htmlString.trim();
+          return div.firstChild;
+        }
+
+        // Agenda dynamic add/remove
+        const agendaList = document.getElementById("agenda-list");
+        const addAgendaBtn = document.getElementById("add-agenda-btn");
+
+        addAgendaBtn.addEventListener("click", () => {
+          const agendaItemHTML = `
+    <div class="agenda-item flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+      <input type="time" name="agendaTime[]" required
+        class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+        placeholder="Time" />
+      <input type="text" name="agendaActivity[]" required
+        class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+        placeholder="Activity" />
+      <button type="button"
+        class="self-end md:self-center remove-agenda-btn text-red-600 font-bold px-3 py-1 rounded hover:bg-red-100 transition"
+        aria-label="Remove agenda item">×</button>
+    </div>`;
+          agendaList.appendChild(createElementFromHTML(agendaItemHTML));
+        });
+
+        agendaList.addEventListener("click", (e) => {
+          if (e.target.classList.contains("remove-agenda-btn")) {
+            e.target.closest(".agenda-item").remove();
+          }
+        });
+
+        // Speakers dynamic add/remove
+        const speakersList = document.getElementById("speakers-list");
+        const addSpeakerBtn = document.getElementById("add-speaker-btn");
+
+        addSpeakerBtn.addEventListener("click", () => {
+          const speakerItemHTML = `
+    <div class="speaker-item flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+      <input type="text" name="speakerName[]"
+        class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+        placeholder="Speaker Name" />
+      <input type="text" name="speakerRole[]"
+        class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffcb06]"
+        placeholder="Role" />
+      <button type="button"
+        class="self-end md:self-center remove-speaker-btn text-red-600 font-bold px-3 py-1 rounded hover:bg-red-100 transition"
+        aria-label="Remove speaker">×</button>
+    </div>`;
+          speakersList.appendChild(createElementFromHTML(speakerItemHTML));
+        });
+
+        speakersList.addEventListener("click", (e) => {
+          if (e.target.classList.contains("remove-speaker-btn")) {
+            e.target.closest(".speaker-item").remove();
+          }
+        });
+
+        // Handle Combined form submission
+        const combinedForm = document.getElementById("combined-event-form");
+        const formMessage = document.getElementById("form-message");
+        const submitBtn = document.getElementById("submit-btn");
+
+        combinedForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          if (!combinedForm.checkValidity()) {
+            // Check specifically required fields
+            const requiredFields = combinedForm.querySelectorAll("[required]");
+            let hasError = false;
+
+            requiredFields.forEach((field) => {
+              if (!field.value.trim()) {
+                hasError = true;
+                field.classList.add("border-red-500");
+              } else {
+                field.classList.remove("border-red-500");
+              }
+            });
+
+            if (hasError) {
+              formMessage.textContent =
+                "Please fill in all required fields correctly.";
+              formMessage.classList.add("text-red-600");
+              formMessage.classList.remove("text-green-600");
+              return;
+            }
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Creating Event...";
+          formMessage.textContent = "";
+
+          // Gather form data
+          const formData = new FormData(combinedForm);
+
+          // Build structured data object for backend
+          const registrationData = {
+            // Event Details
+            eventName: formData.get("eventName"),
+            eventDate: formData.get("eventDate"),
+            eventTime: formData.get("eventTime"),
+            eventLocation: formData.get("eventLocation"),
+            eventDescription: formData.get("eventDescription"),
+            eventHost: formData.get("eventHost"),
+            specialActivities: formData.get("specialActivities"),
+            agenda: [],
+            speakers: [],
+
+            // Team Contact Information
+            teamContact: {
+              description: formData.get("teamDescription"),
+              address: formData.get("teamAddress"),
+              email: formData.get("teamEmail"),
+              phone: formData.get("teamPhone"),
+              social: {
+                facebook: formData.get("teamFacebook"),
+                twitter: formData.get("teamTwitter"),
+                instagram: formData.get("teamInstagram"),
+              },
+            },
+
+            // Image file can be handled separately if needed
+            // eventImage: formData.get('eventImage')
+          };
+
+          // Collect agenda items
+          const agendaTimes = formData.getAll("agendaTime[]");
+          const agendaActivities = formData.getAll("agendaActivity[]");
+          agendaTimes.forEach((time, i) => {
+            if (time && agendaActivities[i]) {
+              registrationData.agenda.push({
+                time,
+                activity: agendaActivities[i],
+              });
+            }
+          });
+
+          // Collect speakers
+          const speakerNames = formData.getAll("speakerName[]");
+          const speakerRoles = formData.getAll("speakerRole[]");
+          speakerNames.forEach((name, i) => {
+            if (name && speakerRoles[i]) {
+              registrationData.speakers.push({ name, role: speakerRoles[i] });
+            }
+          });
+
+          try {
+            console.log(registrationData);
+            const response = await fetch(
+              "http://localhost:8000/api/event/createEvent",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(registrationData),
+              },
+            );
+
+            const result = await response.json();
+
+            if (response.ok) {
+              formMessage.textContent = "Event successfully created!";
+              formMessage.classList.remove("text-red-600");
+              formMessage.classList.add("text-green-600");
+              combinedForm.reset();
+
+              // Reset dynamic lists
+              agendaList.innerHTML = "";
+              speakersList.innerHTML = "";
+              addAgendaBtn.click();
+              addSpeakerBtn.click();
+            } else {
+              // Show validation error from backend
+              formMessage.textContent =
+                result.error || "Failed to create event.";
+              formMessage.classList.add("text-red-600");
+              formMessage.classList.remove("text-green-600");
+            }
+          } catch (error) {
+            console.error("Error creating event:", error);
+            formMessage.textContent = "Error creating event. Please try again.";
+            formMessage.classList.add("text-red-600");
+            formMessage.classList.remove("text-green-600");
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Create Event";
+          }
+        });
+
+        // Initialize form with one agenda and one speaker item
+        addAgendaBtn.click();
+        addSpeakerBtn.click();
+      </script>
+    </section>
+
+    <section
+      class="py-16 px-6 md:px-12 bg-white text-[#283991]"
+      id="faq-event-creation"
+    >
+      <div class="container mx-auto max-w-4xl">
+        <h2
+          class="text-3xl md:text-4xl font-extrabold text-[#283991] mb-12 text-center"
+        >
+          Frequently Asked Questions
+        </h2>
+
+        <div class="space-y-6">
+          <!-- FAQ Item 1 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              How do I add multiple agenda items?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                Use the "+ Add Agenda Item" button to add as many agenda entries
+                as needed. You can remove any unwanted items by clicking the "×"
+                button next to each entry.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 2 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              What image formats are supported for event upload?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                You can upload images in common formats such as JPG, JPEG, PNG,
+                and GIF. Please ensure the image size is optimized for fast
+                loading.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 3 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              How can I add multiple speakers or performers?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                Use the "+ Add Speaker" button to add multiple speakers or
+                performers. You can enter their names and roles separately, and
+                remove entries if needed.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 4 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              What should I do if the form submission fails?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                Please check your internet connection and ensure all required
+                fields are correctly filled. If the problem persists, contact
+                the support team at
+                <a
+                  href="mailto:support@usiu.ac.ke"
+                  class="text-[#ffcb06] underline"
+                  >support@usiu.ac.ke</a
+                >.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 5 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              Can I edit the event details after submission?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                Yes, you can edit event details anytime by accessing the event
+                management dashboard. Make sure to save your changes before
+                leaving the page.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        // FAQ toggle functionality
+        document.querySelectorAll(".faq-question").forEach((button) => {
+          button.addEventListener("click", () => {
+            const expanded = button.getAttribute("aria-expanded") === "true";
+            button.setAttribute("aria-expanded", !expanded);
+
+            const answer = button.nextElementSibling;
+            if (!expanded) {
+              answer.style.maxHeight = answer.scrollHeight + "px";
+              button.querySelector("svg").classList.add("rotate-180");
+            } else {
+              answer.style.maxHeight = null;
+              button.querySelector("svg").classList.remove("rotate-180");
+            }
+          });
+        });
+      </script>
+    </section>
+
+    <footer class="bg-[#283991] text-white py-10 px-6 md:px-12">
+      <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Branding -->
+        <div class="flex flex-col space-y-4">
+          <a href="/index.html" class="flex items-center space-x-3">
+            <img
+              src="Images/usiu-events.png"
+              alt="USIU Campus Events Logo"
+              class="h-10 w-auto"
+            />
+            <span class="text-xl font-bold select-none"
+              >USIU Campus Events</span
+            >
+          </a>
+          <p class="text-[#ffffffcc] max-w-sm">
+            Connecting students and clubs through vibrant campus events and
+            activities.
+          </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h3 class="font-semibold text-lg mb-4 text-[#ffcb06]">Quick Links</h3>
+          <ul class="space-y-2">
+            <li>
+              <a href="/index.html" class="hover:text-[#ffcb06] transition"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
+                href="/events/index.html"
+                class="hover:text-[#ffcb06] transition"
+                >Events</a
+              >
+            </li>
+            <li>
+              <a
+                href="/clubs/index.html"
+                class="hover:text-[#ffcb06] transition"
+                >Clubs</a
+              >
+            </li>
+            <li>
+              <a href="/login.html" class="hover:text-[#ffcb06] transition"
+                >Login</a
+              >
+            </li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div>
+          <h3 class="font-semibold text-lg mb-4 text-[#ffcb06]">Contact Us</h3>
+          <address class="not-italic space-y-2 text-[#ffffffcc]">
+            <p>USIU Nairobi Campus</p>
+            <p>United States International University Africa</p>
+            <p>
+              Email:
+              <a
+                href="mailto:support@usiu-events.ac.ke"
+                class="hover:text-[#ffcb06] transition"
+                >support@usiu-events.ac.ke</a
+              >
+            </p>
+            <p>
+              Phone:
+              <a
+                href="tel:+254700000000"
+                class="hover:text-[#ffcb06] transition"
+                >+254 700 000 000</a
+              >
+            </p>
+          </address>
+        </div>
+
+        <!-- Social Media -->
+        <div>
+          <h3 class="font-semibold text-lg mb-4 text-[#ffcb06]">Follow Us</h3>
+          <div class="flex space-x-4">
+            <a
+              href="https://www.facebook.com/USIUAFRICA/"
+              aria-label="Facebook"
+              class="hover:text-[#ffcb06] transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 fill-current"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M22 12a10 10 0 10-11.5 9.87v-6.99h-2.1v-2.88h2.1v-2.2c0-2.07 1.23-3.22 3.12-3.22.9 0 1.84.16 1.84.16v2.02h-1.04c-1.03 0-1.35.64-1.35 1.3v1.94h2.3l-.37 2.88h-1.93v6.99A10 10 0 0022 12z"
+                />
+              </svg>
+            </a>
+            <a
+              href="https://x.com/ExperienceUSIU/highlights"
+              aria-label="Twitter"
+              class="hover:text-[#ffcb06] transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 fill-current"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.1 9.1 0 01-2.88 1.1 4.52 4.52 0 00-7.69 4.13A12.83 12.83 0 013 2.89a4.53 4.53 0 001.4 6.05 4.48 4.48 0 01-2.05-.57v.06a4.52 4.52 0 003.63 4.43 4.52 4.52 0 01-2.04.08 4.53 4.53 0 004.22 3.14A9.06 9.06 0 012 19.54a12.79 12.79 0 006.92 2.03c8.3 0 12.85-6.88 12.85-12.85 0-.2 0-.39-.02-.58A9.22 9.22 0 0023 3z"
+                />
+              </svg>
+            </a>
+            <a
+              href="https://www.instagram.com/usiuafrica/?hl=en"
+              aria-label="Instagram"
+              class="hover:text-[#ffcb06] transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 fill-current"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.88 1.5a1.12 1.12 0 11-2.24 0 1.12 1.12 0 012.24 0zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="mt-10 border-t border-[#ffffff33] pt-6 text-center text-sm text-[#ffffff99] select-none"
+      >
+        &copy; <span id="current-year"></span> USIU Campus Events. All rights
+        reserved.
+      </div>
+
+      <script>
+        // Set current year dynamically
+        document.getElementById("current-year").textContent =
+          new Date().getFullYear();
+      </script>
+    </footer>
+  </body>
+</html>

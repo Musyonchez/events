@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All Events - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6",
+              secondary: "#8B5CF6",
+              accent: "#F59E0B",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+      * {
+        font-family: "Inter", sans-serif;
+      }
+
+      .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+
+      .card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .floating-animation {
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      .pulse-animation {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      .filter-btn {
+        transition: all 0.3s ease;
+      }
+
+      .filter-btn.active {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .search-glow {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+      }
+
+      .event-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        z-index: 10;
+      }
+
+      .countdown-timer {
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+      }
+
+      .event-card {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .event-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .event-card:hover::before {
+        left: 100%;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center space-x-4">
+            <div class="text-2xl font-bold text-primary">🎓</div>
+            <div>
+              <h1 class="text-xl font-bold text-gray-800">USIU Events</h1>
+              <p class="text-sm text-gray-600">Campus Life Hub</p>
+            </div>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-8">
+            <a
+              href="index.html"
+              class="text-gray-700 hover:text-primary transition-colors"
+              >🏠 Home</a
+            >
+            <a href="events.html" class="text-primary font-semibold"
+              >🎉 All Events</a
+            >
+            <a
+              href="clubs.html"
+              class="text-gray-700 hover:text-primary transition-colors"
+              >🎭 Clubs</a
+            >
+            <a
+              href="create-event.html"
+              class="text-gray-700 hover:text-primary transition-colors"
+              >➕ Create Event</a
+            >
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <span class="text-gray-700">🔔</span>
+              <span
+                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                >3</span
+              >
+            </div>
+            <button
+              class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Login
+            </button>
+            <button
+              class="border border-primary text-primary px-4 py-2 rounded-lg hover:bg-primary hover:text-white transition-colors"
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20 relative overflow-hidden">
+      <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+      <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center max-w-4xl mx-auto">
+          <div class="floating-animation inline-block text-6xl mb-6">🎉</div>
+          <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            Amazing <span class="text-yellow-300">Events</span> Await
+          </h1>
+          <p class="text-xl md:text-2xl mb-8 text-gray-200">
+            Discover incredible campus events, join amazing experiences, and
+            create unforgettable memories with your fellow students
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              class="bg-yellow-400 text-gray-900 px-8 py-4 rounded-full text-lg font-semibold hover:bg-yellow-300 transition-colors transform hover:scale-105"
+            >
+              🎯 Find Events
+            </button>
+            <button
+              class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-gray-900 transition-colors"
+            >
+              ➕ Create Event
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Elements -->
+      <div
+        class="absolute top-20 left-10 text-4xl floating-animation"
+        style="animation-delay: -2s"
+      >
+        🎭
+      </div>
+      <div
+        class="absolute top-40 right-20 text-3xl floating-animation"
+        style="animation-delay: -4s"
+      >
+        🎵
+      </div>
+      <div
+        class="absolute bottom-20 left-20 text-5xl floating-animation"
+        style="animation-delay: -1s"
+      >
+        🍕
+      </div>
+      <div
+        class="absolute bottom-40 right-10 text-4xl floating-animation"
+        style="animation-delay: -3s"
+      >
+        🏆
+      </div>
+    </section>
+
+    <!-- Search and Filter Section -->
+    <section class="py-12 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+          <!-- Search Bar -->
+          <div class="relative mb-8">
+            <input
+              type="text"
+              id="eventSearch"
+              placeholder="🔍 Search events by name, type, or location..."
+              class="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-primary focus:outline-none search-glow transition-all"
+            />
+            <button
+              class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Search
+            </button>
+          </div>
+
+          <!-- Filter Buttons -->
+          <div class="flex flex-wrap gap-3 justify-center">
+            <button
+              class="filter-btn active px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold"
+              data-filter="all"
+            >
+              🌟 All Events
+            </button>
+            <button
+              class="filter-btn px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold"
+              data-filter="today"
+            >
+              🔥 Today
+            </button>
+            <button
+              class="filter-btn px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold"
+              data-filter="this-week"
+            >
+              📅 This Week
+            </button>
+            <button
+              class="filter-btn px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold"
+              data-filter="arts"
+            >
+              🎭 Arts & Culture
+            </button>
+            <button
+              class="filter-btn px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold"
+              data-filter="tech"
+            >
+              💻 Technology
+            </button>
+            <button
+              class="filter-btn px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold"
+              data-filter="sports"
+            >
+              ⚽ Sports
+            </button>
+            <button
+              class="filter-btn px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold"
+              data-filter="food"
+            >
+              🍕 Food & Social
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Event Banner -->
+    <section class="py-8 bg-gradient-to-r from-pink-500 to-purple-600">
+      <div class="container mx-auto px-4">
+        <div
+          class="bg-white bg-opacity-20 backdrop-blur-lg rounded-3xl p-8 text-white"
+        >
+          <div class="flex flex-col lg:flex-row items-center justify-between">
+            <div class="flex-1 mb-6 lg:mb-0">
+              <div class="flex items-center mb-4">
+                <span
+                  class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-bounce"
+                  >🔥 HOT EVENT</span
+                >
+                <span class="ml-4 text-lg font-semibold">Dec 15, 2024</span>
+              </div>
+              <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                "Romeo & Juliet" - Modern Adaptation
+              </h2>
+              <p class="text-lg text-purple-100 mb-4">
+                Experience Shakespeare like never before with our contemporary
+                twist on the classic love story. Professional lighting,
+                costumes, and performances by the Drama Club.
+              </p>
+              <div class="flex items-center space-x-4 text-purple-100">
+                <span>📍 Main Auditorium</span>
+                <span>⏰ 7:00 PM</span>
+                <span>👥 245 registered</span>
+              </div>
+            </div>
+            <div class="flex-shrink-0">
+              <button
+                class="bg-yellow-400 text-gray-900 px-8 py-4 rounded-full text-lg font-bold hover:bg-yellow-300 transition-colors transform hover:scale-105"
+              >
+                🎭 Join Event
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-12 bg-gradient-to-r from-blue-50 to-purple-50">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div class="bg-white p-6 rounded-2xl shadow-lg card-hover">
+            <div class="text-4xl mb-4 pulse-animation">🎉</div>
+            <div class="text-3xl font-bold text-primary mb-2">156+</div>
+            <div class="text-gray-600">Active Events</div>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg card-hover">
+            <div class="text-4xl mb-4 pulse-animation">👥</div>
+            <div class="text-3xl font-bold text-secondary mb-2">12.5K+</div>
+            <div class="text-gray-600">Registrations</div>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg card-hover">
+            <div class="text-4xl mb-4 pulse-animation">⭐</div>
+            <div class="text-3xl font-bold text-accent mb-2">4.9</div>
+            <div class="text-gray-600">Average Rating</div>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg card-hover">
+            <div class="text-4xl mb-4 pulse-animation">🏆</div>
+            <div class="text-3xl font-bold text-green-500 mb-2">98%</div>
+            <div class="text-gray-600">Satisfaction</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Events Grid -->
+    <section class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-bold text-gray-800 mb-4">Upcoming Events</h2>
+          <p class="text-xl text-gray-600">
+            Don't miss out on these incredible experiences
+          </p>
+        </div>
+
+        <div
+          id="eventsGrid"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          <!-- Drama Event -->
+          <div
+            class="event-card bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            data-category="arts"
+            data-date="2024-12-15"
+          >
+            <div class="event-badge">
+              <span
+                class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                >🔥 Hot</span
+              >
+            </div>
+            <div
+              class="bg-gradient-to-r from-pink-500 to-purple-600 p-6 text-white relative"
+            >
+              <div class="text-5xl mb-4">🎭</div>
+              <div
+                class="countdown-timer text-white text-sm px-3 py-1 rounded-full absolute top-4 right-4"
+              >
+                <span id="countdown-1">2 days left</span>
+              </div>
+              <h3 class="text-2xl font-bold mb-2">
+                "Romeo & Juliet" - Modern Adaptation
+              </h3>
+              <p class="text-pink-100 mb-4">
+                Experience Shakespeare like never before with our contemporary
+                twist
+              </p>
+              <div class="flex items-center text-sm">
+                <span class="mr-4">📍 Main Auditorium</span>
+                <span>⏰ 7:00 PM</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span
+                  class="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm font-semibold"
+                  >Arts & Culture</span
+                >
+                <span class="text-gray-600">👥 245 registered</span>
+              </div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-1">
+                  <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                  <span class="text-sm text-gray-600">(4.8)</span>
+                </div>
+                <span class="text-green-600 font-semibold">FREE</span>
+              </div>
+              <button
+                class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 font-semibold"
+              >
+                🎭 Join Event
+              </button>
+            </div>
+          </div>
+
+          <!-- Tech Event -->
+          <div
+            class="event-card bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            data-category="tech"
+            data-date="2024-12-18"
+          >
+            <div class="event-badge">
+              <span
+                class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                >💻 Tech</span
+              >
+            </div>
+            <div
+              class="bg-gradient-to-r from-blue-500 to-cyan-600 p-6 text-white relative"
+            >
+              <div class="text-5xl mb-4">💻</div>
+              <div
+                class="countdown-timer text-white text-sm px-3 py-1 rounded-full absolute top-4 right-4"
+              >
+                <span id="countdown-2">5 days left</span>
+              </div>
+              <h3 class="text-2xl font-bold mb-2">
+                AI & Machine Learning Workshop
+              </h3>
+              <p class="text-blue-100 mb-4">
+                Dive into the future with hands-on AI programming sessions
+              </p>
+              <div class="flex items-center text-sm">
+                <span class="mr-4">📍 Computer Lab A</span>
+                <span>⏰ 2:00 PM</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span
+                  class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold"
+                  >Technology</span
+                >
+                <span class="text-gray-600">👥 89 registered</span>
+              </div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-1">
+                  <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                  <span class="text-sm text-gray-600">(4.9)</span>
+                </div>
+                <span class="text-orange-600 font-semibold">KSh 500</span>
+              </div>
+              <button
+                class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-cyan-700 transition-all transform hover:scale-105 font-semibold"
+              >
+                💻 Register Now
+              </button>
+            </div>
+          </div>
+
+          <!-- Culinary Event -->
+          <div
+            class="event-card bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            data-category="food"
+            data-date="2024-12-20"
+          >
+            <div class="event-badge">
+              <span
+                class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                >🌟 Popular</span
+              >
+            </div>
+            <div
+              class="bg-gradient-to-r from-yellow-500 to-orange-600 p-6 text-white relative"
+            >
+              <div class="text-5xl mb-4">🏨</div>
+              <div
+                class="countdown-timer text-white text-sm px-3 py-1 rounded-full absolute top-4 right-4"
+              >
+                <span id="countdown-3">7 days left</span>
+              </div>
+              <h3 class="text-2xl font-bold mb-2">
+                Culinary Excellence Masterclass
+              </h3>
+              <p class="text-yellow-100 mb-4">
+                Learn from renowned chefs and discover culinary secrets
+              </p>
+              <div class="flex items-center text-sm">
+                <span class="mr-4">📍 Culinary Center</span>
+                <span>⏰ 10:00 AM</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span
+                  class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold"
+                  >Food & Social</span
+                >
+                <span class="text-gray-600">👥 156 registered</span>
+              </div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-1">
+                  <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                  <span class="text-sm text-gray-600">(4.7)</span>
+                </div>
+                <span class="text-orange-600 font-semibold">KSh 800</span>
+              </div>
+              <button
+                class="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-3 rounded-lg hover:from-yellow-600 hover:to-orange-700 transition-all transform hover:scale-105 font-semibold"
+              >
+                🍳 Book Spot
+              </button>
+            </div>
+          </div>
+
+          <!-- Sports Event -->
+          <div
+            class="event-card bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            data-category="sports"
+            data-date="2024-12-16"
+          >
+            <div class="event-badge">
+              <span
+                class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                >🏆 Tournament</span
+              >
+            </div>
+            <div
+              class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white relative"
+            >
+              <div class="text-5xl mb-4">⚽</div>
+              <div
+                class="countdown-timer text-white text-sm px-3 py-1 rounded-full absolute top-4 right-4"
+              >
+                <span id="countdown-4">3 days left</span>
+              </div>
+              <h3 class="text-2xl font-bold mb-2">
+                Inter-University Football Match
+              </h3>
+              <p class="text-green-100 mb-4">
+                USIU Eagles vs Strathmore Warriors - Championship Finals
+              </p>
+              <div class="flex items-center text-sm">
+                <span class="mr-4">📍 Main Stadium</span>
+                <span>⏰ 3:00 PM</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span
+                  class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold"
+                  >Sports</span
+                >
+                <span class="text-gray-600">👥 512 registered</span>
+              </div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-1">
+                  <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                  <span class="text-sm text-gray-600">(4.8)</span>
+                </div>
+                <span class="text-green-600 font-semibold">FREE</span>
+              </div>
+              <button
+                class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all transform hover:scale-105 font-semibold"
+              >
+                ⚽ Get Tickets
+              </button>
+            </div>
+          </div>
+
+          <!-- Music Event -->
+          <div
+            class="event-card bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            data-category="arts"
+            data-date="2024-12-23"
+          >
+            <div class="event-badge">
+              <span
+                class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                >🎵 Music</span
+              >
+            </div>
+            <div
+              class="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 text-white relative"
+            >
+              <div class="text-5xl mb-4">🎵</div>
+              <div
+                class="countdown-timer text-white text-sm px-3 py-1 rounded-full absolute top-4 right-4"
+              >
+                <span id="countdown-5">10 days left</span>
+              </div>
+              <h3 class="text-2xl font-bold mb-2">
+                Christmas Concert Spectacular
+              </h3>
+              <p class="text-purple-100 mb-4">
+                Festive music performances by talented student artists
+              </p>
+              <div class="flex items-center text-sm">
+                <span class="mr-4">📍 Concert Hall</span>
+                <span>⏰ 6:00 PM</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span
+                  class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold"
+                  >Arts & Culture</span
+                >
+                <span class="text-gray-600">👥 298 registered</span>
+              </div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-1">
+                  <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                  <span class="text-sm text-gray-600">(4.9)</span>
+                </div>
+                <span class="text-purple-600 font-semibold">KSh 300</span>
+              </div>
+              <button
+                class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-3 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all transform hover:scale-105 font-semibold"
+              >
+                🎵 Join Concert
+              </button>
+            </div>
+          </div>
+
+          <!-- Environmental Event -->
+          <div
+            class="event-card bg-white rounded-2xl shadow-lg overflow-hidden card-hover"
+            data-category="service"
+            data-date="2024-12-21"
+          >
+            <div class="event-badge">
+              <span
+                class="bg-teal-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                >🌱 Service</span
+              >
+            </div>
+            <div
+              class="bg-gradient-to-r from-teal-500 to-green-600 p-6 text-white relative"
+            >
+              <div class="text-5xl mb-4">🌱</div>
+              <div
+                class="countdown-timer text-white text-sm px-3 py-1 rounded-full absolute top-4 right-4"
+              >
+                <span id="countdown-6">8 days left</span>
+              </div>
+              <h3 class="text-2xl font-bold mb-2">
+                Campus Tree Planting Drive
+              </h3>
+              <p class="text-teal-100 mb-4">
+                Join us in making our campus greener and more sustainable
+              </p>
+              <div class="flex items-center text-sm">
+                <span class="mr-4">📍 Campus Grounds</span>
+                <span>⏰ 8:00 AM</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span
+                  class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold"
+                  >Community Service</span
+                >
+                <span class="text-gray-600">👥 167 registered</span>
+              </div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-1">
+                  <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                  <span class="text-sm text-gray-600">(4.6)</span>
+                </div>
+                <span class="text-green-600 font-semibold">FREE</span>
+              </div>
+              <button
+                class="w-full bg-gradient-to-r from-teal-500 to-green-600 text-white py-3 rounded-lg hover:from-teal-600 hover:to-green-700 transition-all transform hover:scale-105 font-semibold"
+              >
+                🌱 Volunteer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="text-center mt-12">
+          <button
+            id="loadMoreBtn"
+            class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105"
+          >
+            🔄 Load More Events
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section
+      class="py-16 bg-gradient-to-r from-indigo-600 to-purple-700 text-white"
+    >
+      <div class="container mx-auto px-4 text-center">
+        <div class="max-w-3xl mx-auto"></div>
+      </div>
+    </section>
+  </body>
+</html>

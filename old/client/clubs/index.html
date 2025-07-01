@@ -1,0 +1,1164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>USIU Campus Events - Discover Amazing Campus Life</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="w-full bg-[#283991] shadow-md fixed top-0 left-0 z-50">
+      <div
+        class="container mx-auto flex items-center justify-between px-6 py-4 md:py-3"
+      >
+        <!-- Logo and Title -->
+        <a href="/index.html" class="flex items-center space-x-3">
+          <img
+            src="../Images/usiu-events.png"
+            alt="USIU Campus Events Logo"
+            class="h-10 w-auto"
+          />
+          <span class="text-white font-extrabold text-xl select-none"
+            >USIU Campus Events</span
+          >
+        </a>
+
+        <!-- Desktop Menu -->
+        <ul class="hidden md:flex space-x-8 font-medium text-white">
+          <li>
+            <a
+              href="/index.html"
+              class="hover:text-[#ffcb06] transition duration-300"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="/events/index.html"
+              class="hover:text-[#ffcb06] transition duration-300"
+              >Events</a
+            >
+          </li>
+          <li>
+            <a
+              href="/clubs/index.html"
+              class="hover:text-[#ffcb06] transition duration-300"
+              >Clubs</a
+            >
+          </li>
+          <li>
+            <a
+              href="/login.html"
+              id="auth-button"
+              class="bg-[#ffcb06] text-[#283991] px-5 py-2 rounded-md font-semibold hover:bg-yellow-400 transition duration-300"
+            >
+              Login
+            </a>
+          </li>
+        </ul>
+
+        <!-- Mobile Hamburger Button -->
+        <button
+          id="menu-btn"
+          aria-label="Toggle Menu"
+          aria-expanded="false"
+          class="md:hidden focus:outline-none"
+        >
+          <svg
+            id="menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden md:hidden bg-[#283991]">
+        <ul class="flex flex-col space-y-3 px-6 py-6 font-medium text-white">
+          <li>
+            <a
+              href="/index.html"
+              class="block hover:text-[#ffcb06] transition duration-300"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a
+              href="/events/index.html"
+              class="block hover:text-[#ffcb06] transition duration-300"
+              >Events</a
+            >
+          </li>
+          <li>
+            <a
+              href="/clubs/index.html"
+              class="block hover:text-[#ffcb06] transition duration-300"
+              >Clubs</a
+            >
+          </li>
+          <li>
+            <a
+              href="/login.html"
+              id="auth-button"
+              class="block bg-[#ffcb06] text-[#283991] px-5 py-2 rounded-md font-semibold text-center hover:bg-yellow-400 transition duration-300"
+            >
+              Login
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <script>
+        // Mobile menu toggle
+        const btn = document.getElementById("menu-btn");
+        const menu = document.getElementById("mobile-menu");
+        const menuIcon = document.getElementById("menu-icon");
+
+        btn.addEventListener("click", () => {
+          const expanded = btn.getAttribute("aria-expanded") === "true";
+          btn.setAttribute("aria-expanded", !expanded);
+          menu.classList.toggle("hidden");
+
+          // Toggle hamburger <-> X icon
+          if (!menu.classList.contains("hidden")) {
+            menuIcon.setAttribute("d", "M6 18L18 6M6 6l12 12"); // X icon
+          } else {
+            menuIcon.setAttribute("d", "M4 6h16M4 12h16M4 18h16"); // hamburger icon
+          }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+          const authBtn = document.getElementById("auth-button");
+          const user = sessionStorage.getItem("user");
+
+          if (user) {
+            // If session exists, change to Logout
+            authBtn.textContent = "Logout";
+            authBtn.href = "#";
+            authBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              sessionStorage.removeItem("user");
+              alert("You have been logged out.");
+              location.reload(); // Reload to update UI
+            });
+          }
+        });
+      </script>
+    </nav>
+
+    <section class="bg-[#283991] text-white py-20 px-6 md:px-12">
+      <div class="container mx-auto max-w-4xl text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
+          Explore the Vibrant Club Life at USIU Kenyan Campus
+        </h1>
+        <p class="text-[#ffcb06] text-lg md:text-xl max-w-3xl mx-auto md:mx-0">
+          At USIU, our diverse range of student clubs offers something for
+          everyone — from cultural and academic groups to sports and special
+          interests. Joining a club is your gateway to building friendships,
+          developing leadership skills, and enriching your university
+          experience. Dive in, get involved, and make your mark on campus!
+        </p>
+      </div>
+
+      <script>
+        // Fade-in animation for the clubs header section
+        const section = document.currentScript.parentElement;
+        section.style.opacity = 0;
+        section.style.transition = "opacity 1s ease-in-out";
+        window.addEventListener("load", () => {
+          section.style.opacity = 1;
+        });
+      </script>
+    </section>
+
+    <section
+      class="py-16 px-6 md:px-12 bg-white text-[#283991]"
+      id="clubs-overview"
+    >
+      <div class="container mx-auto max-w-6xl">
+        <h2
+          class="text-3xl md:text-4xl font-extrabold mb-12 text-center text-[#283991]"
+        >
+          Types of Clubs at USIU
+        </h2>
+
+        <div class="grid gap-10 md:grid-cols-4">
+          <!-- Academic Clubs -->
+          <article
+            class="club-type-card bg-white rounded-xl shadow-md p-6 cursor-default transition-transform duration-500 opacity-0 translate-y-8"
+          >
+            <h3
+              class="text-xl font-semibold mb-3 text-[#283991] border-b-4 border-[#ffcb06] pb-2"
+            >
+              Academic Clubs
+            </h3>
+            <p class="text-[#7C84BC] leading-relaxed">
+              Engage with peers who share your academic interests. These clubs
+              offer workshops, guest lectures, and competitions to enhance your
+              learning experience.
+            </p>
+          </article>
+
+          <!-- Sports Clubs -->
+          <article
+            class="club-type-card bg-white rounded-xl shadow-md p-6 cursor-default transition-transform duration-500 opacity-0 translate-y-8"
+          >
+            <h3
+              class="text-xl font-semibold mb-3 text-[#283991] border-b-4 border-[#ffcb06] pb-2"
+            >
+              Sports Clubs
+            </h3>
+            <p class="text-[#7C84BC] leading-relaxed">
+              Join a variety of sports teams and fitness groups to stay active,
+              compete, and build team spirit on campus.
+            </p>
+          </article>
+
+          <!-- Cultural Clubs -->
+          <article
+            class="club-type-card bg-white rounded-xl shadow-md p-6 cursor-default transition-transform duration-500 opacity-0 translate-y-8"
+          >
+            <h3
+              class="text-xl font-semibold mb-3 text-[#283991] border-b-4 border-[#ffcb06] pb-2"
+            >
+              Cultural Clubs
+            </h3>
+            <p class="text-[#7C84BC] leading-relaxed">
+              Celebrate diversity and heritage by participating in cultural
+              performances, festivals, and community service activities.
+            </p>
+          </article>
+
+          <!-- Special Interest Clubs -->
+          <article
+            class="club-type-card bg-white rounded-xl shadow-md p-6 cursor-default transition-transform duration-500 opacity-0 translate-y-8"
+          >
+            <h3
+              class="text-xl font-semibold mb-3 text-[#283991] border-b-4 border-[#ffcb06] pb-2"
+            >
+              Special Interest Clubs
+            </h3>
+            <p class="text-[#7C84BC] leading-relaxed">
+              Explore hobbies and unique passions such as photography, debate,
+              environmental activism, and more with like-minded students.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <script>
+        // Fade-in on scroll for club cards
+        const cards = document.querySelectorAll(".club-type-card");
+
+        function isInViewport(el) {
+          const rect = el.getBoundingClientRect();
+          return (
+            rect.top <=
+            (window.innerHeight || document.documentElement.clientHeight) * 0.85
+          );
+        }
+
+        function checkCards() {
+          cards.forEach((card) => {
+            if (isInViewport(card)) {
+              card.style.opacity = 1;
+              card.style.transform = "translateY(0)";
+            }
+          });
+        }
+
+        window.addEventListener("scroll", checkCards);
+        window.addEventListener("load", checkCards);
+      </script>
+    </section>
+
+    <section
+      class="py-16 px-6 md:px-12 bg-white text-[#283991]"
+      id="partner-logos-section"
+    >
+      <div class="container mx-auto max-w-6xl text-center">
+        <h2 class="text-3xl font-extrabold mb-12 text-[#283991]">
+          Our Proud Partners & Sponsors
+        </h2>
+
+        <!-- Logos container -->
+        <div class="overflow-x-auto md:overflow-visible">
+          <div
+            class="flex md:grid md:grid-cols-6 gap-8 items-center min-w-max md:min-w-0"
+          >
+            <!-- Logo 1 -->
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/1200px-Microsoft_logo.svg.png"
+              alt="Microsoft"
+              class="h-16 mx-auto object-contain"
+              loading="lazy"
+            />
+            <!-- Logo 2 -->
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/0/08/Google_Logo.svg"
+              alt="Google"
+              class="h-16 mx-auto object-contain"
+              loading="lazy"
+            />
+            <!-- Logo 3 -->
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/2/2f/IBM_logo.svg"
+              alt="IBM"
+              class="h-16 mx-auto object-contain"
+              loading="lazy"
+            />
+            <!-- Logo 4 -->
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/5/51/Intel_logo_%282020%29.svg"
+              alt="Intel"
+              class="h-16 mx-auto object-contain"
+              loading="lazy"
+            />
+            <!-- Logo 5 -->
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6a/UNICEF_Logo.svg"
+              alt="UNICEF"
+              class="h-16 mx-auto object-contain"
+              loading="lazy"
+            />
+            <!-- Logo 6 -->
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/1/19/World_Bank_logo.svg"
+              alt="World Bank"
+              class="h-16 mx-auto object-contain"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+
+      <script>
+        // Optional: Enable smooth horizontal scroll on mobile via mouse wheel or touch
+        const logosContainer = document.querySelector(
+          "#partner-logos-section > div > div.overflow-x-auto",
+        );
+
+        if (logosContainer) {
+          logosContainer.addEventListener("wheel", (e) => {
+            if (window.innerWidth < 768) {
+              // only on mobile width
+              e.preventDefault();
+              logosContainer.scrollLeft += e.deltaY;
+            }
+          });
+        }
+      </script>
+    </section>
+
+    <section
+      class="py-16 px-6 md:px-12 bg-white text-[#283991]"
+      id="clubs-listing-section"
+    >
+      <div class="container mx-auto max-w-6xl">
+        <h2 class="text-3xl font-extrabold mb-8 text-center text-[#283991]">
+          Explore Our Clubs
+        </h2>
+
+        <!-- Filter Buttons -->
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+          <button
+            class="filter-btn bg-[#ffcb06] text-[#283991] font-semibold px-5 py-2 rounded shadow hover:bg-yellow-400 transition"
+            data-type="All"
+          >
+            All
+          </button>
+          <button
+            class="filter-btn bg-[#7C84BC] text-white font-semibold px-5 py-2 rounded shadow hover:bg-[#6b73a1] transition"
+            data-type="Academic"
+          >
+            Academic Clubs
+          </button>
+          <button
+            class="filter-btn bg-[#7C84BC] text-white font-semibold px-5 py-2 rounded shadow hover:bg-[#6b73a1] transition"
+            data-type="Sports"
+          >
+            Sports Clubs
+          </button>
+          <button
+            class="filter-btn bg-[#7C84BC] text-white font-semibold px-5 py-2 rounded shadow hover:bg-[#6b73a1] transition"
+            data-type="Cultural"
+          >
+            Cultural Clubs
+          </button>
+          <button
+            class="filter-btn bg-[#7C84BC] text-white font-semibold px-5 py-2 rounded shadow hover:bg-[#6b73a1] transition"
+            data-type="Special Interest"
+          >
+            Special Interest Clubs
+          </button>
+        </div>
+
+        <!-- Clubs Grid -->
+        <div
+          id="clubs-container"
+          class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+        >
+          <!-- Clubs will be dynamically rendered here -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div
+          class="flex justify-center mt-12 space-x-4"
+          id="pagination-controls"
+        >
+          <!-- Pagination buttons will be dynamically rendered here -->
+        </div>
+      </div>
+
+      <script>
+        // Sample backend data - reusable for Add Club page
+        const backendClubsData = [
+          {
+            id: 1,
+            name: "Debate Society",
+            type: "Academic",
+            description:
+              "Sharpen your public speaking and critical thinking skills.",
+          },
+          {
+            id: 2,
+            name: "Football Club",
+            type: "Sports",
+            description: "Join the team and play competitively or for fun.",
+          },
+          {
+            id: 3,
+            name: "Drama Club",
+            type: "Cultural",
+            description:
+              "Express yourself through theatre and performance arts.",
+          },
+          {
+            id: 4,
+            name: "Photography Club",
+            type: "Special Interest",
+            description: "Capture moments and learn photography techniques.",
+          },
+          {
+            id: 5,
+            name: "Robotics Club",
+            type: "Academic",
+            description:
+              "Build and program robots with fellow tech enthusiasts.",
+          },
+          {
+            id: 6,
+            name: "Basketball Club",
+            type: "Sports",
+            description: "Compete in inter-university basketball tournaments.",
+          },
+          {
+            id: 7,
+            name: "African Cultural Society",
+            type: "Cultural",
+            description:
+              "Celebrate African heritage through events and workshops.",
+          },
+          {
+            id: 8,
+            name: "Environmental Club",
+            type: "Special Interest",
+            description:
+              "Promote sustainability and organize green initiatives.",
+          },
+          {
+            id: 9,
+            name: "Math Club",
+            type: "Academic",
+            description:
+              "Participate in math competitions and problem-solving sessions.",
+          },
+          {
+            id: 10,
+            name: "Volleyball Club",
+            type: "Sports",
+            description: "Enjoy casual and competitive volleyball matches.",
+          },
+          {
+            id: 11,
+            name: "Music Club",
+            type: "Cultural",
+            description: "Jam sessions, concerts, and music appreciation.",
+          },
+          {
+            id: 12,
+            name: "Chess Club",
+            type: "Special Interest",
+            description: "Challenge your mind with strategic chess games.",
+          },
+          // Add more clubs as needed
+        ];
+
+        const clubsPerPage = 6;
+        let currentPage = 1;
+        let currentFilter = "All";
+
+        const clubsContainer = document.getElementById("clubs-container");
+        const paginationControls = document.getElementById(
+          "pagination-controls",
+        );
+        const filterButtons = document.querySelectorAll(".filter-btn");
+
+        // Filter clubs by type
+        function filterClubs(type) {
+          if (type === "All") {
+            return backendClubsData;
+          }
+          return backendClubsData.filter((club) => club.type === type);
+        }
+
+        // Render clubs for current page and filter
+        function renderClubs() {
+          const filteredClubs = filterClubs(currentFilter);
+          const totalPages = Math.ceil(filteredClubs.length / clubsPerPage);
+
+          // Clamp currentPage
+          if (currentPage > totalPages) currentPage = totalPages || 1;
+          if (currentPage < 1) currentPage = 1;
+
+          const start = (currentPage - 1) * clubsPerPage;
+          const end = start + clubsPerPage;
+          const clubsToShow = filteredClubs.slice(start, end);
+
+          clubsContainer.innerHTML = clubsToShow
+            .map(
+              (club) => `
+        <article class="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition cursor-pointer">
+          <h3 class="text-xl font-semibold text-[#283991] mb-2">${club.name}</h3>
+          <p class="text-[#7C84BC] mb-3">${club.description}</p>
+          <span class="inline-block bg-[#ffcb06] text-[#283991] font-semibold px-3 py-1 rounded-full text-sm">${club.type}</span>
+        </article>
+      `,
+            )
+            .join("");
+
+          renderPagination(totalPages);
+        }
+
+        // Render pagination buttons
+        function renderPagination(totalPages) {
+          if (totalPages <= 1) {
+            paginationControls.innerHTML = "";
+            return;
+          }
+
+          let buttonsHTML = "";
+
+          // Previous button
+          buttonsHTML += `<button class="pagination-btn bg-[#7C84BC] text-white px-4 py-2 rounded hover:bg-[#6b73a1] transition" data-page="${currentPage - 1}" ${currentPage === 1 ? "disabled" : ""}>Prev</button>`;
+
+          // Page numbers (show max 5 pages, centered on current)
+          let startPage = Math.max(1, currentPage - 2);
+          let endPage = Math.min(totalPages, startPage + 4);
+          if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+          }
+
+          for (let i = startPage; i <= endPage; i++) {
+            buttonsHTML += `<button class="pagination-btn px-4 py-2 rounded ${i === currentPage ? "bg-[#ffcb06] text-[#283991]" : "bg-[#7C84BC] text-white hover:bg-[#6b73a1]"} transition" data-page="${i}">${i}</button>`;
+          }
+
+          // Next button
+          buttonsHTML += `<button class="pagination-btn bg-[#7C84BC] text-white px-4 py-2 rounded hover:bg-[#6b73a1] transition" data-page="${currentPage + 1}" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
+
+          paginationControls.innerHTML = buttonsHTML;
+
+          // Attach click handlers
+          document.querySelectorAll(".pagination-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const page = parseInt(btn.getAttribute("data-page"));
+              if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                currentPage = page;
+                renderClubs();
+                window.scrollTo({
+                  top: clubsContainer.offsetTop - 100,
+                  behavior: "smooth",
+                });
+              }
+            });
+          });
+        }
+
+        // Filter button click handlers
+        filterButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            currentFilter = btn.getAttribute("data-type");
+            currentPage = 1;
+
+            // Update button styles
+            filterButtons.forEach((b) => {
+              if (b === btn) {
+                b.classList.remove("bg-[#7C84BC]", "text-white");
+                b.classList.add("bg-[#ffcb06]", "text-[#283991]");
+              } else {
+                b.classList.remove("bg-[#ffcb06]", "text-[#283991]");
+                b.classList.add("bg-[#7C84BC]", "text-white");
+              }
+            });
+
+            renderClubs();
+          });
+        });
+
+        // Initial render
+        renderClubs();
+      </script>
+    </section>
+
+    <section
+      class="py-16 px-6 md:px-12 bg-white text-[#283991]"
+      id="clubs-timeline-section"
+    >
+      <div class="container mx-auto max-w-5xl">
+        <h2 class="text-3xl font-extrabold mb-12 text-center text-[#283991]">
+          Club Milestones & Events Timeline
+        </h2>
+        <div class="relative border-l-4 border-[#ffcb06] pl-8 space-y-12">
+          <!-- Timeline Item Template -->
+          <div class="timeline-item relative">
+            <span
+              class="absolute -left-8 top-1 bg-[#ffcb06] rounded-full w-16 h-16 flex items-center justify-center text-[#283991] font-bold text-lg shadow-lg"
+            >
+              Jan 2025
+            </span>
+            <div>
+              <h3 class="text-xl font-semibold mb-2">
+                Annual Cultural Festival
+              </h3>
+              <p class="text-[#7C84BC] leading-relaxed">
+                The Cultural Clubs hosted a vibrant festival showcasing
+                traditional dances, music, and cuisine from across Kenya and
+                beyond, attracting over 500 attendees.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item relative">
+            <span
+              class="absolute -left-8 top-1 bg-[#ffcb06] rounded-full w-16 h-16 flex items-center justify-center text-[#283991] font-bold text-lg shadow-lg"
+            >
+              Mar 2025
+            </span>
+            <div>
+              <h3 class="text-xl font-semibold mb-2">
+                Inter-Club Sports Tournament
+              </h3>
+              <p class="text-[#7C84BC] leading-relaxed">
+                Sports Clubs organized a competitive tournament featuring
+                football, basketball, and volleyball teams, fostering teamwork
+                and school spirit.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item relative">
+            <span
+              class="absolute -left-8 top-1 bg-[#ffcb06] rounded-full w-16 h-16 flex items-center justify-center text-[#283991] font-bold text-lg shadow-lg"
+            >
+              May 2025
+            </span>
+            <div>
+              <h3 class="text-xl font-semibold mb-2">Academic Symposium</h3>
+              <p class="text-[#7C84BC] leading-relaxed">
+                Academic Clubs collaborated to host a symposium featuring guest
+                lectures, research presentations, and workshops to enhance
+                student learning.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item relative">
+            <span
+              class="absolute -left-8 top-1 bg-[#ffcb06] rounded-full w-16 h-16 flex items-center justify-center text-[#283991] font-bold text-lg shadow-lg"
+            >
+              Jul 2025
+            </span>
+            <div>
+              <h3 class="text-xl font-semibold mb-2">
+                Environmental Awareness Campaign
+              </h3>
+              <p class="text-[#7C84BC] leading-relaxed">
+                Special Interest Clubs led a campus-wide campaign promoting
+                sustainability, including tree planting and waste reduction
+                initiatives.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        // Optional: Add fade-in animation as timeline items enter viewport
+        const items = document.querySelectorAll(".timeline-item");
+        function isInViewport(el) {
+          const rect = el.getBoundingClientRect();
+          return rect.top < window.innerHeight && rect.bottom >= 0;
+        }
+        function checkItems() {
+          items.forEach((item) => {
+            if (isInViewport(item)) {
+              item.style.opacity = 1;
+              item.style.transform = "translateX(0)";
+            }
+          });
+        }
+        items.forEach((item) => {
+          item.style.opacity = 0;
+          item.style.transform = "translateX(-50px)";
+          item.style.transition =
+            "opacity 0.6s ease-out, transform 0.6s ease-out";
+        });
+        window.addEventListener("scroll", checkItems);
+        window.addEventListener("load", checkItems);
+      </script>
+    </section>
+
+    <section
+      class="py-16 px-6 md:px-12 bg-white text-[#283991]"
+      id="club-gallery-section"
+    >
+      <div class="container mx-auto max-w-6xl">
+        <h2 class="text-3xl font-extrabold mb-12 text-center text-[#283991]">
+          Photo Gallery: Past Club Events & Activities
+        </h2>
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        >
+          <!-- Gallery Item -->
+          <div
+            class="overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80"
+              alt="Cultural dance performance"
+              class="w-full h-48 object-cover"
+            />
+          </div>
+
+          <div
+            class="overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80"
+              alt="Students collaborating in a workshop"
+              class="w-full h-48 object-cover"
+            />
+          </div>
+
+          <div
+            class="overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80"
+              alt="University club sports event"
+              class="w-full h-48 object-cover"
+            />
+          </div>
+
+          <div
+            class="overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=800&q=80"
+              alt="Students enjoying a music event"
+              class="w-full h-48 object-cover"
+            />
+          </div>
+
+          <div
+            class="overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
+              alt="Art exhibition by club members"
+              class="w-full h-48 object-cover"
+            />
+          </div>
+
+          <div
+            class="overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=800&q=80"
+              alt="Students participating in debate"
+              class="w-full h-48 object-cover"
+            />
+          </div>
+
+          <div
+            class="overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1499364615650-ec38552f4f34?auto=format&fit=crop&w=800&q=80"
+              alt="Community service event"
+              class="w-full h-48 object-cover"
+            />
+          </div>
+
+          <div
+            class="overflow-hidden rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80"
+              alt="Club meeting and discussion"
+              class="w-full h-48 object-cover"
+            />
+          </div>
+        </div>
+      </div>
+      <script>
+        // Optional: Lazy load images or add lightbox functionality here // For modularity, you can add event listeners to open images in a modal if desired
+      </script>
+    </section>
+
+    <section
+      class="py-16 px-6 md:px-12 bg-white text-[#283991]"
+      id="clubs-faq-section"
+    >
+      <div class="container mx-auto max-w-4xl">
+        <h2
+          class="text-3xl md:text-4xl font-extrabold text-[#283991] mb-12 text-center"
+        >
+          Frequently Asked Questions
+        </h2>
+
+        <div class="space-y-6">
+          <!-- FAQ Item 1 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              How can I join a club at USIU?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                You can join any club by attending their meetings or events.
+                Most clubs welcome new members throughout the year. Check the
+                clubs listing page for contact details and upcoming activities.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 2 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              What types of activities do clubs organize?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                Clubs organize a variety of activities including workshops,
+                competitions, cultural festivals, sports tournaments, community
+                service, and social events to enrich your campus life.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 3 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              How do I start a new club at USIU?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                To start a new club, gather interested students and draft a club
+                constitution. Submit your proposal to the Student Affairs Office
+                for approval. Once approved, you can officially register and
+                begin activities.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 4 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              Are there any membership fees for clubs?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                Most clubs do not charge membership fees. However, some may
+                request contributions for special events or activities. Check
+                with the specific club for details.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Item 5 -->
+          <div
+            class="faq-item border border-[#7C84BC] rounded-lg overflow-hidden"
+          >
+            <button
+              aria-expanded="false"
+              class="faq-question w-full flex justify-between items-center px-6 py-4 text-left text-lg font-semibold bg-[#f9f9fb] hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 focus:outline-none"
+            >
+              How can I stay updated on club events and activities?
+              <svg
+                class="w-6 h-6 transform transition-transform duration-300"
+                fill="none"
+                stroke="#283991"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            <div
+              class="faq-answer max-h-0 px-6 text-[#7C84BC] overflow-hidden transition-all duration-300"
+            >
+              <p>
+                Follow the clubs on social media, subscribe to campus
+                newsletters, and check the university’s event calendar regularly
+                to stay informed.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        // FAQ toggle functionality
+        document.querySelectorAll(".faq-question").forEach((button) => {
+          button.addEventListener("click", () => {
+            const expanded = button.getAttribute("aria-expanded") === "true";
+            button.setAttribute("aria-expanded", !expanded);
+
+            const answer = button.nextElementSibling;
+            if (!expanded) {
+              answer.style.maxHeight = answer.scrollHeight + "px";
+              button.querySelector("svg").classList.add("rotate-180");
+            } else {
+              answer.style.maxHeight = null;
+              button.querySelector("svg").classList.remove("rotate-180");
+            }
+          });
+        });
+      </script>
+    </section>
+
+    <footer class="bg-[#283991] text-white py-10 px-6 md:px-12">
+      <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Branding -->
+        <div class="flex flex-col space-y-4">
+          <a href="/index.html" class="flex items-center space-x-3">
+            <img
+              src="Images/usiu-events.png"
+              alt="USIU Campus Events Logo"
+              class="h-10 w-auto"
+            />
+            <span class="text-xl font-bold select-none"
+              >USIU Campus Events</span
+            >
+          </a>
+          <p class="text-[#ffffffcc] max-w-sm">
+            Connecting students and clubs through vibrant campus events and
+            activities.
+          </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h3 class="font-semibold text-lg mb-4 text-[#ffcb06]">Quick Links</h3>
+          <ul class="space-y-2">
+            <li>
+              <a href="/index.html" class="hover:text-[#ffcb06] transition"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
+                href="/events/index.html"
+                class="hover:text-[#ffcb06] transition"
+                >Events</a
+              >
+            </li>
+            <li>
+              <a
+                href="/clubs/index.html"
+                class="hover:text-[#ffcb06] transition"
+                >Clubs</a
+              >
+            </li>
+            <li>
+              <a href="/login.html" class="hover:text-[#ffcb06] transition"
+                >Login</a
+              >
+            </li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div>
+          <h3 class="font-semibold text-lg mb-4 text-[#ffcb06]">Contact Us</h3>
+          <address class="not-italic space-y-2 text-[#ffffffcc]">
+            <p>USIU Nairobi Campus</p>
+            <p>United States International University Africa</p>
+            <p>
+              Email:
+              <a
+                href="mailto:support@usiu-events.ac.ke"
+                class="hover:text-[#ffcb06] transition"
+                >support@usiu-events.ac.ke</a
+              >
+            </p>
+            <p>
+              Phone:
+              <a
+                href="tel:+254700000000"
+                class="hover:text-[#ffcb06] transition"
+                >+254 700 000 000</a
+              >
+            </p>
+          </address>
+        </div>
+
+        <!-- Social Media -->
+        <div>
+          <h3 class="font-semibold text-lg mb-4 text-[#ffcb06]">Follow Us</h3>
+          <div class="flex space-x-4">
+            <a
+              href="https://www.facebook.com/USIUAFRICA/"
+              aria-label="Facebook"
+              class="hover:text-[#ffcb06] transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 fill-current"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M22 12a10 10 0 10-11.5 9.87v-6.99h-2.1v-2.88h2.1v-2.2c0-2.07 1.23-3.22 3.12-3.22.9 0 1.84.16 1.84.16v2.02h-1.04c-1.03 0-1.35.64-1.35 1.3v1.94h2.3l-.37 2.88h-1.93v6.99A10 10 0 0022 12z"
+                />
+              </svg>
+            </a>
+            <a
+              href="https://x.com/ExperienceUSIU/highlights"
+              aria-label="Twitter"
+              class="hover:text-[#ffcb06] transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 fill-current"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.1 9.1 0 01-2.88 1.1 4.52 4.52 0 00-7.69 4.13A12.83 12.83 0 013 2.89a4.53 4.53 0 001.4 6.05 4.48 4.48 0 01-2.05-.57v.06a4.52 4.52 0 003.63 4.43 4.52 4.52 0 01-2.04.08 4.53 4.53 0 004.22 3.14A9.06 9.06 0 012 19.54a12.79 12.79 0 006.92 2.03c8.3 0 12.85-6.88 12.85-12.85 0-.2 0-.39-.02-.58A9.22 9.22 0 0023 3z"
+                />
+              </svg>
+            </a>
+            <a
+              href="https://www.instagram.com/usiuafrica/?hl=en"
+              aria-label="Instagram"
+              class="hover:text-[#ffcb06] transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 fill-current"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.88 1.5a1.12 1.12 0 11-2.24 0 1.12 1.12 0 012.24 0zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="mt-10 border-t border-[#ffffff33] pt-6 text-center text-sm text-[#ffffff99] select-none"
+      >
+        &copy; <span id="current-year"></span> USIU Campus Events. All rights
+        reserved.
+      </div>
+
+      <script>
+        // Set current year dynamically
+        document.getElementById("current-year").textContent =
+          new Date().getFullYear();
+      </script>
+    </footer>
+  </body>
+</html>
