@@ -30,9 +30,6 @@ class ComposerStaticInitc9aafdaf858a04722801e06bfa82f813
         ),
         'M' => 
         array (
-            'Musyonchez\\Server\\Utils\\' => 24,
-            'Musyonchez\\Server\\Models\\' => 25,
-            'Musyonchez\\Server\\Middleware\\' => 29,
             'MongoDB\\' => 8,
         ),
         'G' => 
@@ -77,18 +74,6 @@ class ComposerStaticInitc9aafdaf858a04722801e06bfa82f813
         'PHPMailer\\PHPMailer\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
-        ),
-        'Musyonchez\\Server\\Utils\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/utils',
-        ),
-        'Musyonchez\\Server\\Models\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/models',
-        ),
-        'Musyonchez\\Server\\Middleware\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/middleware',
         ),
         'MongoDB\\' => 
         array (

@@ -1,18 +1,4 @@
 {
-  "name": "musyonchez/server",
-  "autoload": {
-    "psr-4": {
-      "Musyonchez\\Server\\Models\\": "models/",
-      "Musyonchez\\Server\\Utils\\": "utils/",
-      "Musyonchez\\Server\\Middleware\\": "middleware/"
-    }
-  },
-  "authors": [
-    {
-      "name": "Musyonchez",
-      "email": "musyonchez@gmail.com"
-    }
-  ],
   "require": {
     "mongodb/mongodb": "^2.1",
     "firebase/php-jwt": "^6.11",
