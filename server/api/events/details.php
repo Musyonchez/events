@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
-
 require_once __DIR__ . '/../../models/Event.php';
+use MongoDB\BSON\Regex;
 
 header('Content-Type: application/json');
 

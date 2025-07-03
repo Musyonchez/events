@@ -5,6 +5,8 @@ require_once __DIR__ . '/../schemas/Event.php';
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
+use ValidationException;
+use EventSchema;
 
 
 class EventModel
@@ -127,7 +129,7 @@ class EventModel
     ];
 
     $cursor = $this->collection->find($filters, $options);
-    $events = iterator_to_array($cursor);
+    $events = iterator_to_array((array)$cursor);
 
     // Convert BSON documents to arrays
     return array_map(fn($doc) => $doc->getArrayCopy(), $events);

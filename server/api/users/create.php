@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../../models/Event.php';
+require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../middleware/auth.php';
 
 authenticate();
@@ -10,14 +10,12 @@ authenticate();
 
 header('Content-Type: application/json');
 
-// Get the event ID from the URL
-$eventId = $_GET['id'];
-
+// $requestData is available from index.php after validation and sanitization
 $data = $requestData;
 
-$eventModel = new EventModel($db->events);
+$userModel = new UserModel($db->users);
 
-$result = $eventModel->updateWithValidation($eventId, $data);
+$result = $userModel->createWithValidation($data);
 
 if (!$result['success']) {
   http_response_code(400);
@@ -25,4 +23,4 @@ if (!$result['success']) {
   exit;
 }
 
-echo json_encode(['success' => true, 'modified' => $result['modified']]);
+echo json_encode(['success' => true, 'insertedId' => (string)$result['id']]);

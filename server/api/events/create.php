@@ -2,8 +2,11 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
-
 require_once __DIR__ . '/../../models/Event.php';
+require_once __DIR__ . '/../../middleware/auth.php';
+
+authenticate();
+
 
 header('Content-Type: application/json');
 
