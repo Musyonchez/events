@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../schemas/User.php';
+require_once __DIR__ . '/../utils/email.php';
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
@@ -53,7 +54,17 @@ class UserModel
         return ['success' => false, 'errors' => ['database' => 'Failed to create user']];
       }
 
-      return ['success' => true, 'id' => $result->getInsertedId()];
+      $userId = $result->getInsertedId();
+      $token = $this->generateVerificationToken((string)$userId);
+
+      if ($token) {
+        // Send verification email
+        $verificationLink = "http://{$_SERVER['HTTP_HOST']}/api/auth/verify_email.php?token={$token}";
+        $emailBody = "Please click on the following link to verify your email address: <a href='{$verificationLink}'>{$verificationLink}</a>";
+        send_email($user['email'], 'Verify Your Email Address', $emailBody);
+      }
+
+      return ['success' => true, 'id' => $userId];
     } catch (ValidationException $e) {
       return ['success' => false, 'errors' => $e->getErrors()];
     } catch (Exception $e) {
@@ -325,6 +336,106 @@ class UserModel
     return $errors;
   }
 
+  // Generate and save email verification token
+  public function generateVerificationToken(string $userId): ?string
+  {
+    try {
+      $token = bin2hex(random_bytes(32));
+      $updateResult = $this->collection->updateOne(
+        ['_id' => new ObjectId($userId)],
+        ['$set' => [
+          'email_verification_token' => $token,
+          'email_verified_at' => null, // Reset verified status
+          'is_email_verified' => false
+        ]]
+      );
+
+      if ($updateResult->getModifiedCount() > 0) {
+        return $token;
+      }
+      return null;
+    } catch (Exception $e) {
+      throw new Exception("Failed to generate verification token: " . $e->getMessage());
+    }
+  }
+
+  // Verify email address using token
+  public function verifyEmail(string $token): bool
+  {
+    try {
+      $updateResult = $this->collection->updateOne(
+        ['email_verification_token' => $token],
+        ['$set' => [
+          'email_verified_at' => new UTCDateTime(),
+          'is_email_verified' => true,
+          'email_verification_token' => null // Clear the token
+        ]]
+      );
+      return $updateResult->getModifiedCount() > 0;
+    } catch (Exception $e) {
+      throw new Exception("Failed to verify email: " . $e->getMessage());
+    }
+  }
+
+  // Generate and save password reset token
+  public function generatePasswordResetToken(string $email): bool
+  {
+    try {
+      $user = $this->findByEmail($email);
+      if (!$user) {
+        return false; // Don't reveal that the user doesn't exist
+      }
+
+      $token = bin2hex(random_bytes(32));
+      $expires = new UTCDateTime((time() + 3600) * 1000); // 1 hour expiry
+
+      $this->collection->updateOne(
+        ['_id' => $user['_id']],
+        ['$set' => [
+          'password_reset_token' => $token,
+          'password_reset_expires_at' => $expires
+        ]]
+      );
+
+      // Send password reset email
+      $resetLink = "http://{$_SERVER['HTTP_HOST']}/api/auth/reset_password.php?token={$token}";
+      $emailBody = "Please click on the following link to reset your password: <a href='{$resetLink}'>{$resetLink}</a>";
+      return send_email($email, 'Password Reset Request', $emailBody);
+    } catch (Exception $e) {
+      throw new Exception("Failed to generate password reset token: " . $e->getMessage());
+    }
+  }
+
+  // Reset password using token
+  public function resetPassword(string $token, string $newPassword): bool
+  {
+    try {
+      $user = $this->collection->findOne([
+        'password_reset_token' => $token,
+        'password_reset_expires_at' => ['$gt' => new UTCDateTime()]
+      ]);
+
+      if (!$user) {
+        return false; // Invalid or expired token
+      }
+
+      $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+      $this->collection->updateOne(
+        ['_id' => $user['_id']],
+        ['$set' => [
+          'password' => $hashedPassword,
+          'password_reset_token' => null,
+          'password_reset_expires_at' => null,
+          'updated_at' => new UTCDateTime()
+        ]]
+      );
+
+      return true;
+    } catch (Exception $e) {
+      throw new Exception("Failed to reset password: " . $e->getMessage());
+    }
+  }
+
   // Save refresh token for a user
   public function saveRefreshToken(string $userId, string $refreshToken, int $expiresAt): bool
   {
@@ -343,19 +454,24 @@ class UserModel
   }
 
   // Find user by refresh token and validate its expiry
-  public function findByRefreshToken(string $refreshToken): ?array
+  public function findByRefreshToken(string $refreshToken): string|array|null
   {
     $user = $this->collection->findOne([
-      'refresh_token' => $refreshToken,
-      'refresh_token_expires_at' => ['$gt' => new UTCDateTime(time() * 1000)] // Check if not expired
+      'refresh_token' => $refreshToken
     ]);
 
-    if ($user) {
-      $userData = $user->getArrayCopy();
-      unset($userData['password']); // Always exclude password
-      return $userData;
+    if (!$user) {
+      return 'not_found'; // Refresh token not found
     }
-    return null;
+
+    // Check if refresh token has expired
+    if ($user['refresh_token_expires_at'] && $user['refresh_token_expires_at']->toDateTime() < new DateTime()) {
+      return 'expired'; // Refresh token expired
+    }
+
+    $userData = $user->getArrayCopy();
+    unset($userData['password']); // Always exclude password
+    return $userData;
   }
 
   // Invalidate refresh token (e.g., on logout or when a new one is issued)

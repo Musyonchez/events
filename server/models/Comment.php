@@ -109,6 +109,7 @@ class CommentModel
         'sort' => $options['sort']
       ];
 
+      
       $cursor = $this->collection->find($filter, $mongoOptions);
       $comments = iterator_to_array($cursor);
 

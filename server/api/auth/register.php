@@ -1,9 +1,16 @@
 <?php
+if (!defined('IS_AUTH_ROUTE')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
 
 require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../utils/response.php';
 
 header('Content-Type: application/json');
 
@@ -15,9 +22,7 @@ $userModel = new UserModel($db->users);
 $result = $userModel->createWithValidation($data);
 
 if (!$result['success']) {
-  http_response_code(400);
-  echo json_encode(['error' => 'Registration failed', 'details' => $result['errors']]);
-  exit;
+  send_error('Registration failed', 400, $result['errors']);
 }
 
-echo json_encode(['success' => true, 'message' => 'User registered successfully', 'userId' => (string)$result['id']]);
+send_success('User registered successfully', 200, ['userId' => (string)$result['id']]);

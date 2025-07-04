@@ -1,24 +1,10 @@
 <?php
 
+require_once __DIR__ . '/../utils/exceptions.php';
+
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 
-
-class ValidationException extends Exception
-{
-  private array $errors;
-
-  public function __construct(array $errors, string $message = "Validation failed")
-  {
-    $this->errors = $errors;
-    parent::__construct($message);
-  }
-
-  public function getErrors(): array
-  {
-    return $this->errors;
-  }
-}
 
 class EventSchema
 {
@@ -44,6 +30,7 @@ class EventSchema
       'tags' => ['type' => 'string_array', 'default' => [], 'max_items' => 10],
       'status' => ['type' => 'string', 'default' => 'draft', 'allowed' => ['draft', 'published', 'cancelled', 'completed']],
       'featured' => ['type' => 'bool', 'default' => false],
+      'registered_users' => ['type' => 'objectid_array', 'default' => []],
     ];
   }
 
@@ -191,6 +178,20 @@ class EventSchema
 
       case 'bool':
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? (bool) $value;
+
+      case 'objectid_array':
+        if (!is_array($value)) {
+          throw new InvalidArgumentException("Invalid array for field '{$fieldName}', expected array");
+        }
+        $validatedArray = [];
+        foreach ($value as $index => $item) {
+          try {
+            $validatedArray[] = new ObjectId($item);
+          } catch (Exception $e) {
+            throw new InvalidArgumentException("Invalid ObjectId format in '{$fieldName}' at index {$index}");
+          }
+        }
+        return $validatedArray;
 
       case 'string_array':
         if (!is_array($value)) {

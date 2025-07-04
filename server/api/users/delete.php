@@ -1,9 +1,16 @@
 <?php
+if (!defined('IS_USER_ROUTE')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../utils/response.php';
 
 authenticate();
 
@@ -17,12 +24,10 @@ $userModel = new UserModel($db->users);
 
 try {
   if ($userModel->delete($userId)) {
-    echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+    send_success('User deleted successfully');
   } else {
-    http_response_code(404);
-    echo json_encode(['error' => 'User not found or could not be deleted']);
+    send_not_found('User');
   }
 } catch (Exception $e) {
-  http_response_code(500);
-  echo json_encode(['error' => $e->getMessage()]);
+  send_internal_server_error($e->getMessage());
 }

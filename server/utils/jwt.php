@@ -4,6 +4,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\SignatureInvalidException;
+use Firebase\JWT\BeforeValidException;
 
 function generateJwt(string $userId, string $email, string $role, string $secretKey): string
 {
@@ -25,14 +28,20 @@ function generateJwt(string $userId, string $email, string $role, string $secret
     return JWT::encode($payload, $secretKey, 'HS256');
 }
 
-function validateJwt(string $jwt, string $secretKey): ?object
+function validateJwt(string $jwt, string $secretKey): string|object
 {
     try {
         $decoded = JWT::decode($jwt, new Key($secretKey, 'HS256'));
-        return $decoded;
+        return $decoded; // Success, return the decoded object
+    } catch (ExpiredException $e) {
+        return 'expired'; // Token is expired
+    } catch (SignatureInvalidException $e) {
+        return 'invalid_signature'; // Token has been tampered with
+    } catch (BeforeValidException $e) {
+        return 'not_yet_valid'; // Token is not yet valid
     } catch (Exception $e) {
-        // Log the error for debugging, but don't expose details to the client
-        // error_log("JWT Validation Error: " . $e->getMessage());
-        return null;
+        // Catch all other JWT exceptions
+        error_log("JWT Validation Error: " . $e->getMessage());
+        return 'invalid_token'; // Generic invalid token
     }
 }

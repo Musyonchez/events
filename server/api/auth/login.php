@@ -1,10 +1,17 @@
 <?php
+if (!defined('IS_AUTH_ROUTE')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
 
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../utils/jwt.php';
+require_once __DIR__ . '/../../utils/response.php';
 
 header('Content-Type: application/json');
 
@@ -15,9 +22,7 @@ $email = $data['email'] ?? null;
 $password = $data['password'] ?? null;
 
 if (!$email || !$password) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Email and password are required']);
-    exit;
+    send_error('Email and password are required');
 }
 
 $userModel = new UserModel($db->users);
@@ -25,17 +30,18 @@ $userModel = new UserModel($db->users);
 $user = $userModel->findByEmail($email);
 
 if (!$user || !password_verify($password, $user['password'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Invalid credentials']);
-    exit;
+    send_unauthorized('Invalid credentials');
+}
+
+// Check if email is verified
+if (!$user['is_email_verified']) {
+    send_forbidden('Email not verified. Please check your inbox for a verification link.');
 }
 
 // Generate JWT
 $jwtSecret = $_ENV['JWT_SECRET'];
 if (!$jwtSecret) {
-    http_response_code(500);
-    echo json_encode(['error' => 'JWT secret not configured']);
-    exit;
+    send_internal_server_error('JWT secret not configured');
 }
 
 $accessToken = generateJwt($user['_id']->__toString(), $user['email'], $user['role'], $jwtSecret);
@@ -48,8 +54,12 @@ $userModel->saveRefreshToken($user['_id']->__toString(), $refreshToken, $refresh
 // Update last login timestamp
 $userModel->updateLastLogin($user['_id']->__toString());
 
-echo json_encode(['success' => true, 'message' => 'Login successful', 'access_token' => $accessToken, 'refresh_token' => $refreshToken, 'user' => [
-    'id' => $user['_id']->__toString(),
-    'email' => $user['email'],
-    'role' => $user['role']
-]]);
+send_success('Login successful', 200, [
+    'access_token' => $accessToken,
+    'refresh_token' => $refreshToken,
+    'user' => [
+        'id' => $user['_id']->__toString(),
+        'email' => $user['email'],
+        'role' => $user['role']
+    ]
+]);

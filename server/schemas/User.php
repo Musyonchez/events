@@ -1,23 +1,9 @@
 <?php
 
+require_once __DIR__ . '/../utils/exceptions.php';
+
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-
-class ValidationException extends Exception
-{
-  private array $errors;
-
-  public function __construct(array $errors, string $message = "Validation failed")
-  {
-    $this->errors = $errors;
-    parent::__construct($message);
-  }
-
-  public function getErrors(): array
-  {
-    return $this->errors;
-  }
-}
 
 class UserSchema
 {
@@ -38,6 +24,11 @@ class UserSchema
       'last_login' => ['type' => 'datetime', 'nullable' => true],
       'refresh_token' => ['type' => 'string', 'nullable' => true, 'max_length' => 255],
       'refresh_token_expires_at' => ['type' => 'datetime', 'nullable' => true],
+      'email_verification_token' => ['type' => 'string', 'nullable' => true, 'max_length' => 255],
+      'email_verified_at' => ['type' => 'datetime', 'nullable' => true],
+      'is_email_verified' => ['type' => 'bool', 'default' => false],
+      'password_reset_token' => ['type' => 'string', 'nullable' => true, 'max_length' => 255],
+      'password_reset_expires_at' => ['type' => 'datetime', 'nullable' => true],
     ];
   }
 

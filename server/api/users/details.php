@@ -1,9 +1,16 @@
 <?php
+if (!defined('IS_USER_ROUTE')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
 
 require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../utils/response.php';
 
 header('Content-Type: application/json');
 
@@ -12,9 +19,7 @@ $userId = $_GET['id'] ?? null;
 
 // The validate middleware should ideally catch this, but as a fallback:
 if (!$userId) {
-    http_response_code(400);
-    echo json_encode(['error' => 'User ID is required']);
-    exit;
+    send_error('User ID is required');
 }
 
 $userModel = new UserModel($db->users);
@@ -22,12 +27,10 @@ $userModel = new UserModel($db->users);
 try {
     $user = $userModel->findById($userId);
     if ($user) {
-        echo json_encode($user);
+        send_success('User details fetched successfully', 200, $user);
     } else {
-        http_response_code(404);
-        echo json_encode(['error' => 'User not found']);
+        send_not_found('User');
     }
 } catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode(['error' => $e->getMessage()]);
+    send_error($e->getMessage(), 400);
 }

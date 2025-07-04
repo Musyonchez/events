@@ -1,10 +1,14 @@
 <?php
+
+define('IS_AUTH_ROUTE', true);
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
 
 require_once __DIR__ . '/../../middleware/validate.php';
 require_once __DIR__ . '/../../middleware/sanitize.php';
+require_once __DIR__ . '/../../utils/response.php';
 
 header('Content-Type: application/json');
 
@@ -40,8 +44,10 @@ switch ($action) {
     case 'refresh_token':
         require __DIR__ . '/refresh_token.php';
         break;
+    case 'change_password':
+        require __DIR__ . '/change_password.php';
+        break;
     default:
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid authentication action']);
+        send_error('Invalid authentication action', 400);
         break;
 }

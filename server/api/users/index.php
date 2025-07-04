@@ -1,10 +1,13 @@
 <?php
+define('IS_USER_ROUTE', true);
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
 
 require_once __DIR__ . '/../../middleware/validate.php';
 require_once __DIR__ . '/../../middleware/sanitize.php';
+require_once __DIR__ . '/../../utils/response.php';
 
 header('Content-Type: application/json');
 
@@ -20,14 +23,14 @@ if ($requestData !== null) {
 
 switch ($method) {
     case 'GET':
-        require __DIR__ . '/details.php';
+        if (isset($_GET['action']) && $_GET['action'] === 'events') {
+            require __DIR__ . '/events.php';
+        } else {
+            require __DIR__ . '/details.php';
+        }
         break;
     case 'POST':
-        if (isset($_GET['action']) && $_GET['action'] === 'change_password') {
-            require __DIR__ . '/change_password.php';
-        } else {
-            require __DIR__ . '/create.php';
-        }
+        require __DIR__ . '/create.php';
         break;
     case 'PATCH':
         require __DIR__ . '/update.php';
@@ -36,7 +39,6 @@ switch ($method) {
         require __DIR__ . '/delete.php';
         break;
     default:
-        http_response_code(405);
-        echo json_encode(['error' => 'Method not allowed']);
+        send_method_not_allowed();
         break;
 }

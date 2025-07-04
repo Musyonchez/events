@@ -1,8 +1,15 @@
 <?php
+if (!defined('IS_EVENT_ROUTE')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../models/Event.php';
+require_once __DIR__ . '/../../utils/response.php';
 use MongoDB\BSON\Regex;
 
 header('Content-Type: application/json');
@@ -15,14 +22,12 @@ if (isset($_GET['id'])) {
     try {
         $event = $eventModel->findById($eventId);
         if ($event) {
-            echo json_encode($event);
+            send_success('Event details fetched successfully', 200, $event);
         } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Event not found']);
+            send_not_found('Event');
         }
     } catch (Exception $e) {
-        http_response_code(400);
-        echo json_encode(['error' => $e->getMessage()]);
+        send_error($e->getMessage(), 400);
     }
     exit;
 }
@@ -61,4 +66,4 @@ foreach ($allowedFilters as $filterKey) {
 // Fetch the list of events
 $events = $eventModel->list($filters, $limit, $skip);
 
-echo json_encode($events);
+send_success('Events fetched successfully', 200, $events);

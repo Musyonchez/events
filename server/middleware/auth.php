@@ -29,15 +29,29 @@ function authenticate() {
 
     $decoded = validateJwt($jwt, $jwtSecret);
 
-    if (!$decoded) {
-        http_response_code(401); // Unauthorized
-        echo json_encode(['error' => 'Invalid or expired token']);
-        exit;
+    if (is_string($decoded)) {
+        // It's an error string from validateJwt
+        switch ($decoded) {
+            case 'expired':
+                send_unauthorized('Token expired', ['error_type' => 'token_expired']);
+                break;
+            case 'invalid_signature':
+                send_unauthorized('Invalid token signature', ['error_type' => 'invalid_signature']);
+                break;
+            case 'not_yet_valid':
+                send_unauthorized('Token not yet valid', ['error_type' => 'not_yet_valid']);
+                break;
+            default:
+                send_unauthorized('Invalid token', ['error_type' => 'invalid_token']);
+                break;
+        }
     }
 
+    // If it's not a string, it's the decoded object
     // Attach user data to the request (e.g., in a global variable or a request object)
     // For simplicity, we'll use a global for now, but a proper request object is better.
     $GLOBALS['user'] = $decoded->data;
+    return $decoded->data;
 }
 
 function authorize(array $allowedRoles) {

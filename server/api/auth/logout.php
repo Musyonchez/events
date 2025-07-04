@@ -1,6 +1,13 @@
 <?php
+if (!defined('IS_AUTH_ROUTE')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
+require_once __DIR__ . '/../../utils/response.php';
 
 header('Content-Type: application/json');
 
@@ -10,5 +17,4 @@ header('Content-Type: application/json');
 // Optionally, if using HTTP-only cookies for JWTs, you would clear them here.
 // setcookie("jwt_token", "", time() - 3600, "/"); // Example to clear a cookie
 
-http_response_code(200);
-echo json_encode(['success' => true, 'message' => 'Logged out successfully (client should discard token)']);
+send_success('Logged out successfully (client should discard token)');
