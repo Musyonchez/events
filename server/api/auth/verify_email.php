@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/cors.php'; // Include CORS settings
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../utils/response.php'; // Include response utility
 
