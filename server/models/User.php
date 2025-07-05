@@ -501,4 +501,26 @@ class UserModel
       throw new Exception("Failed to invalidate refresh token: " . $e->getMessage());
     }
   }
+
+  // Generate and send new email verification token by email
+  public function generateVerificationTokenByEmail(string $email): bool
+  {
+    try {
+      $user = $this->findByEmail($email);
+      if (!$user) {
+        return false; // Don't reveal if user doesn't exist
+      }
+
+      $token = $this->generateVerificationToken((string)$user['_id']);
+
+      if ($token) {
+        $verificationLink = "http://localhost:3000/pages/verify-email.html?token={$token}";
+        $emailBody = "Please click on the following link to verify your email address: <a href='{$verificationLink}'>{$verificationLink}</a>";
+        return send_email($user['email'], 'Verify Your Email Address', $emailBody);
+      }
+      return false;
+    } catch (Exception $e) {
+      throw new Exception("Failed to generate and send new verification token: " . $e->getMessage());
+    }
+  }
 }

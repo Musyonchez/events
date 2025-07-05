@@ -11,7 +11,8 @@ This directory (`api/auth/`) contains the backend logic for user authentication,
 2.  **Directly Accessible Endpoints (Exceptions):**
     *   `verify_email.php`
     *   `reset_password.php`
-    *   These two files are designed to be accessed directly via unique, time-limited links sent to users' email addresses. Their security relies on the embedded tokens, not on being routed through `index.php`.
+    *   `resend_verification.php`
+    *   These files are designed to be accessed directly via unique, time-limited links sent to users' email addresses or for specific actions like resending verification. Their security relies on the embedded tokens or specific request parameters, not on being routed through `index.php`.
 
 3.  **Internal-Only Files:**
     *   All other `.php` files within this directory (e.g., `login.php`, `register.php`, `logout.php`, `refresh_token.php`) are **internal handler scripts**.

@@ -48,6 +48,11 @@ Remember to replace `http://<your_server_address>` with the actual address of yo
 }
 ``` |
 | `(Direct Access)`         | `GET`  | **Email Verification:** Accessed directly via email link. | `http://<your_server_address>/api/auth/verify_email.php?token=...` (No Postman body) |
+| `(Direct Access)`         | `POST` | **Resend Verification:** Request a new email verification link. | ```json
+{
+    "email": "jane.doe@usiu.ac.ke"
+}
+``` |
 | `?action=change_password` | `POST` | Change a user's password.                                 | ```json
 {
     "id": "user_id_from_jwt",
