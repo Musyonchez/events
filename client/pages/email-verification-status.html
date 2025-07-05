@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification Status - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans flex flex-col min-h-screen">
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md text-center">
+            <h2 id="status-title" class="text-3xl font-extrabold mb-4"></h2>
+            <p id="status-message" class="text-gray-700 mb-6"></p>
+            <a href="login.html" class="bg-[#283991] text-white py-2 px-4 rounded-md font-semibold hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 ease-in-out">Go to Login</a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-placeholder"></div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Load navbar and footer
+        fetch('../components/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-placeholder').innerHTML = data;
+            });
+
+        fetch('../components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-placeholder').innerHTML = data;
+            });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const message = urlParams.get('message');
+
+            const statusTitle = document.getElementById('status-title');
+            const statusMessage = document.getElementById('status-message');
+
+            if (status === 'success') {
+                statusTitle.textContent = 'Email Verified!';
+                statusTitle.classList.add('text-green-600');
+                statusMessage.textContent = message || 'Your email has been successfully verified. You can now log in.';
+            } else if (status === 'error') {
+                statusTitle.textContent = 'Verification Failed';
+                statusTitle.classList.add('text-red-600');
+                statusMessage.textContent = message || 'There was an issue verifying your email. The link might be invalid or expired.';
+            } else {
+                statusTitle.textContent = 'Unknown Status';
+                statusTitle.classList.add('text-gray-600');
+                statusMessage.textContent = 'No verification status found.';
+            }
+        });
+    </script>
+</body>
+</html>

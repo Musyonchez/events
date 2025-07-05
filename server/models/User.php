@@ -59,7 +59,7 @@ class UserModel
 
       if ($token) {
         // Send verification email
-        $verificationLink = "http://{$_SERVER['HTTP_HOST']}/api/auth/verify_email.php?token={$token}";
+        $verificationLink = "http://localhost:3000/pages/verify-email.html?token={$token}";
         $emailBody = "Please click on the following link to verify your email address: <a href='{$verificationLink}'>{$verificationLink}</a>";
         send_email($user['email'], 'Verify Your Email Address', $emailBody);
       }
@@ -345,6 +345,7 @@ class UserModel
         ['_id' => new ObjectId($userId)],
         ['$set' => [
           'email_verification_token' => $token,
+          'email_verification_token_expires_at' => new UTCDateTime((time() + 3600) * 1000), // 1 hour expiry
           'email_verified_at' => null, // Reset verified status
           'is_email_verified' => false
         ]]
@@ -363,12 +364,22 @@ class UserModel
   public function verifyEmail(string $token): bool
   {
     try {
+      $user = $this->collection->findOne([
+        'email_verification_token' => $token,
+        'email_verification_token_expires_at' => ['$gt' => new UTCDateTime()]
+      ]);
+
+      if (!$user) {
+        return false; // Invalid or expired token
+      }
+
       $updateResult = $this->collection->updateOne(
-        ['email_verification_token' => $token],
+        ['_id' => $user['_id']],
         ['$set' => [
           'email_verified_at' => new UTCDateTime(),
           'is_email_verified' => true,
-          'email_verification_token' => null // Clear the token
+          'email_verification_token' => null, // Clear the token
+          'email_verification_token_expires_at' => null // Clear the expiry
         ]]
       );
       return $updateResult->getModifiedCount() > 0;

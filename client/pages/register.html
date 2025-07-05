@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans flex flex-col min-h-screen">
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md transform transition-all duration-300 hover:scale-105">
+            <h2 class="text-3xl font-extrabold text-[#283991] mb-6 text-center">Create Your Account</h2>
+            <form id="registerForm" class="space-y-4">
+                <div>
+                    <label for="student_id" class="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
+                    <input type="text" id="student_id" name="student_id" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#283991] focus:border-[#283991] transition duration-150 ease-in-out text-base">
+                    <span id="student_id-error" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <input type="text" id="first_name" name="first_name" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#283991] focus:border-[#283991] transition duration-150 ease-in-out text-base">
+                    <span id="first_name-error" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#283991] focus:border-[#283991] transition duration-150 ease-in-out text-base">
+                    <span id="last_name-error" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#283991] focus:border-[#283991] transition duration-150 ease-in-out text-base">
+                    <span id="email-error" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" name="password" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#283991] focus:border-[#283991] transition duration-150 ease-in-out text-base">
+                    <span id="password-error" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone (Optional)</label>
+                    <input type="tel" id="phone" name="phone"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#283991] focus:border-[#283991] transition duration-150 ease-in-out text-base">
+                    <span id="phone-error" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label for="course" class="block text-sm font-medium text-gray-700 mb-1">Course (Optional)</label>
+                    <input type="text" id="course" name="course"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#283991] focus:border-[#283991] transition duration-150 ease-in-out text-base">
+                    <span id="course-error" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label for="year_of_study" class="block text-sm font-medium text-gray-700 mb-1">Year of Study</label>
+                    <select id="year_of_study" name="year_of_study"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#283991] focus:border-[#283991] transition duration-150 ease-in-out text-base">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                    <span id="year_of_study-error" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div id="general-error" class="text-red-500 text-sm text-center mt-4"></div>
+                <button type="submit" id="registerButton"
+                        class="w-full bg-[#283991] text-white py-3 rounded-md font-semibold text-lg h-12
+                               hover:bg-[#ffcb06] hover:text-[#283991] transition duration-300 ease-in-out transform hover:-translate-y-1 relative flex items-center justify-center">
+                    <span id="button-text">Register</span>
+                    <span id="loader" class="hidden absolute w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                </button>
+            </form>
+            <p class="mt-6 text-center text-sm text-gray-600">
+                Already have an account? <a href="login.html" class="text-[#283991] hover:underline font-medium">Login here</a>
+            </p>
+            <div class="mt-6 p-4 bg-[#ffcb06] text-[#283991] rounded-md text-sm font-semibold text-center shadow-inner">
+                <p><strong>Important:</strong> After registering, please check your email to verify your account and complete the process.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-placeholder"></div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        // Load navbar and footer
+        fetch('../components/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-placeholder').innerHTML = data;
+            });
+
+        fetch('../components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-placeholder').innerHTML = data;
+            });
+    </script>
+</body>
+</html>

@@ -93,6 +93,10 @@ class UserSchema
     $user['created_at'] = $now;
     $user['updated_at'] = $now;
 
+    // Ensure email verification status is explicitly set for new users
+    $user['email_verified_at'] = null;
+    $user['is_email_verified'] = false;
+
     return $user;
   }
 

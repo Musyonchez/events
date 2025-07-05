@@ -27,7 +27,7 @@ $request = ltrim($request, '/');
 
 // Only route requests under /api/
 if (str_starts_with($request, 'api/')) {
-    $path = __DIR__ . '/' . $request . '.php';
+    $path = __DIR__ . '/' . $request;
 
     if (file_exists($path)) {
         require $path;
