@@ -13,15 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const navbarPlaceholder = document.getElementById('navbar-placeholder');
             if (navbarPlaceholder) {
                 navbarPlaceholder.innerHTML = data;
+                // Dispatch a custom event after the navbar is loaded
+                document.dispatchEvent(new Event('navbarLoaded'));
             } else {
                 console.error("Navbar placeholder not found!");
             }
-            
-            // After loading the navbar, initialize its functionality
-            setTimeout(() => {
-                setupNavbarEventListeners();
-                checkAuthState();
-            }, 0);
         })
         .catch(error => {
             console.error('Error loading navbar:', error);

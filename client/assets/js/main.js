@@ -1,6 +1,6 @@
 // Main application logic
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('navbarLoaded', function() {
     setupNavbarEventListeners();
     checkAuthState();
 
