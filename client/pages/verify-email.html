@@ -201,11 +201,7 @@
 
         async function verifyEmail(token) {
             try {
-                // TODO: Implement email verification API call
-                // await verifyEmailToken(token);
-
-                // Simulate API call for now
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await verifyEmailToken(token);
 
                 // Show success state
                 document.getElementById('loading-state').classList.add('hidden');
@@ -218,7 +214,7 @@
                 const errorMessage = document.getElementById('error-message');
                 
                 // Handle different error types
-                if (error.status === 400) {
+                if (error.status === 400 || error.status === 404) {
                     if (error.details?.error_type === 'token_expired') {
                         errorMessage.textContent = 'This verification link has expired. Please request a new one.';
                     } else if (error.details?.error_type === 'invalid_token') {
@@ -261,23 +257,17 @@
                 e.preventDefault();
 
                 // Hide previous messages
-                resendError.classList.add('hidden');
-                resendSuccess.classList.add('hidden');
+                hideMessage(resendError);
+                hideMessage(resendSuccess);
 
                 // Show loading state
-                resendFormButton.disabled = true;
-                resendFormText.classList.add('hidden');
-                resendFormSpinner.classList.remove('hidden');
+                toggleButtonLoading(resendFormButton, true);
 
                 const formData = new FormData(resendForm);
                 const email = formData.get('email');
 
                 try {
-                    // TODO: Implement resend verification email API call
-                    // await resendVerificationEmail(email);
-
-                    // Simulate API call for now
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    await resendVerificationEmail(email);
 
                     // Show success message
                     resendSuccess.classList.remove('hidden');
@@ -287,19 +277,18 @@
 
                 } catch (error) {
                     // Handle different error types
+                    let message = 'Failed to send verification email. Please try again.';
                     if (error.status === 404) {
-                        resendErrorText.textContent = 'No account found with this email address.';
+                        message = 'No account found with this email address.';
                     } else if (error.status === 400 && error.details?.error_type === 'already_verified') {
-                        resendErrorText.textContent = 'This email is already verified. You can log in now.';
-                    } else {
-                        resendErrorText.textContent = error.message || 'Failed to send verification email. Please try again.';
+                        message = 'This email is already verified. You can log in now.';
+                    } else if (error.message) {
+                        message = error.message;
                     }
-                    resendError.classList.remove('hidden');
+                    displayError(message, resendError);
                 } finally {
                     // Reset button state
-                    resendFormButton.disabled = false;
-                    resendFormText.classList.remove('hidden');
-                    resendFormSpinner.classList.add('hidden');
+                    toggleButtonLoading(resendFormButton, false);
                 }
             });
 

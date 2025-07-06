@@ -42,7 +42,7 @@
             </div>
 
             <!-- Login Form -->
-            <form id="login-form" class="mt-8 space-y-6">
+            <form id="login-form" class="mt-8 space-y-6" novalidate>
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
                         <label for="email" class="sr-only">Email address</label>
@@ -149,90 +149,6 @@
     <script src="../assets/js/utils.js"></script>
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('login-form');
-            const loginButton = document.getElementById('login-button');
-            const loginText = document.getElementById('login-text');
-            const loginSpinner = document.getElementById('login-spinner');
-            const errorMessage = document.getElementById('error-message');
-            const successMessage = document.getElementById('success-message');
-            const errorText = document.getElementById('error-text');
-            const successText = document.getElementById('success-text');
-
-            // Check if user is already logged in
-            // TODO: Implement checkAuthState function
-            // if (checkAuthState()) {
-            //     window.location.href = './dashboard.html';
-            // }
-
-            loginForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                // Hide previous messages
-                errorMessage.classList.add('hidden');
-                successMessage.classList.add('hidden');
-                
-                // Show loading state
-                loginButton.disabled = true;
-                loginText.classList.add('hidden');
-                loginSpinner.classList.remove('hidden');
-                
-                const formData = new FormData(loginForm);
-                const loginData = {
-                    email: formData.get('email'),
-                    password: formData.get('password')
-                };
-
-                try {
-                    // TODO: Implement login API call
-                    // const response = await login(loginData);
-                    
-                    // Simulate API call for now
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    // On success:
-                    // successText.textContent = 'Login successful! Redirecting...';
-                    // successMessage.classList.remove('hidden');
-                    
-                    // Store tokens and redirect
-                    // localStorage.setItem('access_token', response.access_token);
-                    // localStorage.setItem('refresh_token', response.refresh_token);
-                    // localStorage.setItem('user', JSON.stringify(response.user));
-                    
-                    // setTimeout(() => {
-                    //     window.location.href = './dashboard.html';
-                    // }, 1000);
-                    
-                } catch (error) {
-                    // Handle different error types
-                    // if (error.status === 401) {
-                    //     errorText.textContent = 'Invalid email or password.';
-                    // } else if (error.status === 403 && error.details?.error_type === 'email_not_verified') {
-                    //     errorText.textContent = 'Please verify your email before logging in.';
-                    // } else {
-                    //     errorText.textContent = error.message || 'An error occurred during login.';
-                    // }
-                    // errorMessage.classList.remove('hidden');
-                } finally {
-                    // Reset button state
-                    loginButton.disabled = false;
-                    loginText.classList.remove('hidden');
-                    loginSpinner.classList.add('hidden');
-                }
-            });
-
-            // Handle enter key on form inputs
-            const inputs = loginForm.querySelectorAll('input');
-            inputs.forEach(input => {
-                input.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        loginForm.dispatchEvent(new Event('submit'));
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="../assets/js/login.js"></script>
 </body>
 </html>
