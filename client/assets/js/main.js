@@ -115,7 +115,8 @@ async function loadFeaturedEvents() {
     const featuredEventsContainer = document.getElementById('featured-events');
     try {
         // Fetch featured events (assuming an endpoint exists for this)
-        const events = await request('/events/index.php?action=details&featured=true&limit=3', 'GET');
+        const eventsResponse = await request('/events/index.php?action=details&featured=true&limit=3', 'GET');
+        const events = eventsResponse.data || [];
         
         featuredEventsContainer.innerHTML = ''; // Clear loading placeholders
 
@@ -152,7 +153,8 @@ async function loadClubs() {
     const clubsGrid = document.getElementById('clubs-grid');
     try {
         // Fetch clubs
-        const clubs = await request('/clubs/index.php?limit=4', 'GET');
+        const clubsResponse = await request('/clubs/index.php?limit=4', 'GET');
+        const clubs = clubsResponse.data;
         
         clubsGrid.innerHTML = ''; // Clear loading placeholders
 
