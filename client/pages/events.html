@@ -1,1 +1,527 @@
 <!-- Events listing page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="../assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
+                    <span class="ml-2 text-xl font-bold text-blue-600">USIU Events</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="../index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                    <a href="#" class="text-blue-600 font-medium">Events</a>
+                    
+                    <!-- Auth Buttons - Show when not logged in -->
+                    <div id="auth-buttons" class="flex items-center space-x-4">
+                        <a href="./login.html" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
+                        <a href="./register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">Register</a>
+                    </div>
+                    
+                    <!-- User Menu - Show when logged in -->
+                    <div id="user-menu" class="hidden relative">
+                        <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                            <img id="user-avatar" src="" alt="User Avatar" class="w-8 h-8 rounded-full">
+                            <span id="user-name"></span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="./dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <button id="logout-btn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-blue-600 to-purple-600 pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Campus Events</h1>
+                <p class="text-lg text-gray-200 max-w-2xl mx-auto">
+                    Discover exciting events happening around campus. From academic conferences to social gatherings, find events that match your interests.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search and Filters -->
+    <section class="bg-white shadow-sm border-b sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col lg:flex-row gap-4 items-center">
+                <!-- Search Bar -->
+                <div class="flex-1 w-full lg:w-auto">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input id="search-input" type="text" placeholder="Search events..." 
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <!-- Category Filter -->
+                    <select id="category-filter" class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Categories</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Arts & Culture">Arts & Culture</option>
+                        <option value="Academic">Academic</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Business">Business</option>
+                        <option value="Community Service">Community Service</option>
+                        <option value="Religious">Religious</option>
+                        <option value="Professional">Professional</option>
+                        <option value="Recreation">Recreation</option>
+                        <option value="Special Interest">Special Interest</option>
+                    </select>
+                    
+                    <!-- Date Filter -->
+                    <select id="date-filter" class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Dates</option>
+                        <option value="today">Today</option>
+                        <option value="tomorrow">Tomorrow</option>
+                        <option value="this-week">This Week</option>
+                        <option value="this-month">This Month</option>
+                        <option value="upcoming">Upcoming</option>
+                    </select>
+                    
+                    <!-- Status Filter -->
+                    <select id="status-filter" class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Events</option>
+                        <option value="published">Published</option>
+                        <option value="featured">Featured</option>
+                        <option value="registration-open">Registration Open</option>
+                    </select>
+                    
+                    <!-- Clear Filters -->
+                    <button id="clear-filters" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Grid -->
+    <section class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Results Info -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <p id="results-count" class="text-gray-600">Loading events...</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label for="sort-by" class="text-sm text-gray-600">Sort by:</label>
+                    <select id="sort-by" class="px-3 py-1 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="date-asc">Date (Earliest First)</option>
+                        <option value="date-desc">Date (Latest First)</option>
+                        <option value="title-asc">Title (A-Z)</option>
+                        <option value="title-desc">Title (Z-A)</option>
+                        <option value="featured">Featured First</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Events Grid -->
+            <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loading Skeleton -->
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-48 bg-gray-300"></div>
+                        <div class="p-6">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                            <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-300 rounded w-full"></div>
+                                <div class="h-3 bg-gray-300 rounded w-2/3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-48 bg-gray-300"></div>
+                        <div class="p-6">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                            <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-300 rounded w-full"></div>
+                                <div class="h-3 bg-gray-300 rounded w-2/3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-48 bg-gray-300"></div>
+                        <div class="p-6">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                            <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-300 rounded w-full"></div>
+                                <div class="h-3 bg-gray-300 rounded w-2/3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div id="no-results" class="hidden text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-3-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No events found</h3>
+                <p class="mt-1 text-sm text-gray-500">Try adjusting your search criteria or filters.</p>
+            </div>
+
+            <!-- Load More Button -->
+            <div id="load-more-container" class="text-center mt-8">
+                <button id="load-more-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span id="load-more-text">Load More Events</span>
+                    <div id="load-more-spinner" class="hidden">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                    </div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="../assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
+                        <span class="ml-2 text-xl font-bold">USIU Events</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Your gateway to amazing campus experiences at United States International University.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Events</a></li>
+                        <li><a href="../index.html#clubs" class="text-gray-400 hover:text-white">Clubs</a></li>
+                        <li><a href="../index.html#about" class="text-gray-400 hover:text-white">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Account</h3>
+                    <ul class="space-y-2">
+                        <li><a href="./login.html" class="text-gray-400 hover:text-white">Login</a></li>
+                        <li><a href="./register.html" class="text-gray-400 hover:text-white">Register</a></li>
+                        <li><a href="./dashboard.html" class="text-gray-400 hover:text-white">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">support@usiu.ac.ke</li>
+                        <li class="text-gray-400">+254 123 456 789</li>
+                        <li class="text-gray-400">USIU Campus, Nairobi</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 USIU Events. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentPage = 1;
+            let currentFilters = {};
+            let allEvents = [];
+            let isLoading = false;
+
+            const eventsGrid = document.getElementById('events-grid');
+            const resultsCount = document.getElementById('results-count');
+            const noResults = document.getElementById('no-results');
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            const loadMoreText = document.getElementById('load-more-text');
+            const loadMoreSpinner = document.getElementById('load-more-spinner');
+            const searchInput = document.getElementById('search-input');
+            const categoryFilter = document.getElementById('category-filter');
+            const dateFilter = document.getElementById('date-filter');
+            const statusFilter = document.getElementById('status-filter');
+            const sortBy = document.getElementById('sort-by');
+            const clearFiltersBtn = document.getElementById('clear-filters');
+
+            // Initialize page
+            loadEvents();
+
+            // Event card template
+            function createEventCard(event) {
+                const eventDate = new Date(event.event_date);
+                const isRegistrationOpen = event.registration_required && 
+                    new Date(event.registration_deadline) > new Date() && 
+                    event.current_registrations < event.max_attendees;
+
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                        ${event.featured ? '<div class="bg-yellow-500 text-white px-3 py-1 text-xs font-semibold">FEATURED</div>' : ''}
+                        
+                        <div class="relative">
+                            <img src="${event.banner_image || '../assets/images/event-placeholder.jpg'}" 
+                                 alt="${event.title}" 
+                                 class="w-full h-48 object-cover">
+                            <div class="absolute top-2 right-2">
+                                <span class="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                    ${event.category || 'General'}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                                ${event.title}
+                            </h3>
+                            
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                ${eventDate.toLocaleDateString('en-US', { 
+                                    weekday: 'short', 
+                                    year: 'numeric', 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                })}
+                            </div>
+                            
+                            <div class="flex items-center text-sm text-gray-600 mb-3">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                ${event.location || 'TBA'}
+                            </div>
+                            
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                                ${event.description}
+                            </p>
+                            
+                            ${event.registration_required ? `
+                                <div class="flex items-center justify-between text-sm mb-4">
+                                    <span class="text-gray-600">
+                                        ${event.current_registrations}/${event.max_attendees || '∞'} registered
+                                    </span>
+                                    ${event.registration_fee > 0 ? `<span class="text-green-600 font-semibold">KSh ${event.registration_fee}</span>` : '<span class="text-green-600 font-semibold">Free</span>'}
+                                </div>
+                            ` : ''}
+                            
+                            <div class="flex items-center justify-between">
+                                <a href="./event-details.html?id=${event._id}" 
+                                   class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                                    View Details
+                                </a>
+                                
+                                ${isRegistrationOpen ? `
+                                    <button onclick="registerForEvent('${event._id}')" 
+                                            class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
+                                        Register
+                                    </button>
+                                ` : event.registration_required ? `
+                                    <span class="text-gray-500 text-sm">Registration Closed</span>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Load events function
+            async function loadEvents(reset = false) {
+                if (isLoading) return;
+                isLoading = true;
+
+                if (reset) {
+                    currentPage = 1;
+                    allEvents = [];
+                    eventsGrid.innerHTML = '';
+                    noResults.classList.add('hidden');
+                }
+
+                try {
+                    // TODO: Implement API call to fetch events
+                    // const response = await fetchEvents({
+                    //     page: currentPage,
+                    //     limit: 12,
+                    //     ...currentFilters
+                    // });
+                    
+                    // Simulate API call for now
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Mock data - replace with actual API response
+                    const mockEvents = [];
+                    
+                    if (reset) {
+                        eventsGrid.innerHTML = '';
+                    }
+                    
+                    if (mockEvents.length === 0 && currentPage === 1) {
+                        noResults.classList.remove('hidden');
+                        resultsCount.textContent = 'No events found';
+                        loadMoreBtn.parentElement.classList.add('hidden');
+                    } else {
+                        noResults.classList.add('hidden');
+                        allEvents = [...allEvents, ...mockEvents];
+                        
+                        mockEvents.forEach(event => {
+                            const eventCard = document.createElement('div');
+                            eventCard.innerHTML = createEventCard(event);
+                            eventsGrid.appendChild(eventCard.firstElementChild);
+                        });
+                        
+                        resultsCount.textContent = `Showing ${allEvents.length} events`;
+                        
+                        if (mockEvents.length < 12) {
+                            loadMoreBtn.parentElement.classList.add('hidden');
+                        } else {
+                            loadMoreBtn.parentElement.classList.remove('hidden');
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading events:', error);
+                    resultsCount.textContent = 'Error loading events';
+                } finally {
+                    isLoading = false;
+                    loadMoreText.classList.remove('hidden');
+                    loadMoreSpinner.classList.add('hidden');
+                    loadMoreBtn.disabled = false;
+                }
+            }
+
+            // Search functionality
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentFilters.search = this.value;
+                    loadEvents(true);
+                }, 500);
+            });
+
+            // Filter functionality
+            [categoryFilter, dateFilter, statusFilter, sortBy].forEach(filter => {
+                filter.addEventListener('change', function() {
+                    const filterType = this.id.replace('-filter', '').replace('-by', '');
+                    if (this.value) {
+                        currentFilters[filterType] = this.value;
+                    } else {
+                        delete currentFilters[filterType];
+                    }
+                    loadEvents(true);
+                });
+            });
+
+            // Clear filters
+            clearFiltersBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                categoryFilter.value = '';
+                dateFilter.value = '';
+                statusFilter.value = '';
+                sortBy.value = 'date-asc';
+                currentFilters = {};
+                loadEvents(true);
+            });
+
+            // Load more events
+            loadMoreBtn.addEventListener('click', function() {
+                if (isLoading) return;
+                
+                loadMoreText.classList.add('hidden');
+                loadMoreSpinner.classList.remove('hidden');
+                this.disabled = true;
+                
+                currentPage++;
+                loadEvents();
+            });
+
+            // Register for event function
+            window.registerForEvent = async function(eventId) {
+                try {
+                    // TODO: Check if user is logged in
+                    // if (!isLoggedIn()) {
+                    //     window.location.href = './login.html';
+                    //     return;
+                    // }
+                    
+                    // TODO: Implement event registration API call
+                    // await registerForEvent(eventId);
+                    
+                    alert('Registration successful!');
+                    loadEvents(true);
+                    
+                } catch (error) {
+                    alert('Registration failed: ' + error.message);
+                }
+            };
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // User menu toggle
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuButton) {
+                userMenuButton.addEventListener('click', function() {
+                    userDropdown.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,1 +1,341 @@
 <!-- Main application entry point -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USIU Events - Discover Campus Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <img src="./assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
+                    <span class="ml-2 text-xl font-bold text-blue-600">USIU Events</span>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                    <a href="./pages/events.html" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
+                    <a href="#clubs" class="text-gray-700 hover:text-blue-600 font-medium">Clubs</a>
+                    <a href="#about" class="text-gray-700 hover:text-blue-600 font-medium">About</a>
+                    
+                    <!-- Auth Buttons - Show when not logged in -->
+                    <div id="auth-buttons" class="flex items-center space-x-4">
+                        <a href="./pages/login.html" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
+                        <a href="./pages/register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">Register</a>
+                    </div>
+                    
+                    <!-- User Menu - Show when logged in -->
+                    <div id="user-menu" class="hidden relative">
+                        <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                            <img id="user-avatar" src="" alt="User Avatar" class="w-8 h-8 rounded-full">
+                            <span id="user-name"></span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="./pages/dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <button id="logout-btn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-blue-600">Home</a>
+                <a href="./pages/events.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600">Events</a>
+                <a href="#clubs" class="block px-3 py-2 text-gray-700 hover:text-blue-600">Clubs</a>
+                <a href="#about" class="block px-3 py-2 text-gray-700 hover:text-blue-600">About</a>
+                <div class="border-t pt-2">
+                    <a href="./pages/login.html" class="block px-3 py-2 text-blue-600">Login</a>
+                    <a href="./pages/register.html" class="block px-3 py-2 bg-blue-600 text-white rounded-md mx-3">Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-r from-blue-600 to-purple-600 pt-16">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+                    Discover Amazing Campus Events
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
+                    Join clubs, attend events, and make the most of your USIU experience. Never miss out on what's happening on campus.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="./pages/events.html" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
+                        Browse Events
+                    </a>
+                    <a href="./pages/register.html" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition duration-200">
+                        Join Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Events Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Events</h2>
+                <p class="text-xl text-gray-600">Don't miss these amazing upcoming events</p>
+            </div>
+            
+            <!-- Featured Events Grid -->
+            <div id="featured-events" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Featured events will be populated here via JavaScript -->
+                <!-- Loading placeholder -->
+                <div class="animate-pulse">
+                    <div class="bg-gray-300 h-48 rounded-lg mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-gray-300 h-48 rounded-lg mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-gray-300 h-48 rounded-lg mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="./pages/events.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200">
+                    View All Events
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clubs Section -->
+    <section id="clubs" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Student Clubs</h2>
+                <p class="text-xl text-gray-600">Join communities that share your interests</p>
+            </div>
+            
+            <!-- Clubs Grid -->
+            <div id="clubs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Clubs will be populated here via JavaScript -->
+                <!-- Loading placeholder -->
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">About USIU Events</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        USIU Events is the central hub for all campus activities at United States International University. 
+                        Our platform connects students with exciting events, vibrant clubs, and meaningful opportunities 
+                        to engage with the campus community.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="ml-4 text-lg text-gray-600">Discover events that match your interests</p>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="ml-4 text-lg text-gray-600">Join clubs and build lasting friendships</p>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="ml-4 text-lg text-gray-600">Never miss important campus activities</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:pl-8">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white">
+                        <h3 class="text-2xl font-bold mb-4">Ready to Get Started?</h3>
+                        <p class="text-lg mb-6">
+                            Join thousands of USIU students who are already using our platform to discover amazing events and connect with like-minded peers.
+                        </p>
+                        <a href="./pages/register.html" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
+                            Create Your Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="./assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
+                        <span class="ml-2 text-xl font-bold">USIU Events</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Your gateway to amazing campus experiences at United States International University.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="./pages/events.html" class="text-gray-400 hover:text-white">Events</a></li>
+                        <li><a href="#clubs" class="text-gray-400 hover:text-white">Clubs</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Account</h3>
+                    <ul class="space-y-2">
+                        <li><a href="./pages/login.html" class="text-gray-400 hover:text-white">Login</a></li>
+                        <li><a href="./pages/register.html" class="text-gray-400 hover:text-white">Register</a></li>
+                        <li><a href="./pages/dashboard.html" class="text-gray-400 hover:text-white">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">support@usiu.ac.ke</li>
+                        <li class="text-gray-400">+254 123 456 789</li>
+                        <li class="text-gray-400">USIU Campus, Nairobi</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 USIU Events. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./assets/js/utils.js"></script>
+    <script src="./assets/js/api.js"></script>
+    <script src="./assets/js/auth.js"></script>
+    <script src="./assets/js/main.js"></script>
+    
+    <script>
+        // Initialize homepage functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load featured events
+            // TODO: Add API call to fetch featured events
+            // loadFeaturedEvents();
+            
+            // Load clubs
+            // TODO: Add API call to fetch clubs
+            // loadClubs();
+            
+            // Check authentication state
+            // TODO: Add authentication check
+            // checkAuthState();
+            
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // User menu toggle
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuButton) {
+                userMenuButton.addEventListener('click', function() {
+                    userDropdown.classList.toggle('hidden');
+                });
+            }
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#user-menu')) {
+                    userDropdown?.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

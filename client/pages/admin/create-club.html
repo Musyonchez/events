@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Club - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="../../assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
+                    <span class="ml-2 text-xl font-bold text-blue-600">USIU Events</span>
+                    <span class="ml-4 bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">Admin</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="../../index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                    <a href="../events.html" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
+                    <a href="../dashboard.html" class="text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>
+                    <a href="./admin-dashboard.html" class="text-gray-700 hover:text-blue-600 font-medium">Admin</a>
+                    
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                            <img id="user-avatar" src="../../assets/images/default-avatar.jpg" alt="Admin" class="w-8 h-8 rounded-full">
+                            <span id="user-name">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="../dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">User Dashboard</a>
+                            <a href="./admin-dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
+                            <div class="border-t border-gray-100"></div>
+                            <button id="logout-btn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="pt-16 min-h-screen">
+        <!-- Page Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <nav class="flex mb-4" aria-label="Breadcrumb">
+                            <ol class="flex items-center space-x-2 text-sm">
+                                <li><a href="./admin-dashboard.html" class="text-blue-600 hover:text-blue-800">Admin</a></li>
+                                <li class="text-gray-500">/</li>
+                                <li class="text-gray-700">
+                                    <span id="page-title">Create Club</span>
+                                </li>
+                            </ol>
+                        </nav>
+                        <h1 id="main-title" class="text-2xl font-bold text-gray-900">Create New Club</h1>
+                        <p class="mt-1 text-sm text-gray-600">Fill in the details below to create a new student club</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="./admin-dashboard.html" class="bg-gray-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-700">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Club Form -->
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <form id="club-form" class="space-y-8">
+                <!-- Basic Information -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Basic Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label for="name" class="block text-sm font-medium text-gray-700">Club Name *</label>
+                            <input type="text" id="name" name="name" required
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Enter club name"
+                                   minlength="3" maxlength="100">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description *</label>
+                            <textarea id="description" name="description" rows="4" required
+                                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="Describe what your club is about, its mission, and activities..."
+                                      minlength="10" maxlength="1000"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700">Category *</label>
+                            <select id="category" name="category" required
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select a category</option>
+                                <option value="Arts & Culture">Arts & Culture</option>
+                                <option value="Academic">Academic</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Business">Business</option>
+                                <option value="Community Service">Community Service</option>
+                                <option value="Religious">Religious</option>
+                                <option value="Professional">Professional</option>
+                                <option value="Recreation">Recreation</option>
+                                <option value="Special Interest">Special Interest</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="contact_email" class="block text-sm font-medium text-gray-700">Contact Email *</label>
+                            <input type="email" id="contact_email" name="contact_email" required
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="club.email@usiu.ac.ke"
+                                   maxlength="100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leadership -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Club Leadership</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="leader_id" class="block text-sm font-medium text-gray-700">Club Leader *</label>
+                            <select id="leader_id" name="leader_id" required
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select a club leader</option>
+                                <!-- Users will be populated here -->
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">The selected user will be granted club leader permissions</p>
+                        </div>
+                        
+                        <div>
+                            <label for="members_count" class="block text-sm font-medium text-gray-700">Initial Members Count</label>
+                            <input type="number" id="members_count" name="members_count" min="0" max="10000"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="0">
+                            <p class="mt-1 text-xs text-gray-500">Current number of members (optional)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Club Media -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Club Logo</h2>
+                    
+                    <div>
+                        <label for="logo" class="block text-sm font-medium text-gray-700">Club Logo</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <div id="logo-preview" class="hidden">
+                                    <img id="logo-preview-img" src="" alt="Logo preview" class="mx-auto h-24 w-24 rounded-lg object-cover">
+                                </div>
+                                <div id="logo-upload-area">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="logo" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <span>Upload a logo</span>
+                                            <input id="logo" name="logo" type="file" accept="image/*" class="sr-only">
+                                        </label>
+                                        <p class="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Club Settings -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Club Settings</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700">Club Status</label>
+                            <select id="status" name="status"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Inactive clubs are not visible to students</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error/Success Messages -->
+                <div id="form-message" class="hidden">
+                    <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Error</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <p id="error-text"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-green-800">Success</h3>
+                                <div class="mt-2 text-sm text-green-700">
+                                    <p id="success-text"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a href="./admin-dashboard.html" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </a>
+                    <button type="button" id="save-inactive" class="bg-gray-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="inactive-text">Save as Inactive</span>
+                        <div id="inactive-spinner" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Saving...
+                        </div>
+                    </button>
+                    <button type="submit" id="submit-button" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="submit-text">Create Club</span>
+                        <div id="submit-spinner" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span id="submit-spinner-text">Creating...</span>
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script src="../../assets/js/auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check admin authentication
+            // TODO: Implement admin authentication check
+            // if (!isAdmin()) {
+            //     window.location.href = '../login.html';
+            //     return;
+            // }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const editClubId = urlParams.get('edit');
+            const isEditing = !!editClubId;
+
+            initializeForm();
+            setupClubForm(isEditing, editClubId);
+            loadUsers();
+            
+            if (isEditing) {
+                loadClubForEditing(editClubId);
+            }
+        });
+
+        function initializeForm() {
+            // Setup user menu
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            userMenuButton.addEventListener('click', function() {
+                userDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#user-menu-button')) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+
+            // Logo image preview
+            const logoInput = document.getElementById('logo');
+            const logoPreview = document.getElementById('logo-preview');
+            const logoPreviewImg = document.getElementById('logo-preview-img');
+            const logoUploadArea = document.getElementById('logo-upload-area');
+
+            logoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        logoPreviewImg.src = e.target.result;
+                        logoPreview.classList.remove('hidden');
+                        logoUploadArea.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Email validation for club email
+            const emailInput = document.getElementById('contact_email');
+            emailInput.addEventListener('input', function() {
+                const email = emailInput.value;
+                if (email && !email.includes('@') || (email.includes('@') && !email.endsWith('.ac.ke') && !email.endsWith('.com'))) {
+                    emailInput.setCustomValidity('Please enter a valid email address');
+                } else {
+                    emailInput.setCustomValidity('');
+                }
+            });
+        }
+
+        function setupClubForm(isEditing, clubId) {
+            const form = document.getElementById('club-form');
+            const submitButton = document.getElementById('submit-button');
+            const submitText = document.getElementById('submit-text');
+            const submitSpinner = document.getElementById('submit-spinner');
+            const submitSpinnerText = document.getElementById('submit-spinner-text');
+            const saveInactiveButton = document.getElementById('save-inactive');
+            const inactiveText = document.getElementById('inactive-text');
+            const inactiveSpinner = document.getElementById('inactive-spinner');
+
+            // Update UI for editing mode
+            if (isEditing) {
+                document.getElementById('page-title').textContent = 'Edit Club';
+                document.getElementById('main-title').textContent = 'Edit Club';
+                submitText.textContent = 'Update Club';
+                submitSpinnerText.textContent = 'Updating...';
+                inactiveText.textContent = 'Save Changes';
+            }
+
+            // Form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await handleFormSubmit(isEditing, clubId, 'active');
+            });
+
+            // Save as inactive
+            saveInactiveButton.addEventListener('click', async function() {
+                await handleFormSubmit(isEditing, clubId, 'inactive');
+            });
+
+            async function handleFormSubmit(isEditing, clubId, status) {
+                // Hide previous messages
+                hideMessages();
+
+                // Determine which button was clicked
+                const isInactive = status === 'inactive';
+                const button = isInactive ? saveInactiveButton : submitButton;
+                const buttonText = isInactive ? inactiveText : submitText;
+                const buttonSpinner = isInactive ? inactiveSpinner : submitSpinner;
+
+                // Show loading state
+                button.disabled = true;
+                buttonText.classList.add('hidden');
+                buttonSpinner.classList.remove('hidden');
+
+                try {
+                    const formData = new FormData(form);
+                    const clubData = processFormData(formData, status);
+
+                    let response;
+                    if (isEditing) {
+                        // TODO: Implement update club API call
+                        // response = await updateClub(clubId, clubData);
+                        
+                        // Simulate API call
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        response = { success: true };
+                    } else {
+                        // TODO: Implement create club API call
+                        // response = await createClub(clubData);
+                        
+                        // Simulate API call
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        response = { success: true, _id: 'new-club-id' };
+                    }
+
+                    // Show success message
+                    const action = isEditing ? 'updated' : 'created';
+                    const statusText = status === 'inactive' ? 'as inactive' : 'and activated';
+                    showSuccessMessage(`Club ${action} successfully ${statusText}!`);
+
+                    // Redirect after success
+                    setTimeout(() => {
+                        window.location.href = './admin-dashboard.html';
+                    }, 2000);
+
+                } catch (error) {
+                    // Show error message
+                    showErrorMessage(error.message || 'Failed to save club. Please try again.');
+                } finally {
+                    // Reset button state
+                    button.disabled = false;
+                    buttonText.classList.remove('hidden');
+                    buttonSpinner.classList.add('hidden');
+                }
+            }
+        }
+
+        function processFormData(formData, status) {
+            const clubData = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                category: formData.get('category'),
+                contact_email: formData.get('contact_email'),
+                leader_id: formData.get('leader_id'),
+                status: status
+            };
+
+            // Add members count if provided
+            const membersCount = formData.get('members_count');
+            if (membersCount) {
+                clubData.members_count = parseInt(membersCount) || 0;
+            }
+
+            // TODO: Handle file upload for logo
+            // const logoFile = formData.get('logo');
+            // if (logoFile && logoFile.size > 0) {
+            //     clubData.logo = await uploadFile(logoFile);
+            // }
+
+            return clubData;
+        }
+
+        async function loadUsers() {
+            const leaderSelect = document.getElementById('leader_id');
+            
+            try {
+                // TODO: Implement API call to get users who can be club leaders
+                // const users = await getEligibleClubLeaders();
+                
+                // Mock users data
+                const users = [
+                    { _id: '1', first_name: 'John', last_name: 'Doe', student_id: 'USIU12345' },
+                    { _id: '2', first_name: 'Jane', last_name: 'Smith', student_id: 'USIU12346' },
+                    { _id: '3', first_name: 'Mike', last_name: 'Johnson', student_id: 'USIU12347' }
+                ];
+
+                leaderSelect.innerHTML = '<option value="">Select a club leader</option>';
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user._id;
+                    option.textContent = `${user.first_name} ${user.last_name} (${user.student_id})`;
+                    leaderSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error loading users:', error);
+                leaderSelect.innerHTML = '<option value="">Error loading users</option>';
+            }
+        }
+
+        async function loadClubForEditing(clubId) {
+            try {
+                // TODO: Implement API call to get club details
+                // const club = await getClubDetails(clubId);
+                
+                // Mock club data
+                const club = {
+                    name: 'Tech Innovation Club',
+                    description: 'A club dedicated to exploring cutting-edge technology and innovation on campus.',
+                    category: 'Technology',
+                    contact_email: 'tech.club@usiu.ac.ke',
+                    leader_id: '1',
+                    members_count: 25,
+                    status: 'active',
+                    logo: null
+                };
+
+                // Populate form fields
+                document.getElementById('name').value = club.name || '';
+                document.getElementById('description').value = club.description || '';
+                document.getElementById('category').value = club.category || '';
+                document.getElementById('contact_email').value = club.contact_email || '';
+                document.getElementById('leader_id').value = club.leader_id || '';
+                document.getElementById('members_count').value = club.members_count || '';
+                document.getElementById('status').value = club.status || 'active';
+
+                // Logo preview
+                if (club.logo) {
+                    document.getElementById('logo-preview-img').src = club.logo;
+                    document.getElementById('logo-preview').classList.remove('hidden');
+                    document.getElementById('logo-upload-area').classList.add('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error loading club for editing:', error);
+                showErrorMessage('Failed to load club details. Please try again.');
+            }
+        }
+
+        function showErrorMessage(message) {
+            document.getElementById('form-message').classList.remove('hidden');
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+            document.getElementById('error-text').textContent = message;
+            
+            // Scroll to message
+            document.getElementById('form-message').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showSuccessMessage(message) {
+            document.getElementById('form-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-text').textContent = message;
+            
+            // Scroll to message
+            document.getElementById('form-message').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideMessages() {
+            document.getElementById('form-message').classList.add('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
