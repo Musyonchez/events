@@ -15,13 +15,13 @@ async function register(userData) {
  * @returns {Promise<any>}
  */
 async function login(credentials) {
-    const data = await request('/auth/index.php?action=login', 'POST', credentials);
-    if (data.access_token) {
-        localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('refresh_token', data.refresh_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+    const response = await request('/auth/index.php?action=login', 'POST', credentials);
+    if (response.data && response.data.access_token) {
+        localStorage.setItem('access_token', response.data.access_token);
+        localStorage.setItem('refresh_token', response.data.refresh_token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
     }
-    return data;
+    return response;
 }
 
 /**

@@ -101,24 +101,7 @@
                     </div>
 
                     <!-- Error Message -->
-                    <div id="resend-error" class="hidden bg-red-50 border border-red-200 rounded-md p-3">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-green-800">Verification email sent!</h3>
-                                <div class="mt-2 text-sm text-green-700">
-                                    <p>Please check your email and click the verification link.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Error Message -->
-                    <div id="resend-error" class="hidden bg-red-50 border border-red-200 rounded-md p-3">
+                    <div id="resend-error-message" class="hidden bg-red-50 border border-red-200 rounded-md p-3">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -132,7 +115,7 @@
                     </div>
 
                     <!-- Success Message -->
-                    <div id="resend-success" class="hidden bg-green-50 border border-green-200 rounded-md p-3">
+                    <div id="resend-success-message" class="hidden bg-green-50 border border-green-200 rounded-md p-3">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -213,21 +196,20 @@
                 
                 const errorMessage = document.getElementById('error-message');
                 
-                // Handle different error types
-                if (error.status === 400 || error.status === 404) {
-                    if (error.details?.error_type === 'token_expired') {
-                        errorMessage.textContent = 'This verification link has expired. Please request a new one.';
-                    } else if (error.details?.error_type === 'invalid_token') {
-                        errorMessage.textContent = 'This verification link is invalid. Please request a new one.';
-                    } else if (error.details?.error_type === 'already_verified') {
-                        errorMessage.textContent = 'Your email has already been verified. You can now log in.';
-                        // Hide resend button for already verified emails
-                        document.getElementById('resend-verification').classList.add('hidden');
-                    } else {
-                        errorMessage.textContent = 'Verification failed. Please try again.';
-                    }
+                // Handle different error types based on error.details?.error_type
+                if (error.details?.error_type === 'token_expired') {
+                    errorMessage.textContent = 'This verification link has expired. Please request a new one.';
+                } else if (error.details?.error_type === 'invalid_token') {
+                    errorMessage.textContent = 'This verification link is invalid. Please request a new one.';
+                } else if (error.details?.error_type === 'already_verified') {
+                    errorMessage.textContent = 'Your email has already been verified. You can now log in.';
+                    // Hide resend button for already verified emails
+                    document.getElementById('resend-verification').classList.add('hidden');
+                } else if (error.details?.error_type === 'verification_failed') {
+                    errorMessage.textContent = 'Email verification failed due to an unexpected issue. Please try again.';
                 } else {
-                    errorMessage.textContent = error.message || 'An error occurred during verification.';
+                    // Fallback for other errors or generic messages from the backend
+                    errorMessage.textContent = error.message || 'An unexpected error occurred during verification. Please try again.';
                 }
 
                 document.getElementById('error-state').classList.remove('hidden');
@@ -249,16 +231,17 @@
             const resendFormButton = document.getElementById('resend-form-button');
             const resendFormText = document.getElementById('resend-form-text');
             const resendFormSpinner = document.getElementById('resend-form-spinner');
-            const resendError = document.getElementById('resend-error');
-            const resendSuccess = document.getElementById('resend-success');
+            const resendErrorMessageDiv = document.getElementById('resend-error-message');
+            const resendSuccessMessageDiv = document.getElementById('resend-success-message');
             const resendErrorText = document.getElementById('resend-error-text');
 
             resendForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                // Hide previous messages
-                hideMessage(resendError);
-                hideMessage(resendSuccess);
+                // Hide previous messages and clear error text
+                hideMessage(resendErrorMessageDiv);
+                hideMessage(resendSuccessMessageDiv);
+                resendErrorText.textContent = '';
 
                 // Show loading state
                 toggleButtonLoading(resendFormButton, true);
@@ -267,15 +250,26 @@
                 const email = formData.get('email');
 
                 try {
-                    await resendVerificationEmail(email);
+                    const response = await resendVerificationEmail(email);
 
-                    // Show success message
-                    resendSuccess.classList.remove('hidden');
+                    // Check the specific message from the backend
+                    if (response.message === 'If an account with that email exists, a new verification link has been sent.') {
+                        resendErrorText.textContent = 'If an account with that email exists, a new verification link has been sent.';
+                        resendErrorMessageDiv.classList.remove('hidden');
+                        hideMessage(resendSuccessMessageDiv);
+                    } else {
+                        // Show success message and ensure error is hidden
+                        resendSuccessMessageDiv.classList.remove('hidden');
+                        hideMessage(resendErrorMessageDiv);
+                    }
 
                     // Clear form
                     resendForm.reset();
 
                 } catch (error) {
+                    // Show error message and ensure success is hidden
+                    hideMessage(resendSuccessMessageDiv);
+
                     // Handle different error types
                     let message = 'Failed to send verification email. Please try again.';
                     if (error.status === 404) {
@@ -285,7 +279,7 @@
                     } else if (error.message) {
                         message = error.message;
                     }
-                    displayError(message, resendError);
+                    displayError(message, resendErrorMessageDiv);
                 } finally {
                     // Reset button state
                     toggleButtonLoading(resendFormButton, false);

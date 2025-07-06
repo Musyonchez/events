@@ -12,10 +12,25 @@ if (isset($_GET['token'])) {
   $userModel = new UserModel($db->users);
 
   try {
-    if ($userModel->verifyEmail($token)) {
-      send_success('Email has been successfully verified.');
-    } else {
-      send_error('Invalid or expired verification link.', 400);
+    $verificationResult = $userModel->verifyEmail($token);
+
+    switch ($verificationResult) {
+      case 'success':
+        send_success('Email has been successfully verified.');
+        break;
+      case 'invalid_token':
+        send_error('Invalid verification link.', 400, ['error_type' => 'invalid_token']);
+        break;
+      case 'expired_token':
+        send_error('Expired verification link.', 400, ['error_type' => 'token_expired']);
+        break;
+      case 'already_verified':
+        send_error('Email already verified.', 400, ['error_type' => 'already_verified']);
+        break;
+      case 'verification_failed':
+      default:
+        send_error('Email verification failed. Please try again.', 500, ['error_type' => 'verification_failed']);
+        break;
     }
   } catch (Exception $e) {
     send_internal_server_error($e->getMessage());

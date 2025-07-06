@@ -361,16 +361,25 @@ class UserModel
   }
 
   // Verify email address using token
-  public function verifyEmail(string $token): bool
+  public function verifyEmail(string $token): string
   {
     try {
       $user = $this->collection->findOne([
         'email_verification_token' => $token,
-        'email_verification_token_expires_at' => ['$gt' => new UTCDateTime()]
       ]);
 
       if (!$user) {
-        return false; // Invalid or expired token
+        return 'invalid_token'; // Token not found
+      }
+
+      // Check if already verified
+      if (isset($user['is_email_verified']) && $user['is_email_verified'] === true) {
+        return 'already_verified';
+      }
+
+      // Check if token has expired
+      if (isset($user['email_verification_token_expires_at']) && $user['email_verification_token_expires_at']->toDateTime() < new DateTime()) {
+        return 'expired_token';
       }
 
       $updateResult = $this->collection->updateOne(
@@ -382,7 +391,12 @@ class UserModel
           'email_verification_token_expires_at' => null // Clear the expiry
         ]]
       );
-      return $updateResult->getModifiedCount() > 0;
+
+      if ($updateResult->getModifiedCount() > 0) {
+        return 'success';
+      } else {
+        return 'verification_failed'; // Should not happen if user is found and not already verified
+      }
     } catch (Exception $e) {
       throw new Exception("Failed to verify email: " . $e->getMessage());
     }
@@ -503,12 +517,16 @@ class UserModel
   }
 
   // Generate and send new email verification token by email
-  public function generateVerificationTokenByEmail(string $email): bool
+  public function generateVerificationTokenByEmail(string $email): string
   {
     try {
       $user = $this->findByEmail($email);
       if (!$user) {
-        return false; // Don't reveal if user doesn't exist
+        return 'user_not_found'; // Don't reveal if user doesn't exist
+      }
+
+      if (isset($user['is_email_verified']) && $user['is_email_verified'] === true) {
+        return 'already_verified';
       }
 
       $token = $this->generateVerificationToken((string)$user['_id']);
@@ -516,9 +534,13 @@ class UserModel
       if ($token) {
         $verificationLink = "http://localhost:3000/pages/verify-email.html?token={$token}";
         $emailBody = "Please click on the following link to verify your email address: <a href='{$verificationLink}'>{$verificationLink}</a>";
-        return send_email($user['email'], 'Verify Your Email Address', $emailBody);
+        if (send_email($user['email'], 'Verify Your Email Address', $emailBody)) {
+          return 'success';
+        } else {
+          return 'email_send_failed';
+        }
       }
-      return false;
+      return 'token_generation_failed';
     } catch (Exception $e) {
       throw new Exception("Failed to generate and send new verification token: " . $e->getMessage());
     }

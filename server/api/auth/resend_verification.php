@@ -18,16 +18,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userModel = new UserModel($db->users);
 
     try {
-        // Generate and send a new verification token
-        // The generateVerificationToken method also sends the email
-        $success = $userModel->generateVerificationTokenByEmail($email);
+        $result = $userModel->generateVerificationTokenByEmail($email);
 
-        if ($success) {
-            send_success('A new verification link has been sent to your email address.');
-        } else {
-            // This case might happen if the user is not found, but we don't want to reveal that.
-            // Or if there was an issue sending the email.
-            send_error('Failed to send new verification link. Please try again later.', 500);
+        switch ($result) {
+            case 'success':
+                send_success('A new verification link has been sent to your email address.');
+                break;
+            case 'user_not_found':
+                // For security, don't reveal if user doesn't exist
+                send_success('If an account with that email exists, a new verification link has been sent.');
+                break;
+            case 'already_verified':
+                send_error('Your email is already verified. You can log in now.', 400, ['error_type' => 'already_verified']);
+                break;
+            case 'email_send_failed':
+                send_error('Failed to send verification email. Please try again later.', 500, ['error_type' => 'email_send_failed']);
+                break;
+            case 'token_generation_failed':
+                send_error('Failed to generate verification token. Please try again later.', 500, ['error_type' => 'token_generation_failed']);
+                break;
+            default:
+                send_error('An unexpected error occurred. Please try again later.', 500);
+                break;
         }
     } catch (Exception $e) {
         send_internal_server_error($e->getMessage());
