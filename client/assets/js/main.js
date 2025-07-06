@@ -75,24 +75,27 @@ function checkAuthState() {
         if (user) {
             const userNameElement = document.getElementById('user-name');
             if (userNameElement) userNameElement.textContent = user.first_name;
-            const avatarElement = document.getElementById('user-avatar');
-            if (avatarElement) {
+            const avatar = document.getElementById('user-avatar');
+            if (avatar) {
                 if (user.profile_image) {
-                    avatarElement.src = user.profile_image;
+                    avatar.src = user.profile_image;
                 } else {
-                    avatarElement.src = '../assets/images/avatar.png';
+                    // Determine the correct path to the default avatar based on the current page
+                    const isRoot = window.location.pathname.endsWith('/index.html') || window.location.pathname.endsWith('/');
+                    avatar.src = isRoot ? './assets/images/avatar.png' : '../assets/images/avatar.png';
                 }
             }
 
             // Update mobile user info
             const mobileUserNameElement = document.getElementById('mobile-user-name');
             if (mobileUserNameElement) mobileUserNameElement.textContent = user.first_name;
-            const mobileAvatarElement = document.getElementById('mobile-user-avatar');
-            if (mobileAvatarElement) {
+            const mobileAvatar = document.getElementById('mobile-user-avatar');
+            if (mobileAvatar) {
                 if (user.profile_image) {
-                    mobileAvatarElement.src = user.profile_image;
+                    mobileAvatar.src = user.profile_image;
                 } else {
-                    mobileAvatarElement.src = '../assets/images/avatar.png';
+                    const isRoot = window.location.pathname.endsWith('/index.html') || window.location.pathname.endsWith('/');
+                    mobileAvatar.src = isRoot ? './assets/images/avatar.png' : '../assets/images/avatar.png';
                 }
             }
         }
