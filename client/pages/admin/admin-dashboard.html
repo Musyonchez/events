@@ -1,4 +1,3 @@
-<!-- Admin dashboard page -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -795,12 +794,6 @@
             // TODO: Implement clubs filtering
             loadAllClubs();
         });
-    </script>
-</body>
-</html>) {
-                console.error('Error loading dashboard data:', error);
-            }
-        }
 
         function loadTabContent(tabId) {
             switch (tabId) {
@@ -920,3 +913,10 @@
                 }
 
             } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+    </script>
+</body>
+</html>
