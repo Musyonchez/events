@@ -1,12 +1,25 @@
 // Main application logic
 
 document.addEventListener('DOMContentLoaded', function() {
-    // --- General Page Setup ---
+    setupNavbarEventListeners();
+    checkAuthState();
+
+    // --- Homepage Specific Logic ---
+    if (document.getElementById('featured-events')) {
+        loadFeaturedEvents();
+    }
+    if (document.getElementById('clubs-grid')) {
+        loadClubs();
+    }
+});
+
+function setupNavbarEventListeners() {
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
     const userMenuButton = document.getElementById('user-menu-button');
     const userDropdown = document.getElementById('user-dropdown');
     const logoutBtn = document.getElementById('logout-btn');
+    const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
 
     // Mobile menu toggle
     if (mobileMenuButton) {
@@ -28,6 +41,11 @@ document.addEventListener('DOMContentLoaded', function() {
             logout();
         });
     }
+    if (mobileLogoutBtn) {
+        mobileLogoutBtn.addEventListener('click', () => {
+            logout();
+        });
+    }
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(e) {
@@ -35,18 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
             userDropdown.classList.add('hidden');
         }
     });
-
-    // --- Authentication State ---
-    checkAuthState();
-
-    // --- Homepage Specific Logic ---
-    if (document.getElementById('featured-events')) {
-        loadFeaturedEvents();
-    }
-    if (document.getElementById('clubs-grid')) {
-        loadClubs();
-    }
-});
+}
 
 /**
  * Checks the user's authentication state and updates the UI accordingly.
@@ -54,27 +61,47 @@ document.addEventListener('DOMContentLoaded', function() {
 function checkAuthState() {
     const authButtons = document.getElementById('auth-buttons');
     const userMenu = document.getElementById('user-menu');
+    const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+    const mobileUserMenu = document.getElementById('mobile-user-menu');
 
     if (isAuthenticated()) {
         // User is logged in
         authButtons.classList.add('hidden');
         userMenu.classList.remove('hidden');
+        if (mobileAuthButtons) mobileAuthButtons.classList.add('hidden');
+        if (mobileUserMenu) mobileUserMenu.classList.remove('hidden');
 
         const user = getCurrentUser();
         if (user) {
-            document.getElementById('user-name').textContent = user.first_name;
-            const avatar = document.getElementById('user-avatar');
-            if (user.profile_image) {
-                avatar.src = user.profile_image;
-            } else {
-                // Use a local default avatar if no profile image is set
-                avatar.src = '../assets/images/avatar.png';
+            const userNameElement = document.getElementById('user-name');
+            if (userNameElement) userNameElement.textContent = user.first_name;
+            const avatarElement = document.getElementById('user-avatar');
+            if (avatarElement) {
+                if (user.profile_image) {
+                    avatarElement.src = user.profile_image;
+                } else {
+                    avatarElement.src = '../assets/images/avatar.png';
+                }
+            }
+
+            // Update mobile user info
+            const mobileUserNameElement = document.getElementById('mobile-user-name');
+            if (mobileUserNameElement) mobileUserNameElement.textContent = user.first_name;
+            const mobileAvatarElement = document.getElementById('mobile-user-avatar');
+            if (mobileAvatarElement) {
+                if (user.profile_image) {
+                    mobileAvatarElement.src = user.profile_image;
+                } else {
+                    mobileAvatarElement.src = '../assets/images/avatar.png';
+                }
             }
         }
     } else {
         // User is not logged in
         authButtons.classList.remove('hidden');
         userMenu.classList.add('hidden');
+        if (mobileAuthButtons) mobileAuthButtons.classList.remove('hidden');
+        if (mobileUserMenu) mobileUserMenu.classList.add('hidden');
     }
 }
 

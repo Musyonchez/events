@@ -9,49 +9,7 @@
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <img src="../assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
-                    <span class="ml-2 text-xl font-bold text-blue-600">USIU Events</span>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="../index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-                    <a href="./events.html" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
-                    <a href="#" class="text-blue-600 font-medium">Dashboard</a>
-                    
-                    <!-- User Menu -->
-                    <div class="relative">
-                        <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
-<img id="user-avatar" src="../assets/images/default-avatar.jpg" alt="User" class="w-8 h-8 rounded-full">
-                            <span id="user-name">Loading...</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile Settings</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Change Password</a>
-                            <div class="border-t border-gray-100"></div>
-                            <button id="logout-btn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <div id="navbar-placeholder"></div>
 
     <!-- Page Content -->
     <div class="pt-16 min-h-screen">
@@ -235,6 +193,7 @@
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
     <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/component-loader.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -245,36 +204,9 @@
             //     return;
             // }
 
-            initializeDashboard();
             setupTabNavigation();
             loadUserData();
         });
-
-        function initializeDashboard() {
-            // Load initial tab content
-            loadRegisteredEvents();
-            
-            // Setup user menu
-            const userMenuButton = document.getElementById('user-menu-button');
-            const userDropdown = document.getElementById('user-dropdown');
-            
-            userMenuButton.addEventListener('click', function() {
-                userDropdown.classList.toggle('hidden');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('#user-menu-button')) {
-                    userDropdown.classList.add('hidden');
-                }
-            });
-
-            // Logout functionality
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                // TODO: Implement logout
-                // logout();
-                // window.location.href = './login.html';
-            });
         }
 
         function setupTabNavigation() {
@@ -309,22 +241,16 @@
 
         async function loadUserData() {
             try {
-                // TODO: Implement API call to get user profile
-                // const user = await getUserProfile();
-                
-                // Mock user data
-                const user = {
-                    first_name: "John",
-                    last_name: "Doe",
-                    role: "student",
-                    profile_image: null
-                };
+                if (!isAuthenticated()) {
+                    window.location.href = './login.html';
+                    return;
+                }
 
-                // Update user info in navbar
-                document.getElementById('user-name').textContent = `${user.first_name} ${user.last_name}`;
-                
-                if (user.profile_image) {
-                    document.getElementById('user-avatar').src = user.profile_image;
+                const user = getCurrentUser();
+                if (!user) {
+                    console.error('User data not found in local storage.');
+                    window.location.href = './login.html';
+                    return;
                 }
 
                 // Show admin features for admin/club_leader users
