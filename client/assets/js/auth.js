@@ -1,4 +1,4 @@
-// Authentication-related functions
+import { request, AccessTokenExpiredError, AuthError } from './http.js';
 
 /**
  * Registers a new user.
@@ -15,13 +15,18 @@ export async function register(userData) {
  * @returns {Promise<any>}
  */
 export async function login(credentials) {
-    const response = await request('/auth/index.php?action=login', 'POST', credentials);
-    if (response.data && response.data.access_token) {
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+    try {
+        const response = await request('/auth/index.php?action=login', 'POST', credentials);
+        if (response.data && response.data.access_token) {
+            localStorage.setItem('access_token', response.data.access_token);
+            localStorage.setItem('refresh_token', response.data.refresh_token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+        }
+        return response;
+    } catch (error) {
+        console.error('Login failed:', error);
+        throw error;
     }
-    return response;
 }
 
 /**
@@ -60,7 +65,7 @@ export async function refreshToken() {
     const refreshToken = localStorage.getItem('refresh_token');
     if (!refreshToken) {
         logout(); // Force logout if no refresh token is available
-        return;
+        throw new Error('No refresh token found.');
     }
 
     try {
@@ -70,7 +75,10 @@ export async function refreshToken() {
         }
         return data;
     } catch (error) {
-        logout(); // Force logout if refresh fails
+        if (error instanceof AccessTokenExpiredError || error instanceof AuthError) {
+            console.error('Refresh token failed:', error.message);
+            logout(); // Force logout if refresh fails due to invalid/expired refresh token
+        }
         throw error;
     }
 }
@@ -91,4 +99,37 @@ export async function verifyEmailToken(token) {
  */
 export async function resendVerificationEmail(email) {
     return await request('/auth/resend_verification.php', 'POST', { email });
+}
+
+/**
+ * Initiates the password reset process by sending a reset email.
+ * @param {string} email - The user's email address.
+ * @returns {Promise<any>}
+ */
+export async function requestPasswordReset(email) {
+    return await request('/auth/index.php?action=reset_password', 'POST', { email });
+}
+
+/**
+ * Sets a new password using a reset token.
+ * @param {string} token - The password reset token.
+ * @param {string} newPassword - The new password.
+ * @returns {Promise<any>}
+ */
+export async function resetPassword(token, newPassword) {
+    return await request('/auth/index.php?action=reset_password', 'POST', { token, password: newPassword });
+}
+
+/**
+ * Changes the user's password.
+ * @param {string} oldPassword - The current password.
+ * @param {string} newPassword - The new password.
+ * @returns {Promise<any>}
+ */
+export async function changePassword(oldPassword, newPassword) {
+    // The server should identify the user from the JWT, so no need to send user.id
+    return await request('/auth/index.php?action=change_password', 'POST', {
+        old_password: oldPassword,
+        new_password: newPassword
+    }, true); // Requires authentication
 }

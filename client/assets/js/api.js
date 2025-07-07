@@ -1,81 +1,68 @@
 // Centralized API interaction logic
 
-import { logout, refreshToken } from './auth.js';
+import { request } from './http.js';
 
-const API_BASE_URL = 'http://localhost:8000/api'; // Adjust if your backend URL is different
+// Example API calls using the request function
 
 /**
- * A generic function to make API requests.
- * @param {string} endpoint - The API endpoint (e.g., '/auth/login').
- * @param {string} method - The HTTP method (e.g., 'GET', 'POST').
- * @param {object} [body=null] - The request body for POST, PUT, PATCH requests.
- * @param {boolean} [requiresAuth=false] - Whether the request requires an Authorization header.
- * @returns {Promise<any>} - The JSON response from the API.
+ * Fetches event details.
+ * @param {string} eventId - The ID of the event to fetch.
+ * @returns {Promise<any>}
  */
-async function request(endpoint, method, data = null, requiresAuth = false) {
-    let url = `${API_BASE_URL}${endpoint}`;
-    const headers = {
-        'Content-Type': 'application/json',
-    };
+export async function getEventDetails(eventId) {
+    return await request(`/events/index.php?action=details&id=${eventId}`, 'GET');
+}
 
-    if (requiresAuth) {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        } else {
-            // Handle cases where auth is required but no token is found
-            // For now, we can just let the request fail on the server side
-        }
-    }
+/**
+ * Creates a new event.
+ * @param {object} eventData - The event data.
+ * @returns {Promise<any>}
+ */
+export async function createEvent(eventData) {
+    return await request('/events/index.php?action=create', 'POST', eventData, true);
+}
 
-    const config = {
-        method,
-        headers,
-    };
+/**
+ * Registers a user for an event.
+ * @param {string} eventId - The ID of the event to register for.
+ * @returns {Promise<any>}
+ */
+export async function registerForEvent(eventId) {
+    return await request('/events/index.php?action=register', 'POST', { event_id: eventId }, true);
+}
 
-    if (method === 'GET') {
-        if (data) {
-            const queryParams = new URLSearchParams(data).toString();
-            url = `${url}${url.includes('?') ? '&' : '?'}${queryParams}`;
-        }
-    } else if (data) {
-        config.body = JSON.stringify(data);
-    }
+/**
+ * Fetches club details.
+ * @param {string} clubId - The ID of the club to fetch.
+ * @returns {Promise<any>}
+ */
+export async function getClubDetails(clubId) {
+    return await request(`/clubs/index.php?id=${clubId}`, 'GET');
+}
 
-    try {
-        const response = await fetch(url, config);
-        const responseData = await response.json();
+/**
+ * Creates a new club.
+ * @param {object} clubData - The club data.
+ * @returns {Promise<any>}
+ */
+export async function createClub(clubData) {
+    return await request('/clubs/index.php', 'POST', clubData, true);
+}
 
-        if (!response.ok) {
-            const error = new Error(responseData.error || 'An unknown error occurred');
-            error.status = response.status;
-            error.details = responseData.details;
+/**
+ * Fetches comments for an event.
+ * @param {string} eventId - The ID of the event.
+ * @returns {Promise<any>}
+ */
+export async function getEventComments(eventId) {
+    return await request(`/comments/index.php?event_id=${eventId}`, 'GET');
+}
 
-            if (error.status === 401 && error.details && error.details.error_type === 'access_token_expired') {
-                console.log('Access token expired. Attempting to refresh...');
-                try {
-                    await refreshToken();
-                    console.log('Token refreshed. Retrying original request...');
-                    // Retry the original request with the new token
-                    return await request(endpoint, method, data, requiresAuth);
-                } catch (refreshError) {
-                    console.error('Failed to refresh token:', refreshError);
-                    logout(); // Force logout if refresh fails
-                    throw refreshError; // Re-throw refresh error
-                }
-            } else if (error.status === 401 || error.status === 403) {
-                // This block handles other 401/403 errors, including 'refresh_token_expired'
-                // that might originate from the refreshToken() call.
-                console.error('Authentication or authorization error:', error.message);
-                logout(); // Force logout for other auth/authz errors
-                throw error;
-            }
-            throw error; // Re-throw other non-OK errors
-        }
-
-        return responseData;
-    } catch (error) {
-        // Re-throw the error to be caught by the calling function
-        throw error;
-    }
+/**
+ * Posts a new comment.
+ * @param {object} commentData - The comment data.
+ * @returns {Promise<any>}
+ */
+export async function postComment(commentData) {
+    return await request('/comments/index.php', 'POST', commentData, true);
 }

@@ -1,3 +1,7 @@
+import { login } from './auth.js';
+import { AuthError } from './http.js';
+import { displayError, displaySuccess, hideMessage, toggleButtonLoading } from './utils.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login-form');
     const loginButton = document.getElementById('login-button');
@@ -34,10 +38,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             let message = 'An error occurred during login.';
-            if (error.status === 401) {
-                message = 'Invalid email or password.';
-            } else if (error.status === 403 && error.details?.error_type === 'email_not_verified') {
-                message = 'Please verify your email before logging in.';
+            if (error instanceof AuthError) {
+                if (error.details?.error_type === 'email_not_verified') {
+                    message = 'Please verify your email before logging in.';
+                } else {
+                    message = error.message;
+                }
             } else if (error.message) {
                 message = error.message;
             }

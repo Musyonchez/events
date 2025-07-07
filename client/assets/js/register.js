@@ -1,3 +1,6 @@
+import { register } from './auth.js';
+import { displayError, displaySuccess, hideMessage, toggleButtonLoading } from './utils.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('register-form');
     const registerButton = document.getElementById('register-button');
@@ -88,3 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+
+

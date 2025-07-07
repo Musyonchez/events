@@ -1,8 +1,12 @@
+import { request } from './http.js';
+import { isAuthenticated, getCurrentUser, logout } from './auth.js';
+
 // Main application logic
 
 document.addEventListener('navbarLoaded', function() {
     setupNavbarEventListeners();
     checkAuthState();
+    setNavbarLinks();
 
     // --- Homepage Specific Logic ---
     if (document.getElementById('featured-events')) {
@@ -12,6 +16,22 @@ document.addEventListener('navbarLoaded', function() {
         loadClubs();
     }
 });
+
+/**
+ * Sets the correct href for navbar links based on the current page's location.
+ */
+function setNavbarLinks() {
+    const isRoot = window.location.pathname.endsWith('/index.html') || window.location.pathname.endsWith('/');
+    const links = document.querySelectorAll('#navbar-placeholder a');
+
+    links.forEach(link => {
+        if (link.dataset.rootPath) {
+            link.href = isRoot ? `./${link.dataset.rootPath}` : `../${link.dataset.rootPath}`;
+        } else if (link.dataset.pagesPath) {
+            link.href = isRoot ? `./pages/${link.dataset.pagesPath}` : `./${link.dataset.pagesPath}`;
+        }
+    });
+}
 
 function setupNavbarEventListeners() {
     const mobileMenuButton = document.getElementById('mobile-menu-button');
