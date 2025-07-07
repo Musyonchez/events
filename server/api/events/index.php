@@ -31,6 +31,13 @@ switch ($action) {
             send_method_not_allowed();
         }
         break;
+    case 'list':
+        if ($method === 'GET') {
+            require __DIR__ . '/list.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
     case 'details':
         if ($method === 'GET') {
             require __DIR__ . '/details.php';

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clubs - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="../assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
+                    <span class="ml-2 text-xl font-bold text-blue-600">USIU Events</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="../index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                    <a href="./events.html" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
+                    <a href="#" class="text-blue-600 font-medium">Clubs</a>
+                    
+                    <!-- Auth Buttons - Show when not logged in -->
+                    <div id="auth-buttons" class="flex items-center space-x-4">
+                        <a href="./login.html" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
+                        <a href="./register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">Register</a>
+                    </div>
+                    
+                    <!-- User Menu - Show when logged in -->
+                    <div id="user-menu" class="hidden relative">
+                        <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                            <img id="user-avatar" src="" alt="User Avatar" class="w-8 h-8 rounded-full">
+                            <span id="user-name"></span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="./dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <button id="logout-btn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-blue-600 to-purple-600 pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Student Clubs</h1>
+                <p class="text-lg text-gray-200 max-w-2xl mx-auto">
+                    Join vibrant communities of like-minded students. Discover clubs that match your interests, develop new skills, and make lasting friendships.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search and Filters -->
+    <section class="bg-white shadow-sm border-b sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col lg:flex-row gap-4 items-center">
+                <!-- Search Bar -->
+                <div class="flex-1 w-full lg:w-auto">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input id="search-input" type="text" placeholder="Search clubs..." 
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <!-- Category Filter -->
+                    <select id="category-filter" class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Categories</option>
+                        <option value="Arts & Culture">Arts & Culture</option>
+                        <option value="Academic">Academic</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Business">Business</option>
+                        <option value="Community Service">Community Service</option>
+                        <option value="Religious">Religious</option>
+                        <option value="Professional">Professional</option>
+                        <option value="Recreation">Recreation</option>
+                        <option value="Special Interest">Special Interest</option>
+                    </select>
+                    
+                    <!-- Status Filter -->
+                    <select id="status-filter" class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Clubs</option>
+                        <option value="active">Active</option>
+                        <option value="recruiting">Recruiting</option>
+                    </select>
+                    
+                    <!-- Size Filter -->
+                    <select id="size-filter" class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Sizes</option>
+                        <option value="small">Small (1-25 members)</option>
+                        <option value="medium">Medium (26-100 members)</option>
+                        <option value="large">Large (100+ members)</option>
+                    </select>
+                    
+                    <!-- Clear Filters -->
+                    <button id="clear-filters" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clubs Grid -->
+    <section class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Results Info -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <p id="results-count" class="text-gray-600">Loading clubs...</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label for="sort-by" class="text-sm text-gray-600">Sort by:</label>
+                    <select id="sort-by" class="px-3 py-1 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="members-desc">Most Members</option>
+                        <option value="members-asc">Least Members</option>
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="flex justify-end mb-6">
+                <div class="flex border border-gray-300 rounded-md">
+                    <button id="grid-view" class="px-3 py-1 text-sm bg-blue-600 text-white rounded-l-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                    </button>
+                    <button id="list-view" class="px-3 py-1 text-sm bg-white text-gray-700 rounded-r-md border-l">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Clubs Grid View -->
+            <div id="clubs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Loading Skeleton -->
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-32 bg-gray-300"></div>
+                        <div class="p-4">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
+                            <div class="h-3 bg-gray-300 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-32 bg-gray-300"></div>
+                        <div class="p-4">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
+                            <div class="h-3 bg-gray-300 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-32 bg-gray-300"></div>
+                        <div class="p-4">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
+                            <div class="h-3 bg-gray-300 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-32 bg-gray-300"></div>
+                        <div class="p-4">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
+                            <div class="h-3 bg-gray-300 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clubs List View -->
+            <div id="clubs-list" class="hidden space-y-4">
+                <!-- List items will be populated here -->
+            </div>
+
+            <!-- No Results Message -->
+            <div id="no-results" class="hidden text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No clubs found</h3>
+                <p class="mt-1 text-sm text-gray-500">Try adjusting your search criteria or filters.</p>
+            </div>
+
+            <!-- Load More Button -->
+            <div id="load-more-container" class="text-center mt-8">
+                <button id="load-more-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span id="load-more-text">Load More Clubs</span>
+                    <div id="load-more-spinner" class="hidden">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                    </div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="../assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
+                        <span class="ml-2 text-xl font-bold">USIU Events</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Your gateway to amazing campus experiences at United States International University.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="./events.html" class="text-gray-400 hover:text-white">Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Clubs</a></li>
+                        <li><a href="../index.html#about" class="text-gray-400 hover:text-white">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Account</h3>
+                    <ul class="space-y-2">
+                        <li><a href="./login.html" class="text-gray-400 hover:text-white">Login</a></li>
+                        <li><a href="./register.html" class="text-gray-400 hover:text-white">Register</a></li>
+                        <li><a href="./dashboard.html" class="text-gray-400 hover:text-white">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">support@usiu.ac.ke</li>
+                        <li class="text-gray-400">+254 123 456 789</li>
+                        <li class="text-gray-400">USIU Campus, Nairobi</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 USIU Events. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentPage = 1;
+            let currentFilters = {};
+            let allClubs = [];
+            let isLoading = false;
+            let currentView = 'grid';
+
+            const clubsGrid = document.getElementById('clubs-grid');
+            const clubsList = document.getElementById('clubs-list');
+            const resultsCount = document.getElementById('results-count');
+            const noResults = document.getElementById('no-results');
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            const loadMoreText = document.getElementById('load-more-text');
+            const loadMoreSpinner = document.getElementById('load-more-spinner');
+            const searchInput = document.getElementById('search-input');
+            const categoryFilter = document.getElementById('category-filter');
+            const statusFilter = document.getElementById('status-filter');
+            const sizeFilter = document.getElementById('size-filter');
+            const sortBy = document.getElementById('sort-by');
+            const clearFiltersBtn = document.getElementById('clear-filters');
+            const gridViewBtn = document.getElementById('grid-view');
+            const listViewBtn = document.getElementById('list-view');
+
+            // Initialize page
+            loadClubs();
+            setupViewToggle();
+
+            // Club card template for grid view
+            function createClubCard(club) {
+                const memberSize = club.members_count <= 25 ? 'Small' : 
+                                 club.members_count <= 100 ? 'Medium' : 'Large';
+                
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                        <div class="relative">
+                            <div class="h-32 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                                ${club.logo ? 
+                                    `<img src="${club.logo}" alt="${club.name}" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">` :
+                                    `<div class="w-20 h-20 rounded-full bg-white flex items-center justify-center border-4 border-white shadow-lg">
+                                        <span class="text-2xl font-bold text-blue-600">${club.name.charAt(0)}</span>
+                                    </div>`
+                                }
+                            </div>
+                            <div class="absolute top-2 right-2">
+                                <span class="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                    ${club.category || 'General'}
+                                </span>
+                            </div>
+                            ${club.status === 'active' ? '' : '<div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center"><span class="bg-gray-800 text-white px-3 py-1 rounded-full text-sm">Inactive</span></div>'}
+                        </div>
+                        
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
+                                ${club.name}
+                            </h3>
+                            
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                ${club.members_count || 0} members
+                                <span class="mx-2">•</span>
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">${memberSize}</span>
+                            </div>
+                            
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                                ${club.description}
+                            </p>
+                            
+                            <div class="flex items-center justify-between">
+                                <a href="./club-details.html?id=${club._id}" 
+                                   class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                                    Learn More
+                                </a>
+                                
+                                ${club.status === 'active' ? `
+                                    <button onclick="joinClub('${club._id}')" 
+                                            class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
+                                        Join Club
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+          // Club list item template for list view
+function createClubListItem(club) {
+    const memberSize = club.members_count <= 25 ? 'Small' : 
+                     club.members_count <= 100 ? 'Medium' : 'Large';
+    
+    return `
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center flex-1">
+                    <div class="flex-shrink-0">
+                        ${club.logo ? 
+                            `<img src="${club.logo}" alt="${club.name}" class="w-16 h-16 rounded-full object-cover">` :
+                            `<div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                                <span class="text-xl font-bold text-white">${club.name.charAt(0)}</span>
+                            </div>`
+                        }
+                    </div>
+                    <div class="ml-6 flex-1">
+                        <div class="flex items-center">
+                            <h3 class="text-xl font-semibold text-gray-900">${club.name}</h3>
+                            <span class="ml-3 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${club.category || 'General'}</span>
+                            ${club.status !== 'active' ? '<span class="ml-2 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">Inactive</span>' : ''}
+                        </div>
+                        <div class="mt-1 flex items-center text-sm text-gray-500">
+                            <svg class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            ${club.members_count || 0} members (${memberSize})
+                            <span class="mx-2">•</span>
+                            <svg class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            ${club.contact_email || 'No contact provided'}
+                        </div>
+                        <p class="mt-2 text-gray-600 line-clamp-2">${club.description}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="./club-details.html?id=${club._id}" 
+                       class="text-blue-600 hover:text-blue-800 font-medium">
+                        Learn More
+                    </a>
+                    ${club.status === 'active' ? `
+                        <button onclick="joinClub('${club._id}')" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
+                            Join Club
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+            // Load clubs function
+            async function loadClubs(reset = false) {
+                if (isLoading) return;
+                isLoading = true;
+
+                if (reset) {
+                    currentPage = 1;
+                    allClubs = [];
+                    clubsGrid.innerHTML = '';
+                    clubsList.innerHTML = '';
+                    noResults.classList.add('hidden');
+                }
+
+                try {
+                    // TODO: Implement API call to fetch clubs
+                    // const response = await fetchClubs({
+                    //     page: currentPage,
+                    //     limit: 12,
+                    //     ...currentFilters
+                    // });
+                    
+                    // Simulate API call for now
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Mock data - replace with actual API response
+                    const mockClubs = [];
+                    
+                    if (reset) {
+                        clubsGrid.innerHTML = '';
+                        clubsList.innerHTML = '';
+                    }
+                    
+                    if (mockClubs.length === 0 && currentPage === 1) {
+                        noResults.classList.remove('hidden');
+                        resultsCount.textContent = 'No clubs found';
+                        loadMoreBtn.parentElement.classList.add('hidden');
+                    } else {
+                        noResults.classList.add('hidden');
+                        allClubs = [...allClubs, ...mockClubs];
+                        
+                        if (currentView === 'grid') {
+                            mockClubs.forEach(club => {
+                                const clubCard = document.createElement('div');
+                                clubCard.innerHTML = createClubCard(club);
+                                clubsGrid.appendChild(clubCard.firstElementChild);
+                            });
+                        } else {
+                            mockClubs.forEach(club => {
+                                const clubItem = document.createElement('div');
+                                clubItem.innerHTML = createClubListItem(club);
+                                clubsList.appendChild(clubItem.firstElementChild);
+                            });
+                        }
+                        
+                        resultsCount.textContent = `Showing ${allClubs.length} clubs`;
+                        
+                        if (mockClubs.length < 12) {
+                            loadMoreBtn.parentElement.classList.add('hidden');
+                        } else {
+                            loadMoreBtn.parentElement.classList.remove('hidden');
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading clubs:', error);
+                    resultsCount.textContent = 'Error loading clubs';
+                } finally {
+                    isLoading = false;
+                    loadMoreText.classList.remove('hidden');
+                    loadMoreSpinner.classList.add('hidden');
+                    loadMoreBtn.disabled = false;
+                }
+            }
+
+            // View toggle functionality
+            function setupViewToggle() {
+                gridViewBtn.addEventListener('click', function() {
+                    if (currentView !== 'grid') {
+                        currentView = 'grid';
+                        gridViewBtn.classList.remove('bg-white', 'text-gray-700');
+                        gridViewBtn.classList.add('bg-blue-600', 'text-white');
+                        listViewBtn.classList.remove('bg-blue-600', 'text-white');
+                        listViewBtn.classList.add('bg-white', 'text-gray-700');
+                        
+                        clubsGrid.classList.remove('hidden');
+                        clubsList.classList.add('hidden');
+                        
+                        // Repopulate grid view
+                        clubsGrid.innerHTML = '';
+                        allClubs.forEach(club => {
+                            const clubCard = document.createElement('div');
+                            clubCard.innerHTML = createClubCard(club);
+                            clubsGrid.appendChild(clubCard.firstElementChild);
+                        });
+                    }
+                });
+
+                listViewBtn.addEventListener('click', function() {
+                    if (currentView !== 'list') {
+                        currentView = 'list';
+                        listViewBtn.classList.remove('bg-white', 'text-gray-700');
+                        listViewBtn.classList.add('bg-blue-600', 'text-white');
+                        gridViewBtn.classList.remove('bg-blue-600', 'text-white');
+                        gridViewBtn.classList.add('bg-white', 'text-gray-700');
+                        
+                        clubsList.classList.remove('hidden');
+                        clubsGrid.classList.add('hidden');
+                        
+                        // Repopulate list view
+                        clubsList.innerHTML = '';
+                        allClubs.forEach(club => {
+                            const clubItem = document.createElement('div');
+                            clubItem.innerHTML = createClubListItem(club);
+                            clubsList.appendChild(clubItem.firstElementChild);
+                        });
+                    }
+                });
+            }
+
+            // Search functionality
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentFilters.search = this.value;
+                    loadClubs(true);
+                }, 500);
+            });
+
+            // Filter functionality
+            [categoryFilter, statusFilter, sizeFilter, sortBy].forEach(filter => {
+                filter.addEventListener('change', function() {
+                    const filterType = this.id.replace('-filter', '').replace('-by', '');
+                    if (this.value) {
+                        currentFilters[filterType] = this.value;
+                    } else {
+                        delete currentFilters[filterType];
+                    }
+                    loadClubs(true);
+                });
+            });
+
+            // Clear filters
+            clearFiltersBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                categoryFilter.value = '';
+                statusFilter.value = '';
+                sizeFilter.value = '';
+                sortBy.value = 'name-asc';
+                currentFilters = {};
+                loadClubs(true);
+            });
+
+            // Load more clubs
+            loadMoreBtn.addEventListener('click', function() {
+                if (isLoading) return;
+                
+                loadMoreText.classList.add('hidden');
+                loadMoreSpinner.classList.remove('hidden');
+                this.disabled = true;
+                
+                currentPage++;
+                loadClubs();
+            });
+
+            // Join club function
+            window.joinClub = async function(clubId) {
+                try {
+                    // TODO: Check if user is logged in
+                    // if (!isLoggedIn()) {
+                    //     window.location.href = './login.html';
+                    //     return;
+                    // }
+                    
+                    // TODO: Implement club join API call
+                    // await joinClub(clubId);
+                    
+                    alert('Successfully joined club!');
+                    loadClubs(true);
+                    
+                } catch (error) {
+                    alert('Failed to join club: ' + error.message);
+                }
+            };
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // User menu toggle
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userMenuButton) {
+                userMenuButton.addEventListener('click', function() {
+                    userDropdown.classList.toggle('hidden');
+                });
+            }
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#user-menu')) {
+                    userDropdown?.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

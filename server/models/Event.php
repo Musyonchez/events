@@ -5,8 +5,7 @@ require_once __DIR__ . '/../schemas/Event.php';
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use ValidationException;
-use EventSchema;
+
 
 
 class EventModel
@@ -120,12 +119,12 @@ class EventModel
   }
 
   // List all events with optional filters, paging etc.
-  public function list(array $filters = [], int $limit = 50, int $skip = 0): array
+  public function list(array $filters = [], int $limit = 50, int $skip = 0, array $sortOptions = ['event_date' => 1]): array
   {
     $options = [
       'limit' => $limit,
       'skip' => $skip,
-      'sort' => ['event_date' => 1]
+      'sort' => $sortOptions
     ];
 
     $cursor = $this->collection->find($filters, $options);
@@ -133,6 +132,12 @@ class EventModel
 
     // Convert BSON documents to arrays
     return array_map(fn($doc) => $doc->getArrayCopy(), $events);
+  }
+
+  // Count all events with optional filters
+  public function count(array $filters = []): int
+  {
+    return $this->collection->countDocuments($filters);
   }
 
   // Register a user for an event

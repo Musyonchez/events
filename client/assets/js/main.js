@@ -114,9 +114,8 @@ function checkAuthState() {
 async function loadFeaturedEvents() {
     const featuredEventsContainer = document.getElementById('featured-events');
     try {
-        // Fetch featured events (assuming an endpoint exists for this)
-        const eventsResponse = await request('/events/index.php?action=details&featured=true&limit=3', 'GET');
-        const events = eventsResponse.data || [];
+        const eventsResponse = await request('/events/index.php?action=list&status=featured&limit=3', 'GET');
+        const events = eventsResponse.data.events || [];
         
         featuredEventsContainer.innerHTML = ''; // Clear loading placeholders
 

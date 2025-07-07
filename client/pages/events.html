@@ -106,46 +106,7 @@
 
             <!-- Events Grid -->
             <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Loading Skeleton -->
-                <div class="animate-pulse">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="h-48 bg-gray-300"></div>
-                        <div class="p-6">
-                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                            <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
-                            <div class="space-y-2">
-                                <div class="h-3 bg-gray-300 rounded w-full"></div>
-                                <div class="h-3 bg-gray-300 rounded w-2/3"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="animate-pulse">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="h-48 bg-gray-300"></div>
-                        <div class="p-6">
-                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                            <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
-                            <div class="space-y-2">
-                                <div class="h-3 bg-gray-300 rounded w-full"></div>
-                                <div class="h-3 bg-gray-300 rounded w-2/3"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="animate-pulse">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="h-48 bg-gray-300"></div>
-                        <div class="p-6">
-                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                            <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
-                            <div class="space-y-2">
-                                <div class="h-3 bg-gray-300 rounded w-full"></div>
-                                <div class="h-3 bg-gray-300 rounded w-2/3"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
 
             <!-- No Results Message -->
@@ -222,8 +183,8 @@
     <script src="../assets/js/utils.js"></script>
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
-    <script src="../assets/js/main.js"></script>
     <script src="../assets/js/component-loader.js"></script>
+    <script src="../assets/js/main.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -250,17 +211,30 @@
 
             // Event card template
             function createEventCard(event) {
-                const eventDate = new Date(event.event_date);
+                // Handle complex date objects from MongoDB JSON representation
+                const getTimestamp = (dateObj) => {
+                    if (!dateObj) return null;
+                    if (dateObj.$date && dateObj.$date.$numberLong) {
+                        return parseInt(dateObj.$date.$numberLong);
+                    }
+                    // Fallback for ISO strings or other direct date formats
+                    return new Date(dateObj).getTime();
+                };
+
+                const eventDate = new Date(getTimestamp(event.event_date));
+                const deadline = new Date(getTimestamp(event.registration_deadline));
+
                 const isRegistrationOpen = event.registration_required && 
-                    new Date(event.registration_deadline) > new Date() && 
+                    !isNaN(deadline.getTime()) && // Check if the date is valid
+                    deadline > new Date() && 
                     event.current_registrations < event.max_attendees;
 
                 return `
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer" onclick="handleCardClick(event, '${event._id.$oid}')">
                         ${event.featured ? '<div class="bg-yellow-500 text-white px-3 py-1 text-xs font-semibold">FEATURED</div>' : ''}
                         
                         <div class="relative">
-                            <img src="${event.banner_image || '../assets/images/event-placeholder.jpg'}" 
+                            <img src="${event.banner_image || 'https://placehold.co/400x250'}" 
                                  alt="${event.title}" 
                                  class="w-full h-48 object-cover">
                             <div class="absolute top-2 right-2">
@@ -309,14 +283,14 @@
                             ` : ''}
                             
                             <div class="flex items-center justify-between">
-                                <a href="./event-details.html?id=${event._id}" 
+                                <a href="./event-details.html?id=${event._id.$oid}" 
                                    class="text-blue-600 hover:text-blue-800 font-medium text-sm">
                                     View Details
                                 </a>
                                 
                                 ${isRegistrationOpen ? `
-                                    <button onclick="registerForEvent('${event._id}')" 
-                                            class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
+                                    <button onclick="registerForEvent('${event._id.$oid}')" 
+                                            class="register-button bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
                                         Register
                                     </button>
                                 ` : event.registration_required ? `
@@ -328,6 +302,34 @@
                 `;
             }
 
+            // Skeleton card template
+            function createSkeletonCard() {
+                return `
+                    <div class="animate-pulse">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="h-48 bg-gray-300"></div>
+                            <div class="p-6">
+                                <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                                <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+                                <div class="space-y-2">
+                                    <div class="h-3 bg-gray-300 rounded w-full"></div>
+                                    <div class="h-3 bg-gray-300 rounded w-2/3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Handle card click for navigation
+            window.handleCardClick = function(event, eventId) {
+                // Do not navigate if the click was on a button, a link, or any element with its own click handler
+                if (event.target.closest('button, a')) {
+                    return;
+                }
+                window.location.href = `./event-details.html?id=${eventId}`;
+            };
+
             // Load events function
             async function loadEvents(reset = false) {
                 if (isLoading) return;
@@ -336,45 +338,52 @@
                 if (reset) {
                     currentPage = 1;
                     allEvents = [];
-                    eventsGrid.innerHTML = '';
                     noResults.classList.add('hidden');
+                    // Show skeletons on initial load or filter change
+                    let skeletonHTML = '';
+                    for (let i = 0; i < 6; i++) {
+                        skeletonHTML += createSkeletonCard();
+                    }
+                    eventsGrid.innerHTML = skeletonHTML;
                 }
 
                 try {
-                    // TODO: Implement API call to fetch events
-                    // const response = await fetchEvents({
-                    //     page: currentPage,
-                    //     limit: 12,
-                    //     ...currentFilters
-                    // });
+                    const params = new URLSearchParams({
+                        action: 'list',
+                        page: currentPage,
+                        limit: 12,
+                    });
+
+                    if (currentFilters.search) params.append('search', currentFilters.search);
+                    if (currentFilters.category) params.append('category', currentFilters.category);
+                    if (currentFilters.date) params.append('date', currentFilters.date);
+                    if (currentFilters.status) params.append('status', currentFilters.status);
+                    if (currentFilters.sort) params.append('sort', currentFilters.sort);
                     
-                    // Simulate API call for now
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    // Mock data - replace with actual API response
-                    const mockEvents = [];
-                    
-                    if (reset) {
-                        eventsGrid.innerHTML = '';
+                    const response = await request(`/events/index.php?${params.toString()}`, 'GET');
+                    const fetchedEvents = response.data.events || [];
+                    const totalEvents = response.data.total;
+
+                    if (currentPage === 1) {
+                        eventsGrid.innerHTML = ''; // Clear skeletons
                     }
-                    
-                    if (mockEvents.length === 0 && currentPage === 1) {
+
+                    if (fetchedEvents.length === 0 && currentPage === 1) {
                         noResults.classList.remove('hidden');
                         resultsCount.textContent = 'No events found';
                         loadMoreBtn.parentElement.classList.add('hidden');
                     } else {
                         noResults.classList.add('hidden');
-                        allEvents = [...allEvents, ...mockEvents];
                         
-                        mockEvents.forEach(event => {
-                            const eventCard = document.createElement('div');
-                            eventCard.innerHTML = createEventCard(event);
-                            eventsGrid.appendChild(eventCard.firstElementChild);
+                        fetchedEvents.forEach(event => {
+                            const eventCardHTML = createEventCard(event);
+                            eventsGrid.insertAdjacentHTML('beforeend', eventCardHTML);
                         });
                         
-                        resultsCount.textContent = `Showing ${allEvents.length} events`;
+                        allEvents = [...allEvents, ...fetchedEvents];
+                        resultsCount.textContent = `Showing ${allEvents.length} of ${totalEvents} events`;
                         
-                        if (mockEvents.length < 12) {
+                        if (allEvents.length >= totalEvents) {
                             loadMoreBtn.parentElement.classList.add('hidden');
                         } else {
                             loadMoreBtn.parentElement.classList.remove('hidden');
@@ -384,6 +393,8 @@
                 } catch (error) {
                     console.error('Error loading events:', error);
                     resultsCount.textContent = 'Error loading events';
+                    eventsGrid.innerHTML = ''; // Clear skeletons on error
+                    noResults.classList.remove('hidden');
                 } finally {
                     isLoading = false;
                     loadMoreText.classList.remove('hidden');
@@ -441,20 +452,18 @@
             // Register for event function
             window.registerForEvent = async function(eventId) {
                 try {
-                    // TODO: Check if user is logged in
-                    // if (!isLoggedIn()) {
-                    //     window.location.href = './login.html';
-                    //     return;
-                    // }
+                    if (!isAuthenticated()) {
+                        window.location.href = './login.html';
+                        return;
+                    }
                     
-                    // TODO: Implement event registration API call
-                    // await registerForEvent(eventId);
+                    await request('/events/register.php', 'POST', { event_id: eventId });
                     
                     alert('Registration successful!');
                     loadEvents(true);
                     
                 } catch (error) {
-                    alert('Registration failed: ' + error.message);
+                    alert('Registration failed: ' + (error.message || 'An unknown error occurred.'));
                 }
             };
 
