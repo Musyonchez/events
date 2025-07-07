@@ -9,54 +9,7 @@
 </head>
 <body>
     <div id="navbar-placeholder"></div>
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <img src="../assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
-                    <span class="ml-2 text-xl font-bold text-blue-600">USIU Events</span>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="../index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-                    <a href="./events.html" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
-                    <a href="#" class="text-blue-600 font-medium">Clubs</a>
-                    
-                    <!-- Auth Buttons - Show when not logged in -->
-                    <div id="auth-buttons" class="flex items-center space-x-4">
-                        <a href="./login.html" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
-                        <a href="./register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">Register</a>
-                    </div>
-                    
-                    <!-- User Menu - Show when logged in -->
-                    <div id="user-menu" class="hidden relative">
-                        <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
-                            <img id="user-avatar" src="" alt="User Avatar" class="w-8 h-8 rounded-full">
-                            <span id="user-name"></span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                            <a href="./dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                            <button id="logout-btn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+    
 
     <!-- Page Header -->
     <section class="bg-gradient-to-r from-blue-600 to-purple-600 pt-16">
@@ -167,47 +120,7 @@
 
             <!-- Clubs Grid View -->
             <div id="clubs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Loading Skeleton -->
-                <div class="animate-pulse">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="h-32 bg-gray-300"></div>
-                        <div class="p-4">
-                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                            <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
-                            <div class="h-3 bg-gray-300 rounded w-full"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="animate-pulse">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="h-32 bg-gray-300"></div>
-                        <div class="p-4">
-                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                            <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
-                            <div class="h-3 bg-gray-300 rounded w-full"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="animate-pulse">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="h-32 bg-gray-300"></div>
-                        <div class="p-4">
-                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                            <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
-                            <div class="h-3 bg-gray-300 rounded w-full"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="animate-pulse">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="h-32 bg-gray-300"></div>
-                        <div class="p-4">
-                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                            <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
-                            <div class="h-3 bg-gray-300 rounded w-full"></div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
 
             <!-- Clubs List View -->
@@ -331,9 +244,7 @@
                             <div class="h-32 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                                 ${club.logo ? 
                                     `<img src="${club.logo}" alt="${club.name}" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">` :
-                                    `<div class="w-20 h-20 rounded-full bg-white flex items-center justify-center border-4 border-white shadow-lg">
-                                        <span class="text-2xl font-bold text-blue-600">${club.name.charAt(0)}</span>
-                                    </div>`
+                                    `<img src="https://placehold.co/100" alt="${club.name}" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">`
                                 }
                             </div>
                             <div class="absolute top-2 right-2">
@@ -369,10 +280,14 @@
                                 </a>
                                 
                                 ${club.status === 'active' ? `
-                                    <button onclick="joinClub('${club._id.$oid}')" 
-                                            class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
-                                        Join Club
-                                    </button>
+                                    ${club.is_member ? `
+                                        <button class="bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium cursor-not-allowed" disabled>Joined</button>
+                                    ` : `
+                                        <button onclick="joinClub('${club._id.$oid}')" 
+                                                class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
+                                            Join Club
+                                        </button>
+                                    `}
                                 ` : ''}
                             </div>
                         </div>
@@ -392,9 +307,7 @@ function createClubListItem(club) {
                     <div class="flex-shrink-0">
                         ${club.logo ? 
                             `<img src="${club.logo}" alt="${club.name}" class="w-16 h-16 rounded-full object-cover">` :
-                            `<div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                                <span class="text-xl font-bold text-white">${club.name.charAt(0)}</span>
-                            </div>`
+                            `<img src="https://placehold.co/100" alt="${club.name}" class="w-16 h-16 rounded-full object-cover">`
                         }
                     </div>
                     <div class="ml-6 flex-1">
@@ -434,6 +347,41 @@ function createClubListItem(club) {
     `;
 }
 
+            // Skeleton template
+            function createSkeletonCard() {
+                return `
+                    <div class="animate-pulse">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="h-32 bg-gray-300"></div>
+                            <div class="p-4">
+                                <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                                <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
+                                <div class="h-3 bg-gray-300 rounded w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Show skeletons
+            function showSkeletons() {
+                clubsGrid.innerHTML = '';
+                clubsList.innerHTML = '';
+                for (let i = 0; i < 8; i++) { // Show 8 skeleton cards
+                    const skeleton = document.createElement('div');
+                    skeleton.innerHTML = createSkeletonCard();
+                    clubsGrid.appendChild(skeleton.firstElementChild);
+                }
+                clubsGrid.classList.remove('hidden');
+                clubsList.classList.add('hidden');
+            }
+
+            // Hide skeletons
+            function hideSkeletons() {
+                clubsGrid.innerHTML = '';
+                clubsList.innerHTML = '';
+            }
+
             // Load clubs function
             async function loadClubs(reset = false) {
                 if (isLoading) return;
@@ -445,6 +393,7 @@ function createClubListItem(club) {
                     clubsGrid.innerHTML = '';
                     clubsList.innerHTML = '';
                     noResults.classList.add('hidden');
+                    showSkeletons(); // Show skeletons when resetting/loading
                 }
 
                 try {
@@ -485,13 +434,14 @@ function createClubListItem(club) {
                         params.sort_order = sortOrder;
                     }
 
-                    const response = await request(`/clubs/index.php?action=list`, 'GET', params);
+                    const response = await request(`/clubs/index.php?action=list`, 'GET', params, true);
                     const { clubs, total_clubs } = response;
                     
                     if (reset) {
                         clubsGrid.innerHTML = '';
                         clubsList.innerHTML = '';
                     }
+                    hideSkeletons();
                     
                     if (clubs.length === 0 && currentPage === 1) {
                         noResults.classList.remove('hidden');
@@ -634,7 +584,7 @@ function createClubListItem(club) {
                         return;
                     }
                     
-                    await fetchFromAPI(`clubs?action=join`, { club_id: clubId }, 'POST');
+                    await fetchFromAPI(`clubs/index.php?action=join`, 'POST', { club_id: clubId }, true);
                     
                     alert('Successfully joined club!');
                     loadClubs(true);
