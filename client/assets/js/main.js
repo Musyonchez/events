@@ -1,5 +1,5 @@
-import { request } from './http.js';
-import { isAuthenticated, getCurrentUser, logout } from './auth.js';
+import { request, AccessTokenExpiredError } from './http.js';
+import { isAuthenticated, getCurrentUser, logout, refreshToken } from './auth.js';
 
 // Main application logic
 
@@ -134,7 +134,19 @@ function checkAuthState() {
 async function loadFeaturedEvents() {
     const featuredEventsContainer = document.getElementById('featured-events');
     try {
-        const eventsResponse = await request('/events/index.php?action=list&status=featured&limit=3', 'GET');
+        const eventsResponse = await (async () => {
+            try {
+                return await request('/events/index.php?action=list&status=featured&limit=3', 'GET');
+            } catch (error) {
+                if (error instanceof AccessTokenExpiredError) {
+                    console.log('Access token expired for featured events. Attempting to refresh...');
+                    await refreshToken();
+                    console.log('Token refreshed. Retrying featured events request...');
+                    return await request('/events/index.php?action=list&status=featured&limit=3', 'GET');
+                }
+                throw error;
+            }
+        })();
         const events = eventsResponse.data.events || [];
         
         featuredEventsContainer.innerHTML = ''; // Clear loading placeholders
@@ -172,7 +184,19 @@ async function loadClubs() {
     const clubsGrid = document.getElementById('clubs-grid');
     try {
         // Fetch clubs
-        const clubsResponse = await request('/clubs/index.php?action=list&limit=4', 'GET');
+        const clubsResponse = await (async () => {
+            try {
+                return await request('/clubs/index.php?action=list&limit=4', 'GET');
+            } catch (error) {
+                if (error instanceof AccessTokenExpiredError) {
+                    console.log('Access token expired for clubs. Attempting to refresh...');
+                    await refreshToken();
+                    console.log('Token refreshed. Retrying clubs request...');
+                    return await request('/clubs/index.php?action=list&limit=4', 'GET');
+                }
+                throw error;
+            }
+        })();
         const { clubs, total_clubs } = clubsResponse;
         
         clubsGrid.innerHTML = ''; // Clear loading placeholders
