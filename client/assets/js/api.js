@@ -1,5 +1,7 @@
 // Centralized API interaction logic
 
+import { logout, refreshToken } from './auth.js';
+
 const API_BASE_URL = 'http://localhost:8000/api'; // Adjust if your backend URL is different
 
 /**
@@ -45,11 +47,30 @@ async function request(endpoint, method, data = null, requiresAuth = false) {
         const responseData = await response.json();
 
         if (!response.ok) {
-            // Create a custom error object to pass more info
             const error = new Error(responseData.error || 'An unknown error occurred');
             error.status = response.status;
             error.details = responseData.details;
-            throw error;
+
+            if (error.status === 401 && error.details && error.details.error_type === 'access_token_expired') {
+                console.log('Access token expired. Attempting to refresh...');
+                try {
+                    await refreshToken();
+                    console.log('Token refreshed. Retrying original request...');
+                    // Retry the original request with the new token
+                    return await request(endpoint, method, data, requiresAuth);
+                } catch (refreshError) {
+                    console.error('Failed to refresh token:', refreshError);
+                    logout(); // Force logout if refresh fails
+                    throw refreshError; // Re-throw refresh error
+                }
+            } else if (error.status === 401 || error.status === 403) {
+                // This block handles other 401/403 errors, including 'refresh_token_expired'
+                // that might originate from the refreshToken() call.
+                console.error('Authentication or authorization error:', error.message);
+                logout(); // Force logout for other auth/authz errors
+                throw error;
+            }
+            throw error; // Re-throw other non-OK errors
         }
 
         return responseData;

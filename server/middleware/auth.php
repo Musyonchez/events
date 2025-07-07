@@ -33,7 +33,7 @@ function authenticate() {
         // It's an error string from validateJwt
         switch ($decoded) {
             case 'expired':
-                send_unauthorized('Token expired', ['error_type' => 'token_expired']);
+                send_unauthorized('Access token expired', ['error_type' => 'access_token_expired']);
                 break;
             case 'invalid_signature':
                 send_unauthorized('Invalid token signature', ['error_type' => 'invalid_signature']);

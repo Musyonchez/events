@@ -5,7 +5,7 @@
  * @param {object} userData - The user data for registration.
  * @returns {Promise<any>}
  */
-async function register(userData) {
+export async function register(userData) {
     return await request('/auth/index.php?action=register', 'POST', userData);
 }
 
@@ -14,7 +14,7 @@ async function register(userData) {
  * @param {object} credentials - The user's login credentials (email, password).
  * @returns {Promise<any>}
  */
-async function login(credentials) {
+export async function login(credentials) {
     const response = await request('/auth/index.php?action=login', 'POST', credentials);
     if (response.data && response.data.access_token) {
         localStorage.setItem('access_token', response.data.access_token);
@@ -27,7 +27,7 @@ async function login(credentials) {
 /**
  * Logs out the current user by clearing stored tokens.
  */
-function logout() {
+export function logout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
@@ -39,7 +39,7 @@ function logout() {
  * Checks if the user is currently authenticated.
  * @returns {boolean}
  */
-function isAuthenticated() {
+export function isAuthenticated() {
     return !!localStorage.getItem('access_token');
 }
 
@@ -47,7 +47,7 @@ function isAuthenticated() {
  * Gets the current user's data from local storage.
  * @returns {object|null}
  */
-function getCurrentUser() {
+export function getCurrentUser() {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
 }
@@ -56,7 +56,7 @@ function getCurrentUser() {
  * Refreshes the access token using the refresh token.
  * @returns {Promise<any>}
  */
-async function refreshToken() {
+export async function refreshToken() {
     const refreshToken = localStorage.getItem('refresh_token');
     if (!refreshToken) {
         logout(); // Force logout if no refresh token is available
@@ -80,7 +80,7 @@ async function refreshToken() {
  * @param {string} token - The verification token from the URL.
  * @returns {Promise<any>}
  */
-async function verifyEmailToken(token) {
+export async function verifyEmailToken(token) {
     return await request(`/auth/verify_email.php?token=${token}`, 'GET');
 }
 
@@ -89,6 +89,6 @@ async function verifyEmailToken(token) {
  * @param {string} email - The user's email address.
  * @returns {Promise<any>}
  */
-async function resendVerificationEmail(email) {
+export async function resendVerificationEmail(email) {
     return await request('/auth/resend_verification.php', 'POST', { email });
 }

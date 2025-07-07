@@ -74,7 +74,7 @@ The API uses **JWT (JSON Web Tokens)** for authentication.
 
 When an authenticated request fails due to token issues, the API will return a `401 Unauthorized` or `403 Forbidden` status with a JSON body containing an `error_type` field in the `details` object. The frontend should use this `error_type` to decide the next action:
 
-*   **`token_expired`**: The `access_token` has expired.
+*   **`access_token_expired`**: The `access_token` has expired.
     *   **Frontend Action:** Attempt to use the `refresh_token` to get a new `access_token`. If successful, retry the original request.
 *   **`invalid_signature`**: The `access_token` is invalid (e.g., tampered with, malformed).
     *   **Frontend Action:** Force user logout and re-authentication. The `refresh_token` is also likely compromised or invalid.
