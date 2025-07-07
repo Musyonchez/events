@@ -129,7 +129,7 @@ class EventModel
     ];
 
     $cursor = $this->collection->find($filters, $options);
-    $events = iterator_to_array((array)$cursor);
+    $events = iterator_to_array($cursor);
 
     // Convert BSON documents to arrays
     return array_map(fn($doc) => $doc->getArrayCopy(), $events);

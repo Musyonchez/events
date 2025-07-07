@@ -53,7 +53,11 @@ foreach ($allowedFilters as $filterKey) {
     if (isset($_GET[$filterKey])) {
         $filterValue = $_GET[$filterKey];
 
-        if (in_array($filterKey, $caseInsensitiveFields, true)) {
+        // Special handling for boolean 'featured' filter
+        if ($filterKey === 'featured') {
+            // Ensure a strict boolean true is used for the query
+            $filters['featured'] = strtolower($filterValue) === 'true';
+        } elseif (in_array($filterKey, $caseInsensitiveFields, true)) {
             // Use a case-insensitive regex for specific fields
             $filters[$filterKey] = new MongoDB\BSON\Regex($filterValue, 'i');
         } else {

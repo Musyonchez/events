@@ -128,10 +128,10 @@ async function loadFeaturedEvents() {
         events.forEach(event => {
             const eventCard = `
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition duration-300">
-                    <a href="./pages/event-details.html?id=${event._id}">
-                        <img src="${event.banner_image || 'https://via.placeholder.com/400x200'}" alt="${event.title}" class="w-full h-48 object-cover">
+                    <a href="./pages/event-details.html?id=${event._id.$oid}">
+                        <img src="${event.banner_image || 'https://placehold.co/400x200'}" alt="${event.title}" class="w-full h-48 object-cover">
                         <div class="p-6">
-                            <p class="text-sm text-gray-500 mb-1">${new Date(event.event_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                            <p class="text-sm text-gray-500 mb-1">${new Date(parseInt(event.event_date.$date.$numberLong)).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">${event.title}</h3>
                             <p class="text-gray-600">${event.location}</p>
                         </div>
@@ -166,8 +166,8 @@ async function loadClubs() {
         clubs.forEach(club => {
             const clubCard = `
                 <div class="bg-white rounded-lg shadow-md p-6 text-center transform hover:scale-105 transition duration-300">
-                    <a href="./pages/club-details.html?id=${club._id}">
-                        <img src="${club.logo || 'https://via.placeholder.com/100'}" alt="${club.name}" class="w-16 h-16 rounded-full mx-auto mb-4">
+                    <a href="./pages/club-details.html?id=${club._id.$oid}">
+                        <img src="${club.logo || 'https://placehold.co/100'}" alt="${club.name}" class="w-16 h-16 rounded-full mx-auto mb-4">
                         <h3 class="text-lg font-semibold text-gray-800">${club.name}</h3>
                         <p class="text-sm text-gray-500">${club.category}</p>
                     </a>
