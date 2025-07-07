@@ -21,20 +21,60 @@ if ($requestData !== null) {
     $requestData = sanitizeInput($requestData);
 }
 
-switch ($method) {
-    case 'GET':
-        require __DIR__ . '/details.php';
+// Determine the action based on a query parameter
+$action = $_GET['action'] ?? null;
+
+switch ($action) {
+    case 'create':
+        if ($method === 'POST') {
+            require __DIR__ . '/create.php';
+        } else {
+            send_method_not_allowed();
+        }
         break;
-    case 'POST':
-        require __DIR__ . '/create.php';
+    case 'list':
+        if ($method === 'GET') {
+            require __DIR__ . '/list.php';
+        } else {
+            send_method_not_allowed();
+        }
         break;
-    case 'PATCH':
-        require __DIR__ . '/update.php';
+    case 'details':
+        if ($method === 'GET') {
+            require __DIR__ . '/details.php';
+        } else {
+            send_method_not_allowed();
+        }
         break;
-    case 'DELETE':
-        require __DIR__ . '/delete.php';
+    case 'update':
+        if ($method === 'PATCH') {
+            require __DIR__ . '/update.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
+    case 'delete':
+        if ($method === 'DELETE') {
+            require __DIR__ . '/delete.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
+    case 'join':
+        if ($method === 'POST') {
+            require __DIR__ . '/join.php';
+        } else {
+            send_method_not_allowed();
+        }
         break;
     default:
-        send_method_not_allowed();
+        // For general listing (GET without action), or if no action is specified
+        if ($method === 'GET') {
+            // This would typically be a list all clubs endpoint
+            // For now, we'll just return an error if no specific action is given for GET
+            send_error('Invalid club action or missing action parameter.');
+        } else {
+            send_error('Invalid club action or missing action parameter.');
+        }
         break;
 }

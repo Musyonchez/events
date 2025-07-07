@@ -43,6 +43,7 @@ class ClubSchema
       'leader_id' => ['type' => 'objectid', 'required' => true],
       'members_count' => ['type' => 'int', 'default' => 0, 'min' => 0, 'max' => 10000],
       'status' => ['type' => 'string', 'default' => 'active', 'allowed' => ['active', 'inactive']],
+      'members' => ['type' => 'array', 'default' => [], 'items' => ['type' => 'objectid']],
     ];
   }
 

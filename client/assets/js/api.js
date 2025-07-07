@@ -10,8 +10,8 @@ const API_BASE_URL = 'http://localhost:8000/api'; // Adjust if your backend URL 
  * @param {boolean} [requiresAuth=false] - Whether the request requires an Authorization header.
  * @returns {Promise<any>} - The JSON response from the API.
  */
-async function request(endpoint, method, body = null, requiresAuth = false) {
-    const url = `${API_BASE_URL}${endpoint}`;
+async function request(endpoint, method, data = null, requiresAuth = false) {
+    let url = `${API_BASE_URL}${endpoint}`;
     const headers = {
         'Content-Type': 'application/json',
     };
@@ -31,23 +31,28 @@ async function request(endpoint, method, body = null, requiresAuth = false) {
         headers,
     };
 
-    if (body) {
-        config.body = JSON.stringify(body);
+    if (method === 'GET') {
+        if (data) {
+            const queryParams = new URLSearchParams(data).toString();
+            url = `${url}${url.includes('?') ? '&' : '?'}${queryParams}`;
+        }
+    } else if (data) {
+        config.body = JSON.stringify(data);
     }
 
     try {
         const response = await fetch(url, config);
-        const data = await response.json();
+        const responseData = await response.json();
 
         if (!response.ok) {
             // Create a custom error object to pass more info
-            const error = new Error(data.error || 'An unknown error occurred');
+            const error = new Error(responseData.error || 'An unknown error occurred');
             error.status = response.status;
-            error.details = data.details;
+            error.details = responseData.details;
             throw error;
         }
 
-        return data;
+        return responseData;
     } catch (error) {
         // Re-throw the error to be caught by the calling function
         throw error;

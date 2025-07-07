@@ -152,8 +152,8 @@ async function loadClubs() {
     const clubsGrid = document.getElementById('clubs-grid');
     try {
         // Fetch clubs
-        const clubsResponse = await request('/clubs/index.php?limit=4', 'GET');
-        const clubs = clubsResponse.data;
+        const clubsResponse = await request('/clubs/index.php?action=list&limit=4', 'GET');
+        const { clubs, total_clubs } = clubsResponse;
         
         clubsGrid.innerHTML = ''; // Clear loading placeholders
 

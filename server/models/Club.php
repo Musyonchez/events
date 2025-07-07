@@ -181,23 +181,41 @@ class ClubModel
     }
   }
 
-  // List all clubs with optional filters, paging etc.
-  public function list(array $filters = [], int $limit = 50, int $skip = 0): array
+  // List all clubs with optional filters, paging and sorting
+  public function listClubs(array $filters = [], int $page = 1, int $limit = 10, array $sort_options = []): array
   {
+    $skip = ($page - 1) * $limit;
+
+    $query = $filters;
+
+    // Handle min_members and max_members filters
+    if (isset($filters['min_members']) || isset($filters['max_members'])) {
+        $query['members_count'] = [];
+        if (isset($filters['min_members'])) {
+            $query['members_count']['$gte'] = (int)$filters['min_members'];
+        }
+        if (isset($filters['max_members'])) {
+            $query['members_count']['$lte'] = (int)$filters['max_members'];
+        }
+        // Remove original min/max_members from filters to avoid duplication
+        unset($query['min_members']);
+        unset($query['max_members']);
+    }
+
     $options = [
       'limit' => $limit,
       'skip' => $skip,
-      'sort' => ['name' => 1] // Alphabetical order
+      'sort' => !empty($sort_options) ? $sort_options : ['name' => 1] // Default sort by name
     ];
 
-    $cursor = $this->collection->find($filters, $options);
+    $cursor = $this->collection->find($query, $options);
     $clubs = iterator_to_array($cursor);
 
     return array_map(fn($doc) => $doc->getArrayCopy(), $clubs);
   }
 
   // Get total count of clubs (useful for pagination)
-  public function count(array $filters = []): int
+  public function countClubs(array $filters = []): int
   {
     return $this->collection->countDocuments($filters);
   }
@@ -445,6 +463,42 @@ class ClubModel
     return array_map(function($club) {
       return ClubSchema::sanitizeForPublic($club);
     }, $clubs);
+  }
+
+  // Add a member to the club
+  public function addMember(string $clubId, string $userId): bool
+  {
+    try {
+      $updateResult = $this->collection->updateOne(
+        ['_id' => new ObjectId($clubId)],
+        [
+          '$addToSet' => ['members' => new ObjectId($userId)], // Add to set to avoid duplicates
+          '$inc' => ['members_count' => 1],
+          '$set' => ['updated_at' => new UTCDateTime()]
+        ]
+      );
+      return $updateResult->getModifiedCount() > 0;
+    } catch (Exception $e) {
+      throw new Exception("Failed to add member to club: " . $e->getMessage());
+    }
+  }
+
+  // Remove a member from the club
+  public function removeMember(string $clubId, string $userId): bool
+  {
+    try {
+      $updateResult = $this->collection->updateOne(
+        ['_id' => new ObjectId($clubId)],
+        [
+          '$pull' => ['members' => new ObjectId($userId)],
+          '$inc' => ['members_count' => -1],
+          '$set' => ['updated_at' => new UTCDateTime()]
+        ]
+      );
+      return $updateResult->getModifiedCount() > 0;
+    } catch (Exception $e) {
+      throw new Exception("Failed to remove member from club: " . $e->getMessage());
+    }
   }
 
   // Private helper methods

@@ -7,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-<body class="bg-gray-50">
+<body>
+    <div id="navbar-placeholder"></div>
     <!-- Navigation -->
     <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -288,6 +289,8 @@
     <script src="../assets/js/utils.js"></script>
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/component-loader.js"></script>
+    <script src="../assets/js/main.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -360,13 +363,13 @@
                             </p>
                             
                             <div class="flex items-center justify-between">
-                                <a href="./club-details.html?id=${club._id}" 
+                                <a href="./club-details.html?id=${club._id.$oid}" 
                                    class="text-blue-600 hover:text-blue-800 font-medium text-sm">
                                     Learn More
                                 </a>
                                 
                                 ${club.status === 'active' ? `
-                                    <button onclick="joinClub('${club._id}')" 
+                                    <button onclick="joinClub('${club._id.$oid}')" 
                                             class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
                                         Join Club
                                     </button>
@@ -415,12 +418,12 @@ function createClubListItem(club) {
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a href="./club-details.html?id=${club._id}" 
+                    <a href="./club-details.html?id=${club._id.$oid}" 
                        class="text-blue-600 hover:text-blue-800 font-medium">
                         Learn More
                     </a>
                     ${club.status === 'active' ? `
-                        <button onclick="joinClub('${club._id}')" 
+                        <button onclick="joinClub('${club._id.$oid}')" 
                                 class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
                             Join Club
                         </button>
@@ -445,49 +448,76 @@ function createClubListItem(club) {
                 }
 
                 try {
-                    // TODO: Implement API call to fetch clubs
-                    // const response = await fetchClubs({
-                    //     page: currentPage,
-                    //     limit: 12,
-                    //     ...currentFilters
-                    // });
-                    
-                    // Simulate API call for now
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    // Mock data - replace with actual API response
-                    const mockClubs = [];
+                    const params = {
+                        page: currentPage,
+                        limit: 12,
+                    };
+
+                    if (currentFilters.search) {
+                        params.search = currentFilters.search;
+                    }
+                    if (currentFilters.category) {
+                        params.category = currentFilters.category;
+                    }
+                    if (currentFilters.status) {
+                        params.status = currentFilters.status;
+                    }
+                    if (currentFilters.size) {
+                        // Handle size filter: convert to min/max members
+                        switch (currentFilters.size) {
+                            case 'small':
+                                params.min_members = 1;
+                                params.max_members = 25;
+                                break;
+                            case 'medium':
+                                params.min_members = 26;
+                                params.max_members = 100;
+                                break;
+                            case 'large':
+                                params.min_members = 101;
+                                break;
+                        }
+                    }
+
+                    if (currentFilters.sort) {
+                        const [sortByField, sortOrder] = currentFilters.sort.split('-');
+                        params.sort_by = sortByField === 'members' ? 'members_count' : sortByField;
+                        params.sort_order = sortOrder;
+                    }
+
+                    const response = await request(`/clubs/index.php?action=list`, 'GET', params);
+                    const { clubs, total_clubs } = response;
                     
                     if (reset) {
                         clubsGrid.innerHTML = '';
                         clubsList.innerHTML = '';
                     }
                     
-                    if (mockClubs.length === 0 && currentPage === 1) {
+                    if (clubs.length === 0 && currentPage === 1) {
                         noResults.classList.remove('hidden');
                         resultsCount.textContent = 'No clubs found';
                         loadMoreBtn.parentElement.classList.add('hidden');
                     } else {
                         noResults.classList.add('hidden');
-                        allClubs = [...allClubs, ...mockClubs];
+                        allClubs = [...allClubs, ...clubs];
                         
                         if (currentView === 'grid') {
-                            mockClubs.forEach(club => {
+                            clubs.forEach(club => {
                                 const clubCard = document.createElement('div');
                                 clubCard.innerHTML = createClubCard(club);
                                 clubsGrid.appendChild(clubCard.firstElementChild);
                             });
                         } else {
-                            mockClubs.forEach(club => {
+                            clubs.forEach(club => {
                                 const clubItem = document.createElement('div');
                                 clubItem.innerHTML = createClubListItem(club);
                                 clubsList.appendChild(clubItem.firstElementChild);
                             });
                         }
                         
-                        resultsCount.textContent = `Showing ${allClubs.length} clubs`;
+                        resultsCount.textContent = `Showing ${allClubs.length} of ${total_clubs} clubs`;
                         
-                        if (mockClubs.length < 12) {
+                        if (allClubs.length >= total_clubs) {
                             loadMoreBtn.parentElement.classList.add('hidden');
                         } else {
                             loadMoreBtn.parentElement.classList.remove('hidden');
@@ -599,14 +629,12 @@ function createClubListItem(club) {
             // Join club function
             window.joinClub = async function(clubId) {
                 try {
-                    // TODO: Check if user is logged in
-                    // if (!isLoggedIn()) {
-                    //     window.location.href = './login.html';
-                    //     return;
-                    // }
+                    if (!isLoggedIn()) {
+                        window.location.href = './login.html';
+                        return;
+                    }
                     
-                    // TODO: Implement club join API call
-                    // await joinClub(clubId);
+                    await fetchFromAPI(`clubs?action=join`, { club_id: clubId }, 'POST');
                     
                     alert('Successfully joined club!');
                     loadClubs(true);
