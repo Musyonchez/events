@@ -1,23 +1,9 @@
 <?php
 
+require_once __DIR__ . '/../utils/exceptions.php';
+
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-
-class ValidationException extends Exception
-{
-  private array $errors;
-
-  public function __construct(array $errors, string $message = "Validation failed")
-  {
-    $this->errors = $errors;
-    parent::__construct($message);
-  }
-
-  public function getErrors(): array
-  {
-    return $this->errors;
-  }
-}
 
 class CommentSchema
 {
@@ -30,6 +16,7 @@ class CommentSchema
       'parent_comment_id' => ['type' => 'objectid', 'nullable' => true],
       'status' => ['type' => 'string', 'default' => 'pending', 'allowed' => ['pending', 'approved', 'rejected']],
       'flagged' => ['type' => 'bool', 'default' => false],
+      'user' => ['type' => 'object', 'required' => false],
     ];
   }
 
@@ -194,6 +181,12 @@ class CommentSchema
 
       case 'bool':
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? (bool) $value;
+
+      case 'object':
+        if (!is_array($value)) {
+          throw new InvalidArgumentException("Invalid object for field '{$fieldName}': expected array");
+        }
+        return $value;
 
       case 'string':
       default:

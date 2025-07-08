@@ -55,7 +55,7 @@ export async function createClub(clubData) {
  * @returns {Promise<any>}
  */
 export async function getEventComments(eventId) {
-    return await request(`/comments/index.php?event_id=${eventId}`, 'GET');
+    return await request(`/comments/index.php?event_id=${eventId}&status=all`, 'GET');
 }
 
 /**
