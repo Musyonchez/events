@@ -12,7 +12,8 @@ document.addEventListener('navbarLoaded', function() {
     if (document.getElementById('featured-events')) {
         loadFeaturedEvents();
     }
-    if (document.getElementById('clubs-grid')) {
+    // Only load clubs if we're on the homepage (not on clubs page)
+    if (document.getElementById('clubs-grid') && !window.location.pathname.includes('/clubs.html')) {
         loadClubs();
     }
 });
