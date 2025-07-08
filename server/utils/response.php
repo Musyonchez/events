@@ -35,9 +35,9 @@ function send_not_found($resource = 'Resource')
   send_error("{$resource} not found", 404);
 }
 
-function send_unauthorized($message = 'Unauthorized')
+function send_unauthorized($message = 'Unauthorized', $details = [])
 {
-  send_error($message, 401);
+  send_error($message, 401, $details);
 }
 
 function send_forbidden($message = 'Forbidden')

@@ -69,11 +69,14 @@ export async function refreshToken() {
     }
 
     try {
-        const data = await request('/auth/index.php?action=refresh_token', 'POST', { refresh_token: refreshToken });
-        if (data.access_token) {
-            localStorage.setItem('access_token', data.access_token);
+        const response = await request('/auth/index.php?action=refresh_token', 'POST', { refresh_token: refreshToken });
+        console.log('Refresh token response:', response);
+        
+        // The backend returns: { "message": "...", "data": { "access_token": "..." } }
+        if (response.data && response.data.access_token) {
+            localStorage.setItem('access_token', response.data.access_token);
         }
-        return data;
+        return response;
     } catch (error) {
         if (error instanceof AccessTokenExpiredError || error instanceof AuthError) {
             console.error('Refresh token failed:', error.message);

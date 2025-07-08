@@ -1,6 +1,6 @@
 
-import { request } from './http.js';
-import { isAuthenticated } from './auth.js';
+import { request, requestWithAuth } from './http.js';
+import { isAuthenticated, logout, refreshToken } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     let currentPage = 1;
@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            await request('/events/register.php', 'POST', { event_id: eventId });
+            await requestWithAuth('/events/index.php?action=register', 'POST', { event_id: eventId });
             
             alert('Registration successful!');
             loadEvents(true);

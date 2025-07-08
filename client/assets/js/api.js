@@ -1,6 +1,6 @@
 // Centralized API interaction logic
 
-import { request } from './http.js';
+import { request, requestWithAuth } from './http.js';
 
 // Example API calls using the request function
 
@@ -19,7 +19,7 @@ export async function getEventDetails(eventId) {
  * @returns {Promise<any>}
  */
 export async function createEvent(eventData) {
-    return await request('/events/index.php?action=create', 'POST', eventData, true);
+    return await requestWithAuth('/events/index.php?action=create', 'POST', eventData);
 }
 
 /**
@@ -28,7 +28,7 @@ export async function createEvent(eventData) {
  * @returns {Promise<any>}
  */
 export async function registerForEvent(eventId) {
-    return await request('/events/index.php?action=register', 'POST', { event_id: eventId }, true);
+    return await requestWithAuth('/events/index.php?action=register', 'POST', { event_id: eventId });
 }
 
 /**
@@ -46,7 +46,7 @@ export async function getClubDetails(clubId) {
  * @returns {Promise<any>}
  */
 export async function createClub(clubData) {
-    return await request('/clubs/index.php', 'POST', clubData, true);
+    return await requestWithAuth('/clubs/index.php', 'POST', clubData);
 }
 
 /**
@@ -64,5 +64,5 @@ export async function getEventComments(eventId) {
  * @returns {Promise<any>}
  */
 export async function postComment(commentData) {
-    return await request('/comments/index.php', 'POST', commentData, true);
+    return await requestWithAuth('/comments/index.php', 'POST', commentData);
 }
