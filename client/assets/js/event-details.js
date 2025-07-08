@@ -163,6 +163,9 @@ function populateEventDetails(event) {
             </div>
         `;
     }
+    
+    // Social media sharing section
+    populateSocialMediaSharing(event);
 }
 
 function populateRegistrationInfo(event) {
@@ -205,6 +208,52 @@ function populateRegistrationInfo(event) {
     
     // Registration button state
     updateRegistrationButton(event);
+}
+
+function populateSocialMediaSharing(event) {
+    const socialMedia = event.social_media || {};
+    
+    // Update Facebook button
+    const facebookBtn = document.getElementById('facebook-share-btn');
+    if (facebookBtn) {
+        if (socialMedia.facebook) {
+            facebookBtn.onclick = () => window.open(socialMedia.facebook, '_blank');
+            facebookBtn.disabled = false;
+            facebookBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            facebookBtn.onclick = null;
+            facebookBtn.disabled = true;
+            facebookBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+    
+    // Update Twitter button
+    const twitterBtn = document.getElementById('twitter-share-btn');
+    if (twitterBtn) {
+        if (socialMedia.twitter) {
+            twitterBtn.onclick = () => window.open(socialMedia.twitter, '_blank');
+            twitterBtn.disabled = false;
+            twitterBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            twitterBtn.onclick = null;
+            twitterBtn.disabled = true;
+            twitterBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+    
+    // Update Instagram button
+    const instagramBtn = document.getElementById('instagram-share-btn');
+    if (instagramBtn) {
+        if (socialMedia.instagram) {
+            instagramBtn.onclick = () => window.open(socialMedia.instagram, '_blank');
+            instagramBtn.disabled = false;
+            instagramBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            instagramBtn.onclick = null;
+            instagramBtn.disabled = true;
+            instagramBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
 }
 
 function updateRegistrationButton(event) {
@@ -396,24 +445,12 @@ function showErrorState() {
     document.getElementById('error-state').classList.remove('hidden');
 }
 
-// Share event functionality
-window.shareEvent = function(platform) {
+// Copy event link functionality
+window.copyEventLink = function() {
     const url = window.location.href;
-    const title = document.getElementById('event-title').textContent;
-    
-    switch (platform) {
-        case 'facebook':
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-            break;
-        case 'twitter':
-            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
-            break;
-        case 'copy':
-            navigator.clipboard.writeText(url).then(() => {
-                showNotification('Link copied to clipboard!');
-            }).catch(() => {
-                showNotification('Failed to copy link', true);
-            });
-            break;
-    }
+    navigator.clipboard.writeText(url).then(() => {
+        showNotification('Event link copied to clipboard!');
+    }).catch(() => {
+        showNotification('Failed to copy link', true);
+    });
 };

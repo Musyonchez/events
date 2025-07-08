@@ -31,6 +31,7 @@ class EventSchema
       'status' => ['type' => 'string', 'default' => 'draft', 'allowed' => ['draft', 'published', 'cancelled', 'completed']],
       'featured' => ['type' => 'bool', 'default' => false],
       'registered_users' => ['type' => 'objectid_array', 'default' => []],
+      'social_media' => ['type' => 'object', 'required' => false, 'default' => []],
     ];
   }
 
@@ -228,6 +229,12 @@ class EventSchema
       case 'array':
         if (!is_array($value)) {
           throw new InvalidArgumentException("Invalid array for field '{$fieldName}', expected array");
+        }
+        return $value;
+
+      case 'object':
+        if (!is_array($value)) {
+          throw new InvalidArgumentException("Invalid object for field '{$fieldName}': expected array");
         }
         return $value;
 
