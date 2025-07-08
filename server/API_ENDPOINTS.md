@@ -74,7 +74,6 @@ Remember to replace `http://<your_server_address>` with the actual address of yo
     "title": "Annual Tech Innovation Summit",
     "description": "Join us for a day of groundbreaking discussions and showcases in technology and innovation. Featuring keynote speakers from leading tech companies and interactive workshops.",
     "club_id": "65c7a1b2c3d4e5f6a7b8c9d0",
-    "organizer_id": "65c7a1b2c3d4e5f6a7b8c9d1",
     "event_date": "2025-08-15T09:00:00Z",
     "end_date": "2025-08-15T17:00:00Z",
     "location": "USIU Auditorium",

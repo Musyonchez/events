@@ -141,10 +141,7 @@ function populateEventDetails(event) {
     
     document.getElementById('event-location-detail').textContent = event.location || 'TBA';
     
-    // TODO: Implement organizer and club info when available from API
-    // if (event.organizer) {
-    //     document.getElementById('event-organizer').textContent = `${event.organizer.first_name} ${event.organizer.last_name}`;
-    // }
+    // TODO: Implement club info when available from API
     
     // if (event.club) {
     //     document.getElementById('event-club-info').classList.remove('hidden');

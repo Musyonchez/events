@@ -34,8 +34,7 @@ All data exchanged with the API (both requests and responses) is in **JSON forma
     *   `_id` (string): Event's unique ID.
     *   `title` (string), `description` (string)
     *   `club_id` (string): ID of the organizing club.
-    *   `organizer_id` (string): ID of the user who created the event.
-    *   `event_date`, `end_date` (ISO 8601 string)
+        *   `event_date`, `end_date` (ISO 8601 string)
     *   `location` (string)
     *   `max_attendees` (int): 0 for no limit.
     *   `current_registrations` (int)

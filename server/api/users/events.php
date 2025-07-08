@@ -30,17 +30,13 @@ $filters = [];
 
 try {
     switch ($type) {
-        case 'created':
-            // Events where the user is the organizer
-            $filters['organizer_id'] = new MongoDB\BSON\ObjectId($userId);
-            break;
         case 'registered':
             // Events where the user is in the registered_users array
             $filters['registered_users'] = new MongoDB\BSON\ObjectId($userId);
             break;
         // Add other types if needed, e.g., 'club_events' if user is a club leader
         default:
-            send_error('Invalid event type specified. Allowed types: created, registered.', 400);
+            send_error('Invalid event type specified. Allowed types: registered.', 400);
             break;
     }
 

@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
                          club.members_count <= 100 ? 'Medium' : 'Large';
         
         return `
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer" onclick="window.location.href='./club-details.html?id=${club._id.$oid}'">
                 <div class="relative">
                     <div class="h-32 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                         ${club.logo ? 
@@ -71,15 +71,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     <div class="flex items-center justify-between">
                         <a href="./club-details.html?id=${club._id.$oid}" 
-                           class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                           class="text-blue-600 hover:text-blue-800 font-medium text-sm" onclick="event.stopPropagation()">
                             Learn More
                         </a>
                         
                         ${club.status === 'active' ? `
                             ${club.is_member ? `
-                                <button class="bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium cursor-not-allowed" disabled>Joined</button>
+                                <button class="bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium cursor-not-allowed" disabled onclick="event.stopPropagation()">Joined</button>
                             ` : `
-                                <button onclick="joinClub('${club._id.$oid}')" 
+                                <button onclick="event.stopPropagation(); joinClub('${club._id.$oid}')" 
                                         class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
                                     Join Club
                                 </button>
@@ -97,7 +97,7 @@ function createClubListItem(club) {
                      club.members_count <= 100 ? 'Medium' : 'Large';
     
     return `
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer" onclick="window.location.href='./club-details.html?id=${club._id.$oid}'">
             <div class="flex items-center justify-between">
                 <div class="flex items-center flex-1">
                     <div class="flex-shrink-0">
@@ -128,11 +128,11 @@ function createClubListItem(club) {
                 </div>
                 <div class="flex items-center space-x-3">
                     <a href="./club-details.html?id=${club._id.$oid}" 
-                       class="text-blue-600 hover:text-blue-800 font-medium">
+                       class="text-blue-600 hover:text-blue-800 font-medium" onclick="event.stopPropagation()">
                         Learn More
                     </a>
                     ${club.status === 'active' ? `
-                        <button onclick="joinClub('${club._id.$oid}')" 
+                        <button onclick="event.stopPropagation(); joinClub('${club._id.$oid}')" 
                                 class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
                             Join Club
                         </button>

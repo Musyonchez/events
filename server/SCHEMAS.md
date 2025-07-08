@@ -33,7 +33,7 @@ This document outlines the data schemas used in the API, providing a reference f
 | `title`               | `string`         | No       | `""`        | Min length: 3, Max length: 200                                           |
 | `description`         | `string`         | No       | `""`        | Min length: 10, Max length: 2000                                         |
 | `club_id`             | `objectid`       | Yes      |             |                                                                          |
-| `organizer_id`        | `objectid`       | Yes      |             |                                                                          |
+                                                                          |
 | `event_date`          | `datetime`       | Yes      |             |                                                                          |
 | `end_date`            | `datetime`       | No       | `null`      |                                                                          |
 | `location`            | `string`         | No       | `""`        | Min length: 2, Max length: 200                                           |
