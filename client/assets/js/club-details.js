@@ -115,13 +115,31 @@ function updateJoinButton(club) {
 
     if (club.status !== 'active') {
         joinBtn.disabled = true;
-        joinBtn.textContent = 'Club Inactive';
+        joinBtn.innerHTML = `
+            <span id="join-text">Club Inactive</span>
+            <div id="join-spinner" class="hidden">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Joining...
+            </div>
+        `;
         joinBtn.className = 'w-full bg-gray-400 text-white py-3 px-4 rounded-md font-semibold cursor-not-allowed';
         return;
     }
     
     if (!isLoggedIn) {
-        joinBtn.textContent = 'Login to Join';
+        joinBtn.innerHTML = `
+            <span id="join-text">Login to Join</span>
+            <div id="join-spinner" class="hidden">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Joining...
+            </div>
+        `;
         joinBtn.onclick = () => { window.location.href = './login.html'; };
         return;
     }
@@ -141,7 +159,16 @@ function updateJoinButton(club) {
     } else {
         joinBtn.classList.remove('hidden');
         joinStatus.classList.add('hidden');
-        joinBtn.textContent = 'Join Club';
+        joinBtn.innerHTML = `
+            <span id="join-text">Join Club</span>
+            <div id="join-spinner" class="hidden">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Joining...
+            </div>
+        `;
         joinBtn.disabled = false;
         joinBtn.className = 'w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
     }
@@ -180,7 +207,7 @@ async function handleClubJoin() {
         document.getElementById('club-members-detail').textContent = `${currentCount + 1} members`;
         
     } catch (error) {
-        alert('Failed to join club: ' + error.message);
+        showErrorMessage('Failed to join club: ' + error.message);
         
         // Reset button state
         joinBtn.disabled = false;
@@ -361,3 +388,35 @@ window.manageMembers = function() {
     // TODO: Implement member management
     alert('Member management functionality coming soon');
 };
+
+// Utility functions for showing messages
+function showErrorMessage(message) {
+    hideMessages();
+    const errorElement = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    errorText.textContent = message;
+    errorElement.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        errorElement.classList.add('hidden');
+    }, 5000);
+}
+
+function showSuccessMessage(message) {
+    hideMessages();
+    const successElement = document.getElementById('success-message');
+    const successText = document.getElementById('success-text');
+    successText.textContent = message;
+    successElement.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        successElement.classList.add('hidden');
+    }, 5000);
+}
+
+function hideMessages() {
+    document.getElementById('error-message').classList.add('hidden');
+    document.getElementById('success-message').classList.add('hidden');
+}
