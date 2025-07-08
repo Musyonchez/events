@@ -64,9 +64,11 @@ async function loadUserData() {
         // Show admin features for admin/club_leader users
         if (user.role === 'admin' || user.role === 'club_leader') {
             document.getElementById('admin-actions').classList.remove('hidden');
-            document.getElementById('tab-created').classList.remove('hidden');
             document.getElementById('created-events-card').classList.remove('hidden');
         }
+        
+        // Always show Created Events tab for all users (they might have created events)
+        document.getElementById('tab-created').classList.remove('hidden');
 
         // Load dashboard stats
         await loadDashboardStats();
