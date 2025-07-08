@@ -80,7 +80,6 @@ export async function refreshToken() {
     } catch (error) {
         if (error instanceof AccessTokenExpiredError || error instanceof AuthError) {
             console.error('Refresh token failed:', error.message);
-            logout(); // Force logout if refresh fails due to invalid/expired refresh token
         }
         throw error;
     }

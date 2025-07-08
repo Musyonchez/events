@@ -52,9 +52,6 @@ function populateClubDetails(club) {
     // Update page title
     document.title = `${club.name} - USIU Events`;
     
-    // Breadcrumb
-    document.getElementById('club-breadcrumb').textContent = club.name;
-    
     // Header
     document.getElementById('club-name').textContent = club.name;
     document.getElementById('club-category-badge').textContent = club.category || 'General';

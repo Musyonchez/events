@@ -37,6 +37,11 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     ];
 }
 
+// Club filter
+if (isset($_GET['club_id']) && !empty($_GET['club_id'])) {
+    $filters['club_id'] = new MongoDB\BSON\ObjectId($_GET['club_id']);
+}
+
 // Category filter
 if (isset($_GET['category']) && !empty($_GET['category'])) {
     $filters['category'] = new Regex($_GET['category'], 'i');

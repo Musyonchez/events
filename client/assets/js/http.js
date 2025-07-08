@@ -145,7 +145,6 @@ export async function requestWithAuth(endpoint, method, data = null) {
                 return await makeAuthenticatedRequest();
             } catch (refreshError) {
                 console.error('Failed to refresh token:', refreshError);
-                logout();
                 throw new AuthError('Session expired. Please log in again.');
             }
         }
