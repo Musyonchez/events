@@ -18,15 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Authenticate user
 $user = authenticate();
-$userId = new MongoDB\BSON\ObjectId($user['_id']);
+$userId = $user->userId;
 
-// Get club ID from request body
-$input = json_decode(file_get_contents('php://input'), true);
-$clubId = new MongoDB\BSON\ObjectId($input['club_id']);
-
-if (!$clubId) {
+// Get club ID from request data (already parsed and sanitized in index.php)
+if (!isset($requestData['club_id']) || empty($requestData['club_id'])) {
     send_error('Club ID is required', 400);
 }
+
+$clubId = $requestData['club_id'];
 
 try {
     $clubModel = new ClubModel($db->clubs);
@@ -39,7 +38,7 @@ try {
     // Check if user is already a member
     $isMember = false;
     foreach (($club['members'] ?? []) as $memberId) {
-        if ($memberId == $userId) {
+        if ($memberId->__toString() == $userId) {
             $isMember = true;
             break;
         }

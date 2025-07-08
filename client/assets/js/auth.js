@@ -37,7 +37,7 @@ export function logout() {
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
     // Redirect to login page or homepage
-    window.location.href = './login.html';
+    window.location.href = window.location.origin + '/pages/login.html';
 }
 
 /**

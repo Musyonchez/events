@@ -1,5 +1,5 @@
 
-import { request } from './http.js';
+import { request, requestWithAuth } from './http.js';
 import { isAuthenticated } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -230,7 +230,7 @@ function createClubListItem(club) {
                 params.sort_order = sortOrder;
             }
 
-            const response = await request(`/clubs/index.php?action=list`, 'GET', params, true);
+            const response = await request(`/clubs/index.php?action=list`, 'GET', params);
             const { clubs, total_clubs } = response;
             
             if (reset) {
@@ -380,7 +380,7 @@ function createClubListItem(club) {
                 return;
             }
             
-            await request(`clubs/index.php?action=join`, 'POST', { club_id: clubId }, true);
+            await requestWithAuth(`/clubs/index.php?action=join`, 'POST', { club_id: clubId });
             
             alert('Successfully joined club!');
             loadClubs(true);
