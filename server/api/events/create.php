@@ -13,6 +13,8 @@ require_once __DIR__ . '/../../middleware/auth.php';
 require_once __DIR__ . '/../../utils/response.php';
 require_once __DIR__ . '/../../utils/upload.php';
 
+use MongoDB\BSON\ObjectId;
+
 authenticate();
 
 
@@ -34,6 +36,9 @@ if (isset($_FILES['banner_image'])) {
         send_error('File upload failed: ' . $e->getMessage());
     }
 }
+
+// Add the creator's user ID to the event data
+$data['created_by'] = new ObjectId($GLOBALS['user']->userId);
 
 $eventModel = new EventModel($db->events);
 

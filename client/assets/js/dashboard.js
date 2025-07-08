@@ -1,5 +1,6 @@
 
 import { isAuthenticated, getCurrentUser } from './auth.js';
+import { request, requestWithAuth } from './http.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // Check authentication
@@ -11,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     setupTabNavigation();
     loadUserData();
+    
+    // Load content for the initially active tab
+    loadTabContent('registered');
 });
 
 function setupTabNavigation() {
@@ -74,24 +78,22 @@ async function loadUserData() {
 
 async function loadDashboardStats() {
     try {
-        // TODO: Implement API calls to get user stats
-        // const stats = await getUserStats();
-        
-        // Mock stats data
-        const stats = {
-            registeredEvents: 0,
-            attendedEvents: 0,
-            createdEvents: 0,
-            upcomingEvents: 0
-        };
+        const response = await requestWithAuth('/users/index.php?action=stats', 'GET');
+        const stats = response.data;
 
-        document.getElementById('registered-count').textContent = stats.registeredEvents;
-        document.getElementById('attended-count').textContent = stats.attendedEvents;
-        document.getElementById('created-count').textContent = stats.createdEvents;
-        document.getElementById('upcoming-count').textContent = stats.upcomingEvents;
+        document.getElementById('registered-count').textContent = stats.registered_events || 0;
+        document.getElementById('attended-count').textContent = stats.attended_events || 0;
+        document.getElementById('created-count').textContent = stats.created_events || 0;
+        document.getElementById('upcoming-count').textContent = stats.upcoming_events || 0;
 
     } catch (error) {
         console.error('Error loading dashboard stats:', error);
+        showErrorMessage('Failed to load dashboard statistics');
+        // Set default values
+        document.getElementById('registered-count').textContent = '0';
+        document.getElementById('attended-count').textContent = '0';
+        document.getElementById('created-count').textContent = '0';
+        document.getElementById('upcoming-count').textContent = '0';
     }
 }
 
@@ -116,11 +118,8 @@ async function loadRegisteredEvents() {
     const container = document.getElementById('registered-events-list');
     
     try {
-        // TODO: Implement API call to get user's registered events
-        // const events = await getUserRegisteredEvents();
-        
-        // Mock data
-        const events = [];
+        const response = await requestWithAuth('/events/index.php?action=registered', 'GET');
+        const events = response.data.events || [];
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -138,7 +137,7 @@ async function loadRegisteredEvents() {
                 </div>
             `;
         } else {
-            container.innerHTML = events.map(createEventListItem).join('');
+            container.innerHTML = events.map(event => createEventListItem(event)).join('');
         }
 
     } catch (error) {
@@ -148,6 +147,7 @@ async function loadRegisteredEvents() {
                 Error loading events. Please try again.
             </div>
         `;
+        showErrorMessage('Failed to load registered events');
     }
 }
 
@@ -156,10 +156,8 @@ async function loadUpcomingEvents() {
     container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Loading upcoming events...</div>';
 
     try {
-        // TODO: Implement API call to get upcoming events
-        // const events = await getUpcomingEvents();
-        
-        const events = [];
+        const response = await request('/events/index.php?action=list&date=upcoming&limit=10');
+        const events = response.data.events || [];
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -172,7 +170,7 @@ async function loadUpcomingEvents() {
                 </div>
             `;
         } else {
-            container.innerHTML = events.map(createEventListItem).join('');
+            container.innerHTML = events.map(event => createEventListItem(event)).join('');
         }
 
     } catch (error) {
@@ -182,6 +180,7 @@ async function loadUpcomingEvents() {
                 Error loading events. Please try again.
             </div>
         `;
+        showErrorMessage('Failed to load upcoming events');
     }
 }
 
@@ -190,10 +189,8 @@ async function loadCreatedEvents() {
     container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Loading created events...</div>';
 
     try {
-        // TODO: Implement API call to get user's created events
-        // const events = await getUserCreatedEvents();
-        
-        const events = [];
+        const response = await requestWithAuth('/events/index.php?action=created', 'GET');
+        const events = response.data.events || [];
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -221,6 +218,7 @@ async function loadCreatedEvents() {
                 Error loading events. Please try again.
             </div>
         `;
+        showErrorMessage('Failed to load created events');
     }
 }
 
@@ -229,10 +227,8 @@ async function loadEventHistory() {
     container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Loading event history...</div>';
 
     try {
-        // TODO: Implement API call to get user's event history
-        // const events = await getUserEventHistory();
-        
-        const events = [];
+        const response = await requestWithAuth('/events/index.php?action=history', 'GET');
+        const events = response.data.events || [];
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -245,7 +241,7 @@ async function loadEventHistory() {
                 </div>
             `;
         } else {
-            container.innerHTML = events.map(createEventListItem).join('');
+            container.innerHTML = events.map(event => createEventListItem(event)).join('');
         }
 
     } catch (error) {
@@ -255,6 +251,7 @@ async function loadEventHistory() {
                 Error loading events. Please try again.
             </div>
         `;
+        showErrorMessage('Failed to load event history');
     }
 }
 
@@ -262,6 +259,7 @@ function createEventListItem(event, showManageActions = false) {
     const eventDate = new Date(event.event_date);
     const now = new Date();
     const isUpcoming = eventDate > now;
+    const eventId = event._id?.$oid || event._id;
     
     return `
         <div class="px-6 py-4 hover:bg-gray-50">
@@ -307,21 +305,21 @@ function createEventListItem(event, showManageActions = false) {
                 </div>
                 <div class="flex items-center space-x-2">
                     ${showManageActions ? `
-                        <button onclick="editEvent('${event._id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        <button onclick="editEvent('${eventId}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                             Edit
                         </button>
-                        <button onclick="viewEventStats('${event._id}')" class="text-green-600 hover:text-green-800 text-sm font-medium">
+                        <button onclick="viewEventStats('${eventId}')" class="text-green-600 hover:text-green-800 text-sm font-medium">
                             Stats
                         </button>
-                        <button onclick="deleteEvent('${event._id}')" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                        <button onclick="deleteEvent('${eventId}')" class="text-red-600 hover:text-red-800 text-sm font-medium">
                             Delete
                         </button>
                     ` : `
-                        <a href="./event-details.html?id=${event._id}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        <a href="./event-details.html?id=${eventId}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                             View Details
                         </a>
                         ${isUpcoming && event.registration_required ? `
-                            <button onclick="unregisterFromEvent('${event._id}')" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                            <button onclick="unregisterFromEvent('${eventId}')" class="text-red-600 hover:text-red-800 text-sm font-medium">
                                 Unregister
                             </button>
                         ` : ''}
@@ -344,13 +342,13 @@ window.viewEventStats = function(eventId) {
 window.deleteEvent = async function(eventId) {
     if (confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
         try {
-            // TODO: Implement delete event API call
-            // await deleteEvent(eventId);
+            await requestWithAuth(`/events/index.php?action=delete&id=${eventId}`, 'DELETE');
             
-            alert('Event deleted successfully');
+            showSuccessMessage('Event deleted successfully');
             loadCreatedEvents(); // Reload the list
+            loadDashboardStats(); // Update stats
         } catch (error) {
-            alert('Failed to delete event: ' + error.message);
+            showErrorMessage('Failed to delete event: ' + error.message);
         }
     }
 };
@@ -358,14 +356,45 @@ window.deleteEvent = async function(eventId) {
 window.unregisterFromEvent = async function(eventId) {
     if (confirm('Are you sure you want to unregister from this event?')) {
         try {
-            // TODO: Implement unregister API call
-            // await unregisterFromEvent(eventId);
+            await requestWithAuth(`/events/index.php?action=unregister`, 'POST', { event_id: eventId });
             
-            alert('Successfully unregistered from event');
+            showSuccessMessage('Successfully unregistered from event');
             loadRegisteredEvents(); // Reload the list
             loadDashboardStats(); // Update stats
         } catch (error) {
-            alert('Failed to unregister: ' + error.message);
+            showErrorMessage('Failed to unregister: ' + error.message);
         }
     }
 };
+
+// Utility functions for showing messages
+function showErrorMessage(message) {
+    hideMessages();
+    const errorElement = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    errorText.textContent = message;
+    errorElement.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        errorElement.classList.add('hidden');
+    }, 5000);
+}
+
+function showSuccessMessage(message) {
+    hideMessages();
+    const successElement = document.getElementById('success-message');
+    const successText = document.getElementById('success-text');
+    successText.textContent = message;
+    successElement.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        successElement.classList.add('hidden');
+    }, 5000);
+}
+
+function hideMessages() {
+    document.getElementById('error-message').classList.add('hidden');
+    document.getElementById('success-message').classList.add('hidden');
+}

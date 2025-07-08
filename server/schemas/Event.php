@@ -14,6 +14,7 @@ class EventSchema
       'title' => ['type' => 'string', 'default' => '', 'min_length' => 3, 'max_length' => 200],
       'description' => ['type' => 'string', 'default' => '', 'min_length' => 10, 'max_length' => 2000],
       'club_id' => ['type' => 'objectid', 'required' => true],
+      'created_by' => ['type' => 'objectid', 'required' => true],
       'event_date' => ['type' => 'datetime', 'required' => true],
       'end_date' => ['type' => 'datetime', 'nullable' => true],
       'location' => ['type' => 'string', 'default' => '', 'min_length' => 2, 'max_length' => 200],

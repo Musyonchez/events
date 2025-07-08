@@ -25,6 +25,8 @@ switch ($method) {
     case 'GET':
         if (isset($_GET['action']) && $_GET['action'] === 'events') {
             require __DIR__ . '/events.php';
+        } elseif (isset($_GET['action']) && $_GET['action'] === 'stats') {
+            require __DIR__ . '/stats.php';
         } else {
             require __DIR__ . '/details.php';
         }

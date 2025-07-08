@@ -66,6 +66,34 @@ switch ($action) {
             send_method_not_allowed();
         }
         break;
+    case 'registered':
+        if ($method === 'GET') {
+            require __DIR__ . '/registered.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
+    case 'created':
+        if ($method === 'GET') {
+            require __DIR__ . '/created.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
+    case 'history':
+        if ($method === 'GET') {
+            require __DIR__ . '/history.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
+    case 'unregister':
+        if ($method === 'POST') {
+            require __DIR__ . '/unregister.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
     default:
         // For general listing (GET without action), or if no action is specified
         if ($method === 'GET') {
