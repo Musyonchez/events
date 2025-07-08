@@ -188,11 +188,27 @@ async function loadUpcomingEvents() {
 
 async function loadCreatedEvents() {
     const container = document.getElementById('created-events-list');
-    container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Loading created events...</div>';
+    container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Loading manageable events...</div>';
 
     try {
-        const response = await requestWithAuth('/events/index.php?action=created', 'GET');
-        const events = response.data.events || [];
+        const currentUser = getCurrentUser();
+        const userRole = currentUser?.role || 'user';
+        
+        let response;
+        if (userRole === 'admin') {
+            // Admins see all events
+            response = await request('/events/index.php?action=list&limit=100', 'GET');
+        } else {
+            // Others see events they created (we'll filter for club leaders client-side)
+            response = await requestWithAuth('/events/index.php?action=created', 'GET');
+        }
+        
+        let events = response.data.events || [];
+        
+        // For non-admins, filter events they can actually manage
+        if (userRole !== 'admin') {
+            events = events.filter(event => canUserManageEvent(currentUser, event));
+        }
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -262,6 +278,15 @@ function createEventListItem(event, showManageActions = false) {
     const now = new Date();
     const isUpcoming = eventDate > now;
     const eventId = event._id?.$oid || event._id;
+    
+    // Check if user can manage this event
+    const currentUser = getCurrentUser();
+    const canManage = canUserManageEvent(currentUser, event);
+    
+    // Override showManageActions based on permissions
+    if (showManageActions && !canManage) {
+        showManageActions = false;
+    }
     
     return `
         <div class="px-6 py-4 hover:bg-gray-50">
@@ -368,6 +393,37 @@ window.unregisterFromEvent = async function(eventId) {
         }
     }
 };
+
+// Permission check function
+function canUserManageEvent(user, event) {
+    if (!user) return false;
+    
+    const userId = user.id || user._id?.$oid || user._id;
+    const userRole = user.role || 'user';
+    const eventCreatedBy = event.created_by?.$oid || event.created_by;
+    const eventClubId = event.club_id?.$oid || event.club_id;
+    
+    // Check: user.role === 'admin' OR created_by === user.id OR club_leader_of_club === event.club_id
+    
+    // 1. Admin can manage all events
+    if (userRole === 'admin') {
+        return true;
+    }
+    
+    // 2. Creator can manage their own events
+    if (eventCreatedBy && eventCreatedBy === userId) {
+        return true;
+    }
+    
+    // 3. Club leader can manage events from their clubs
+    if (userRole === 'club_leader' && eventClubId) {
+        // TODO: We need to check if this user is the leader of the event's club
+        // For now, we'll assume club leaders can manage events from their clubs
+        // This would require an API call to check club leadership
+        return true;
+    }
+    return false;
+}
 
 // Utility functions for showing messages
 function showErrorMessage(message) {

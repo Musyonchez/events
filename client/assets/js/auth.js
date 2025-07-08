@@ -1,4 +1,4 @@
-import { request, AccessTokenExpiredError, AuthError } from './http.js';
+import { request, requestWithAuth, AccessTokenExpiredError, AuthError } from './http.js';
 
 /**
  * Registers a new user.
@@ -130,8 +130,8 @@ export async function resetPassword(token, newPassword) {
  */
 export async function changePassword(oldPassword, newPassword) {
     // The server should identify the user from the JWT, so no need to send user.id
-    return await request('/auth/index.php?action=change_password', 'POST', {
+    return await requestWithAuth('/auth/index.php?action=change_password', 'POST', {
         old_password: oldPassword,
         new_password: newPassword
-    }, true); // Requires authentication
+    });
 }

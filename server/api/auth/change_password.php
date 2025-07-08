@@ -17,11 +17,11 @@ authenticate();
 
 header('Content-Type: application/json');
 
-// Get the user ID from the URL (assuming it's passed as a query parameter)
-$userId = $_GET['id'] ?? null;
+// Get the user ID from the authenticated user (JWT token)
+$userId = $GLOBALS['user']->userId ?? null;
 
 if (!$userId) {
-    send_error('User ID is required');
+    send_error('Authentication failed: user ID not found');
 }
 
 // $requestData is available from index.php after validation and sanitization
@@ -39,7 +39,16 @@ $userModel = new UserModel($db->users);
 $result = $userModel->changePassword($userId, $oldPassword, $newPassword);
 
 if (!$result['success']) {
-    send_error('Password change failed', 400, $result['errors']);
+    // Extract specific error messages for better user feedback
+    $errors = $result['errors'];
+    
+    if (isset($errors['old_password']) && $errors['old_password'] === 'Current password is incorrect') {
+        send_error('Current password is incorrect. Please check your password and try again.', 400, $errors);
+    } elseif (isset($errors['new_password'])) {
+        send_error('New password is invalid: ' . $errors['new_password'], 400, $errors);
+    } else {
+        send_error('Password change failed. Please try again.', 400, $errors);
+    }
 }
 
 send_success('Password changed successfully');
