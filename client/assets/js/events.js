@@ -264,6 +264,28 @@ document.addEventListener('DOMContentLoaded', function() {
         loadEvents();
     });
 
+    // Show notification function
+    function showNotification(message, isError = false) {
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        
+        if (isError) {
+            document.getElementById('error-text').textContent = message;
+            errorMessage.classList.remove('hidden');
+            successMessage.classList.add('hidden');
+        } else {
+            document.getElementById('success-text').textContent = message;
+            successMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+        }
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+        }, 5000);
+    }
+
     // Register for event function
     window.registerForEvent = async function(eventId) {
         try {
@@ -274,11 +296,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             await requestWithAuth('/events/index.php?action=register', 'POST', { event_id: eventId });
             
-            alert('Registration successful!');
+            showNotification('Registration successful!');
             loadEvents(true);
             
         } catch (error) {
-            alert('Registration failed: ' + (error.message || 'An unknown error occurred.'));
+            showNotification('Registration failed: ' + (error.message || 'An unknown error occurred.'), true);
         }
     };
 

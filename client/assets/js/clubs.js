@@ -372,6 +372,28 @@ function createClubListItem(club) {
         loadClubs();
     });
 
+    // Show notification function
+    function showNotification(message, isError = false) {
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        
+        if (isError) {
+            document.getElementById('error-text').textContent = message;
+            errorMessage.classList.remove('hidden');
+            successMessage.classList.add('hidden');
+        } else {
+            document.getElementById('success-text').textContent = message;
+            successMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+        }
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+        }, 5000);
+    }
+
     // Join club function
     window.joinClub = async function(clubId) {
         try {
@@ -382,11 +404,11 @@ function createClubListItem(club) {
             
             await requestWithAuth(`/clubs/index.php?action=join`, 'POST', { club_id: clubId });
             
-            alert('Successfully joined club!');
+            showNotification('Successfully joined club!');
             loadClubs(true);
             
         } catch (error) {
-            alert('Failed to join club: ' + error.message);
+            showNotification('Failed to join club: ' + error.message, true);
         }
     };
 
