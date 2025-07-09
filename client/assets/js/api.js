@@ -37,7 +37,7 @@ export async function registerForEvent(eventId) {
  * @returns {Promise<any>}
  */
 export async function getClubDetails(clubId) {
-    return await request(`/clubs/index.php?id=${clubId}`, 'GET');
+    return await request(`/clubs/index.php?action=details&id=${clubId}`, 'GET');
 }
 
 /**

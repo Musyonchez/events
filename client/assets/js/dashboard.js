@@ -3,12 +3,7 @@ import { isAuthenticated, getCurrentUser } from './auth.js';
 import { request, requestWithAuth } from './http.js';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication
-    // TODO: Implement authentication check
-    // if (!isLoggedIn()) {
-    //     window.location.href = './login.html';
-    //     return;
-    // }
+    // Authentication is handled by getCurrentUser() check in loadUserData()
 
     setupTabNavigation();
     loadUserData();

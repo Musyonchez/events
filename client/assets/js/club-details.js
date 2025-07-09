@@ -97,11 +97,7 @@ function populateClubDetails(club) {
         });
     }
     
-    // Check if user can manage club
-    // TODO: Check if user is club leader or admin
-    // if (isClubLeaderOrAdmin(club._id)) {
-    //     document.getElementById('admin-actions').classList.remove('hidden');
-    // }
+    // Club management is handled in dashboard and admin pages
     
     // Update join button state
     updateJoinButton(club);

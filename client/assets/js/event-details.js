@@ -1,6 +1,6 @@
 import { request, requestWithAuth } from './http.js';
 import { isAuthenticated } from './auth.js';
-import { getEventDetails, getEventComments, postComment, registerForEvent } from './api.js';
+import { getEventDetails, getEventComments, postComment, registerForEvent, getClubDetails } from './api.js';
 
 let currentEventId = null;
 
@@ -76,6 +76,35 @@ async function loadEventDetails(eventId) {
     }
 }
 
+async function loadClubInfo(clubId) {
+    try {
+        const response = await getClubDetails(clubId);
+        const club = response.data || response;
+        
+        if (club && club.name) {
+            // Show club info section
+            const clubInfoSection = document.getElementById('event-club-info');
+            const clubNameElement = document.getElementById('event-club-name');
+            const clubLinkElement = document.getElementById('event-club-link');
+            
+            if (clubInfoSection && clubNameElement) {
+                clubNameElement.textContent = club.name;
+                
+                // Add link to club details page
+                if (clubLinkElement) {
+                    const clubLinkId = club._id?.$oid || club._id;
+                    clubLinkElement.href = `./club-details.html?id=${clubLinkId}`;
+                }
+                
+                clubInfoSection.classList.remove('hidden');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading club info:', error);
+        // Don't show error to user for club info - it's supplementary
+    }
+}
+
 function populateEventDetails(event) {
     // Update page title
     document.title = `${event.title} - USIU Events`;
@@ -141,12 +170,11 @@ function populateEventDetails(event) {
     
     document.getElementById('event-location-detail').textContent = event.location || 'TBA';
     
-    // TODO: Implement club info when available from API
-    
-    // if (event.club) {
-    //     document.getElementById('event-club-info').classList.remove('hidden');
-    //     document.getElementById('event-club').textContent = event.club.name;
-    // }
+    // Load and display club info if available
+    const clubId = event.club_id?.$oid || event.club_id;
+    if (clubId) {
+        loadClubInfo(clubId);
+    }
     
     // Registration section
     if (event.registration_required) {
