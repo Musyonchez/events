@@ -64,7 +64,7 @@ function setupChangeForm() {
             // Update the success message text to match login pattern
             const successTitle = document.querySelector('#change-success h3');
             const successText = document.querySelector('#change-success p');
-            successTitle.textContent = 'Password reset successful! Redirecting...';
+            successTitle.textContent = 'Password changed successfully! Redirecting...';
             successText.textContent = 'Your password has been updated. Redirecting to login...';
             
             // Redirect after showing message (like login does)
