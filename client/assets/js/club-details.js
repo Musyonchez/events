@@ -371,7 +371,7 @@ window.shareClub = function() {
 
 window.reportClub = function() {
     // TODO: Implement report functionality
-    alert('Report functionality coming soon');
+    showErrorMessage('Report functionality is not yet available.');
 };
 
 window.editClub = function() {
@@ -382,7 +382,7 @@ window.editClub = function() {
 
 window.manageMembers = function() {
     // TODO: Implement member management
-    alert('Member management functionality coming soon');
+    showErrorMessage('Member management functionality is not yet available.');
 };
 
 // Utility functions for showing messages
