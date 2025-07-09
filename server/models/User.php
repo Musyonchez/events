@@ -423,7 +423,7 @@ class UserModel
       );
 
       // Send password reset email
-      $resetLink = "http://{$_SERVER['HTTP_HOST']}/api/auth/reset_password.php?token={$token}";
+      $resetLink = "http://localhost:3000/pages/forgot-password.html?token={$token}";
       $emailBody = "Please click on the following link to reset your password: <a href='{$resetLink}'>{$resetLink}</a>";
       return send_email($email, 'Password Reset Request', $emailBody);
     } catch (Exception $e) {
