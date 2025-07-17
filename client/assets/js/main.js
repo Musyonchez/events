@@ -23,13 +23,26 @@ document.addEventListener('navbarLoaded', function() {
  */
 function setNavbarLinks() {
     const isRoot = window.location.pathname.endsWith('/index.html') || window.location.pathname.endsWith('/');
+    const isAdmin = window.location.pathname.includes('/admin/');
     const links = document.querySelectorAll('#navbar-placeholder a');
 
     links.forEach(link => {
         if (link.dataset.rootPath) {
-            link.href = isRoot ? `./${link.dataset.rootPath}` : `../${link.dataset.rootPath}`;
+            if (isRoot) {
+                link.href = `./${link.dataset.rootPath}`;
+            } else if (isAdmin) {
+                link.href = `../../${link.dataset.rootPath}`;
+            } else {
+                link.href = `../${link.dataset.rootPath}`;
+            }
         } else if (link.dataset.pagesPath) {
-            link.href = isRoot ? `./pages/${link.dataset.pagesPath}` : `./${link.dataset.pagesPath}`;
+            if (isRoot) {
+                link.href = `./pages/${link.dataset.pagesPath}`;
+            } else if (isAdmin) {
+                link.href = `../${link.dataset.pagesPath}`;
+            } else {
+                link.href = `./${link.dataset.pagesPath}`;
+            }
         }
     });
 }
@@ -103,7 +116,14 @@ function checkAuthState() {
                 } else {
                     // Determine the correct path to the default avatar based on the current page
                     const isRoot = window.location.pathname.endsWith('/index.html') || window.location.pathname.endsWith('/');
-                    avatar.src = isRoot ? './assets/images/avatar.png' : '../assets/images/avatar.png';
+                    const isAdmin = window.location.pathname.includes('/admin/');
+                    if (isRoot) {
+                        avatar.src = './assets/images/avatar.png';
+                    } else if (isAdmin) {
+                        avatar.src = '../../assets/images/avatar.png';
+                    } else {
+                        avatar.src = '../assets/images/avatar.png';
+                    }
                 }
             }
 
@@ -116,7 +136,14 @@ function checkAuthState() {
                     mobileAvatar.src = user.profile_image;
                 } else {
                     const isRoot = window.location.pathname.endsWith('/index.html') || window.location.pathname.endsWith('/');
-                    mobileAvatar.src = isRoot ? './assets/images/avatar.png' : '../assets/images/avatar.png';
+                    const isAdmin = window.location.pathname.includes('/admin/');
+                    if (isRoot) {
+                        mobileAvatar.src = './assets/images/avatar.png';
+                    } else if (isAdmin) {
+                        mobileAvatar.src = '../../assets/images/avatar.png';
+                    } else {
+                        mobileAvatar.src = '../assets/images/avatar.png';
+                    }
                 }
             }
         }
