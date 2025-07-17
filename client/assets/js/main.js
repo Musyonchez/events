@@ -43,6 +43,14 @@ function setNavbarLinks() {
             } else {
                 link.href = `./${link.dataset.pagesPath}`;
             }
+        } else if (link.dataset.adminPath) {
+            if (isRoot) {
+                link.href = `./pages/${link.dataset.adminPath}`;
+            } else if (isAdmin) {
+                link.href = `./${link.dataset.adminPath.split('/')[1]}`;
+            } else {
+                link.href = `./${link.dataset.adminPath}`;
+            }
         }
     });
 }
@@ -109,6 +117,17 @@ function checkAuthState() {
         if (user) {
             const userNameElement = document.getElementById('user-name');
             if (userNameElement) userNameElement.textContent = user.first_name;
+            
+            // Show admin dashboard link only for admin users
+            const adminDashboardLink = document.getElementById('admin-dashboard-link');
+            const mobileAdminDashboardLink = document.getElementById('mobile-admin-dashboard-link');
+            if (user.role === 'admin') {
+                if (adminDashboardLink) adminDashboardLink.classList.remove('hidden');
+                if (mobileAdminDashboardLink) mobileAdminDashboardLink.classList.remove('hidden');
+            } else {
+                if (adminDashboardLink) adminDashboardLink.classList.add('hidden');
+                if (mobileAdminDashboardLink) mobileAdminDashboardLink.classList.add('hidden');
+            }
             const avatar = document.getElementById('user-avatar');
             if (avatar) {
                 if (user.profile_image) {
