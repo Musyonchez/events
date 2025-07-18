@@ -21,8 +21,10 @@ header('Content-Type: application/json');
 // $requestData is available from index.php after validation and sanitization
 $data = $requestData;
 
-// Get leader_id from authenticated user
-$data['leader_id'] = $GLOBALS['user']->userId; // Assuming userId is stored in $GLOBALS['user']
+// Validate that leader_id is provided
+if (empty($data['leader_id'])) {
+    send_error('Club leader must be selected', 400);
+}
 
 // Handle file upload if present
 if (isset($_FILES['logo'])) {
@@ -45,6 +47,34 @@ $result = $clubModel->createWithValidation($data);
 
 if (!$result['success']) {
   send_error('Club creation failed', 400, $result['errors']);
+}
+
+// Promote the selected user to club_leader role (but don't demote admins)
+try {
+    $leaderObjectId = new MongoDB\BSON\ObjectId($data['leader_id']);
+    
+    // Get current user info to check their role
+    $currentUser = $db->users->findOne(['_id' => $leaderObjectId]);
+    
+    if ($currentUser && $currentUser['role'] === 'student') {
+        // Only promote students to club_leader, don't touch admins or existing club_leaders
+        $updateResult = $db->users->updateOne(
+            ['_id' => $leaderObjectId],
+            ['$set' => ['role' => 'club_leader']]
+        );
+        
+        if ($updateResult->getModifiedCount() === 0) {
+            error_log("Warning: Could not update user role to club_leader for user ID: " . $data['leader_id']);
+        }
+    } else if ($currentUser) {
+        // User is already admin or club_leader, no role change needed
+        error_log("Info: User ID " . $data['leader_id'] . " is already " . $currentUser['role'] . ", no role change needed");
+    } else {
+        error_log("Warning: Could not find user with ID: " . $data['leader_id']);
+    }
+} catch (Exception $e) {
+    error_log("Error handling user role for club leader: " . $e->getMessage());
+    // Don't fail the club creation if role update fails, just log it
 }
 
 send_created(['clubId' => (string)$result['id']], 'Club created successfully');

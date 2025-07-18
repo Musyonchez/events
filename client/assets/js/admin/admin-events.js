@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initializeForm();
     setupEventForm(isEditing, editEventId);
-    loadClubs();
+    setupClubSearch();
     
     if (isEditing) {
         loadEventForEditing(editEventId);
@@ -290,27 +290,162 @@ async function uploadFile(file) {
     return response.data.url;
 }
 
-async function loadClubs() {
-    const clubSelect = document.getElementById('club_id');
-    if (!clubSelect) return;
+function setupClubSearch() {
+    const clubSearch = document.getElementById('club_search');
+    const clubIdHidden = document.getElementById('club_id');
+    const clubDropdown = document.getElementById('club_dropdown');
+    const clubResults = document.getElementById('club_results');
+    const clubLoading = document.getElementById('club_loading');
+    const clubNoResults = document.getElementById('club_no_results');
     
-    try {
-        const response = await request('/clubs/index.php?action=list&status=active', 'GET');
-        const clubs = response.data?.clubs || [];
-
-        clubSelect.innerHTML = '<option value="">Select a club</option>';
-        clubs.forEach(club => {
-            const option = document.createElement('option');
-            option.value = club._id?.$oid || club._id;
-            option.textContent = club.name;
-            clubSelect.appendChild(option);
-        });
-
-    } catch (error) {
-        console.error('Error loading clubs:', error);
-        clubSelect.innerHTML = '<option value="">Error loading clubs</option>';
-        showErrorMessage('Failed to load clubs. Please refresh the page.');
+    if (!clubSearch || !clubIdHidden || !clubDropdown || !clubResults) return;
+    
+    let allClubs = [];
+    let searchTimeout = null;
+    let selectedClub = null;
+    
+    // Load all clubs initially
+    loadAllClubs();
+    
+    async function loadAllClubs() {
+        try {
+            const response = await request('/clubs/index.php?action=list&status=active&limit=1000', 'GET');
+            allClubs = response.clubs || [];
+        } catch (error) {
+            console.error('Error loading clubs:', error);
+            showErrorMessage('Failed to load clubs. Please refresh the page.');
+        }
     }
+    
+    // Show dropdown on focus
+    clubSearch.addEventListener('focus', function() {
+        if (allClubs.length > 0) {
+            showAllClubs();
+            clubDropdown.classList.remove('hidden');
+        }
+    });
+    
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!clubSearch.contains(e.target) && !clubDropdown.contains(e.target)) {
+            clubDropdown.classList.add('hidden');
+        }
+    });
+    
+    // Search functionality
+    clubSearch.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Clear previous timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        // Clear selection if input is cleared
+        if (!query) {
+            selectedClub = null;
+            clubIdHidden.value = '';
+            showAllClubs();
+            clubDropdown.classList.remove('hidden');
+            return;
+        }
+        
+        // Debounce search
+        searchTimeout = setTimeout(() => {
+            searchClubs(query);
+        }, 300);
+    });
+    
+    function searchClubs(query) {
+        if (!query) {
+            showAllClubs();
+            return;
+        }
+        
+        const filteredClubs = allClubs.filter(club => 
+            club.name.toLowerCase().includes(query.toLowerCase()) ||
+            (club.category && club.category.toLowerCase().includes(query.toLowerCase()))
+        );
+        
+        displayClubs(filteredClubs);
+        clubDropdown.classList.remove('hidden');
+    }
+    
+    function showAllClubs() {
+        displayClubs(allClubs.slice(0, 20)); // Show first 20 clubs
+    }
+    
+    function displayClubs(clubs) {
+        clubLoading.classList.add('hidden');
+        
+        if (clubs.length === 0) {
+            clubResults.innerHTML = '';
+            clubNoResults.classList.remove('hidden');
+            return;
+        }
+        
+        clubNoResults.classList.add('hidden');
+        
+        clubResults.innerHTML = clubs.map(club => `
+            <div class="club-option px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0" 
+                 data-club-id="${club._id?.$oid || club._id}" 
+                 data-club-name="${club.name}">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <img src="${club.logo || '../../assets/images/logo.png'}" 
+                             alt="${club.name}" 
+                             class="w-8 h-8 rounded-full object-cover">
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium text-gray-900">${club.name}</p>
+                        <p class="text-xs text-gray-500">${club.category || 'No category'} • ${club.members_count || 0} members</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Add click handlers to club options
+        clubResults.querySelectorAll('.club-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const clubId = this.dataset.clubId;
+                const clubName = this.dataset.clubName;
+                
+                selectClub(clubId, clubName);
+            });
+        });
+    }
+    
+    function selectClub(clubId, clubName) {
+        selectedClub = { id: clubId, name: clubName };
+        clubSearch.value = clubName;
+        clubIdHidden.value = clubId;
+        clubDropdown.classList.add('hidden');
+        
+        // Remove any validation errors
+        clubSearch.setCustomValidity('');
+        clubIdHidden.setCustomValidity('');
+    }
+    
+    // Validation: ensure a club is selected
+    clubSearch.addEventListener('blur', function() {
+        if (this.value && !selectedClub) {
+            this.setCustomValidity('Please select a club from the dropdown');
+            clubIdHidden.setCustomValidity('Please select a club from the dropdown');
+        } else if (!this.value) {
+            clubIdHidden.value = '';
+            selectedClub = null;
+        }
+    });
+    
+    // Clear validation when user starts typing
+    clubSearch.addEventListener('input', function() {
+        if (selectedClub && this.value !== selectedClub.name) {
+            selectedClub = null;
+            clubIdHidden.value = '';
+        }
+        this.setCustomValidity('');
+        clubIdHidden.setCustomValidity('');
+    });
 }
 
 async function loadEventForEditing(eventId) {
@@ -326,11 +461,15 @@ async function loadEventForEditing(eventId) {
         // Populate basic fields
         setFieldValue('title', event.title);
         setFieldValue('description', event.description);
-        setFieldValue('club_id', event.club_id?.$oid || event.club_id);
         setFieldValue('category', event.category);
         setFieldValue('location', event.location);
         setFieldValue('venue_capacity', event.venue_capacity);
         setFieldValue('status', event.status);
+        
+        // Set club with special handling for search component
+        if (event.club_id && event.club_name) {
+            setClubValue(event.club_id?.$oid || event.club_id, event.club_name);
+        }
 
         // Date fields
         if (event.event_date) {
@@ -394,6 +533,16 @@ function setCheckboxValue(fieldId, value) {
     const field = document.getElementById(fieldId);
     if (field) {
         field.checked = !!value;
+    }
+}
+
+function setClubValue(clubId, clubName) {
+    const clubSearch = document.getElementById('club_search');
+    const clubIdHidden = document.getElementById('club_id');
+    
+    if (clubSearch && clubIdHidden && clubId && clubName) {
+        clubSearch.value = clubName;
+        clubIdHidden.value = clubId;
     }
 }
 

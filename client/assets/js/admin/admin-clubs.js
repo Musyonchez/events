@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initializeForm();
     setupClubForm(isEditing, editClubId);
-    loadUsers();
+    setupLeaderSearch();
     
     if (isEditing) {
         loadClubForEditing(editClubId);
@@ -227,27 +227,164 @@ async function uploadFile(file) {
     return response.data.url;
 }
 
-async function loadUsers() {
-    const leaderSelect = document.getElementById('leader_id');
-    if (!leaderSelect) return;
+function setupLeaderSearch() {
+    const leaderSearch = document.getElementById('leader_search');
+    const leaderIdHidden = document.getElementById('leader_id');
+    const leaderDropdown = document.getElementById('leader_dropdown');
+    const leaderResults = document.getElementById('leader_results');
+    const leaderLoading = document.getElementById('leader_loading');
+    const leaderNoResults = document.getElementById('leader_no_results');
     
-    try {
-        const response = await requestWithAuth('/users/index.php?action=list&role=student&status=active', 'GET');
-        const users = response.data?.users || [];
-
-        leaderSelect.innerHTML = '<option value="">Select a club leader</option>';
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user._id?.$oid || user._id;
-            option.textContent = `${user.first_name} ${user.last_name} (${user.student_id})`;
-            leaderSelect.appendChild(option);
-        });
-
-    } catch (error) {
-        console.error('Error loading users:', error);
-        leaderSelect.innerHTML = '<option value="">Error loading users</option>';
-        showErrorMessage('Failed to load users. Please refresh the page.');
+    if (!leaderSearch || !leaderIdHidden || !leaderDropdown || !leaderResults) return;
+    
+    let allUsers = [];
+    let searchTimeout = null;
+    let selectedLeader = null;
+    
+    // Load all users initially
+    loadAllUsers();
+    
+    async function loadAllUsers() {
+        try {
+            const response = await requestWithAuth('/users/index.php?action=list&status=active&limit=1000', 'GET');
+            allUsers = response.data?.users || [];
+        } catch (error) {
+            console.error('Error loading users:', error);
+            showErrorMessage('Failed to load users. Please refresh the page.');
+        }
     }
+    
+    // Show dropdown on focus
+    leaderSearch.addEventListener('focus', function() {
+        if (allUsers.length > 0) {
+            showAllUsers();
+            leaderDropdown.classList.remove('hidden');
+        }
+    });
+    
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!leaderSearch.contains(e.target) && !leaderDropdown.contains(e.target)) {
+            leaderDropdown.classList.add('hidden');
+        }
+    });
+    
+    // Search functionality
+    leaderSearch.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Clear previous timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        // Clear selection if input is cleared
+        if (!query) {
+            selectedLeader = null;
+            leaderIdHidden.value = '';
+            showAllUsers();
+            leaderDropdown.classList.remove('hidden');
+            return;
+        }
+        
+        // Debounce search
+        searchTimeout = setTimeout(() => {
+            searchUsers(query);
+        }, 300);
+    });
+    
+    function searchUsers(query) {
+        if (!query) {
+            showAllUsers();
+            return;
+        }
+        
+        const filteredUsers = allUsers.filter(user => 
+            user.first_name.toLowerCase().includes(query.toLowerCase()) ||
+            user.last_name.toLowerCase().includes(query.toLowerCase()) ||
+            user.email.toLowerCase().includes(query.toLowerCase()) ||
+            (user.student_id && user.student_id.toLowerCase().includes(query.toLowerCase()))
+        );
+        
+        displayUsers(filteredUsers);
+        leaderDropdown.classList.remove('hidden');
+    }
+    
+    function showAllUsers() {
+        displayUsers(allUsers.slice(0, 20)); // Show first 20 users
+    }
+    
+    function displayUsers(users) {
+        leaderLoading.classList.add('hidden');
+        
+        if (users.length === 0) {
+            leaderResults.innerHTML = '';
+            leaderNoResults.classList.remove('hidden');
+            return;
+        }
+        
+        leaderNoResults.classList.add('hidden');
+        
+        leaderResults.innerHTML = users.map(user => `
+            <div class="leader-option px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0" 
+                 data-user-id="${user._id?.$oid || user._id}" 
+                 data-user-name="${user.first_name} ${user.last_name}">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <img src="${user.profile_image || '../../assets/images/avatar.png'}" 
+                             alt="${user.first_name} ${user.last_name}" 
+                             class="w-8 h-8 rounded-full object-cover">
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium text-gray-900">${user.first_name} ${user.last_name}</p>
+                        <p class="text-xs text-gray-500">${user.email} • ${user.student_id || 'No student ID'} • ${user.role}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Add click handlers to user options
+        leaderResults.querySelectorAll('.leader-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                const userName = this.dataset.userName;
+                
+                selectLeader(userId, userName);
+            });
+        });
+    }
+    
+    function selectLeader(userId, userName) {
+        selectedLeader = { id: userId, name: userName };
+        leaderSearch.value = userName;
+        leaderIdHidden.value = userId;
+        leaderDropdown.classList.add('hidden');
+        
+        // Remove any validation errors
+        leaderSearch.setCustomValidity('');
+        leaderIdHidden.setCustomValidity('');
+    }
+    
+    // Validation: ensure a user is selected
+    leaderSearch.addEventListener('blur', function() {
+        if (this.value && !selectedLeader) {
+            this.setCustomValidity('Please select a user from the dropdown');
+            leaderIdHidden.setCustomValidity('Please select a user from the dropdown');
+        } else if (!this.value) {
+            leaderIdHidden.value = '';
+            selectedLeader = null;
+        }
+    });
+    
+    // Clear validation when user starts typing
+    leaderSearch.addEventListener('input', function() {
+        if (selectedLeader && this.value !== selectedLeader.name) {
+            selectedLeader = null;
+            leaderIdHidden.value = '';
+        }
+        this.setCustomValidity('');
+        leaderIdHidden.setCustomValidity('');
+    });
 }
 
 async function loadClubForEditing(clubId) {
@@ -265,7 +402,12 @@ async function loadClubForEditing(clubId) {
         setFieldValue('description', club.description);
         setFieldValue('category', club.category);
         setFieldValue('contact_email', club.contact_email);
-        setFieldValue('leader_id', club.leader_id?.$oid || club.leader_id);
+        // Set club leader with special handling for search component
+        if (club.leader_id && club.leader) {
+            const leaderId = club.leader_id?.$oid || club.leader_id;
+            const leaderName = `${club.leader.first_name} ${club.leader.last_name}`;
+            setLeaderValue(leaderId, leaderName);
+        }
         setFieldValue('members_count', club.members_count);
         setFieldValue('status', club.status);
 
@@ -293,6 +435,16 @@ function setFieldValue(fieldId, value) {
     const field = document.getElementById(fieldId);
     if (field && value !== undefined && value !== null) {
         field.value = value;
+    }
+}
+
+function setLeaderValue(leaderId, leaderName) {
+    const leaderSearch = document.getElementById('leader_search');
+    const leaderIdHidden = document.getElementById('leader_id');
+    
+    if (leaderSearch && leaderIdHidden && leaderId && leaderName) {
+        leaderSearch.value = leaderName;
+        leaderIdHidden.value = leaderId;
     }
 }
 
