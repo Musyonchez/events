@@ -21,8 +21,20 @@ header('Content-Type: application/json');
 // $requestData is available from index.php after validation and sanitization
 $data = $requestData;
 
+// Debug: Log the received data
+error_log("DEBUG: Club create - Raw request data: " . json_encode($data));
+error_log("DEBUG: Club create - POST data: " . json_encode($_POST));
+error_log("DEBUG: Club create - FILES data: " . json_encode($_FILES));
+
+// Decode HTML entities in category field (reverse the sanitization for predefined values)
+if (isset($data['category'])) {
+    $data['category'] = htmlspecialchars_decode($data['category'], ENT_QUOTES);
+    error_log("DEBUG: Club create - Decoded category: " . $data['category']);
+}
+
 // Validate that leader_id is provided
 if (empty($data['leader_id'])) {
+    error_log("DEBUG: Club create - leader_id is empty: " . json_encode($data['leader_id']));
     send_error('Club leader must be selected', 400);
 }
 
@@ -43,9 +55,14 @@ if (isset($_FILES['logo'])) {
 
 $clubModel = new ClubModel($db->clubs);
 
+error_log("DEBUG: Club create - About to call createWithValidation with data: " . json_encode($data));
+
 $result = $clubModel->createWithValidation($data);
 
+error_log("DEBUG: Club create - createWithValidation result: " . json_encode($result));
+
 if (!$result['success']) {
+  error_log("DEBUG: Club create - Validation failed with errors: " . json_encode($result['errors']));
   send_error('Club creation failed', 400, $result['errors']);
 }
 

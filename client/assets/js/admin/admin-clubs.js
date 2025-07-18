@@ -152,7 +152,7 @@ function setupClubForm(isEditing, clubId) {
                     ...clubData
                 });
             } else {
-                response = await requestWithAuth('/clubs/index.php', 'POST', clubData);
+                response = await requestWithAuth('/clubs/index.php?action=create', 'POST', clubData);
             }
 
             // Show success message
@@ -166,7 +166,35 @@ function setupClubForm(isEditing, clubId) {
             }, 2000);
 
         } catch (error) {
-            showErrorMessage(error.message || 'Failed to save club. Please try again.');
+            console.error('Club creation error:', error);
+            
+            // Try to extract specific validation errors from the response
+            let errorMessage = 'Failed to save club. Please try again.';
+            
+            if (error.response && error.response.data) {
+                const responseData = error.response.data;
+                
+                // If there are specific field errors, format them nicely
+                if (responseData.details && typeof responseData.details === 'object') {
+                    const errorMessages = Object.entries(responseData.details)
+                        .map(([field, message]) => `${field}: ${message}`)
+                        .join('\n\n');
+                    errorMessage = `Validation errors:\n\n${errorMessages}`;
+                } else if (responseData.errors && typeof responseData.errors === 'object') {
+                    const errorMessages = Object.entries(responseData.errors)
+                        .map(([field, message]) => `${field}: ${message}`)
+                        .join('\n\n');
+                    errorMessage = `Validation errors:\n\n${errorMessages}`;
+                } else if (responseData.message) {
+                    errorMessage = responseData.message;
+                } else if (responseData.error) {
+                    errorMessage = responseData.error;
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            showErrorMessage(errorMessage);
         } finally {
             // Reset button state
             setButtonLoading(button, buttonText, buttonSpinner, false);
@@ -197,6 +225,21 @@ async function processFormData(formData, status) {
         leader_id: formData.get('leader_id'),
         status: status
     };
+
+    // Debug: Log the original category value
+    console.log('Original category value:', clubData.category);
+    
+    // Decode HTML entities in category field to fix the &amp; issue
+    if (clubData.category) {
+        const originalCategory = clubData.category;
+        clubData.category = clubData.category
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#x27;/g, "'");
+        console.log('Decoded category value:', originalCategory, '->', clubData.category);
+    }
 
     // Add members count if provided
     const membersCount = formData.get('members_count');

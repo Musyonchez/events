@@ -66,6 +66,7 @@ export async function request(endpoint, method, data = null) {
                 const error = new Error(responseData.error || 'An unknown error occurred');
                 error.status = response.status;
                 error.details = errorDetails;
+                error.response = { data: responseData }; // Include full response data for validation errors
                 throw error;
             }
         }
@@ -127,6 +128,7 @@ export async function requestWithAuth(endpoint, method, data = null) {
                 const error = new Error(responseData.error || 'An unknown error occurred');
                 error.status = response.status;
                 error.details = errorDetails;
+                error.response = { data: responseData }; // Include full response data for validation errors
                 throw error;
             }
         }
