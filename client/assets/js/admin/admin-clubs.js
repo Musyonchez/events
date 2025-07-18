@@ -226,20 +226,6 @@ async function processFormData(formData, status) {
         status: status
     };
 
-    // Debug: Log the original category value
-    console.log('Original category value:', clubData.category);
-    
-    // Decode HTML entities in category field to fix the &amp; issue
-    if (clubData.category) {
-        const originalCategory = clubData.category;
-        clubData.category = clubData.category
-            .replace(/&amp;/g, '&')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#x27;/g, "'");
-        console.log('Decoded category value:', originalCategory, '->', clubData.category);
-    }
 
     // Add members count if provided
     const membersCount = formData.get('members_count');

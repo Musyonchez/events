@@ -24,14 +24,9 @@ if ($requestData !== null) {
 // Determine the action based on a query parameter
 $action = $_GET['action'] ?? null;
 
-// Debug: Log the action and method
-error_log("DEBUG: Clubs API - Method: $method, Action: " . ($action ?? 'null'));
-error_log("DEBUG: Clubs API - GET params: " . json_encode($_GET));
-
 switch ($action) {
     case 'create':
         if ($method === 'POST') {
-            error_log("DEBUG: Routing to create.php");
             require __DIR__ . '/create.php';
         } else {
             send_method_not_allowed();
