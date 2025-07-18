@@ -71,6 +71,14 @@
                         </div>
                         
                         <div>
+                            <label for="members_count" class="block text-sm font-medium text-gray-700">Initial Members Count</label>
+                            <input type="number" id="members_count" name="members_count" min="0" max="10000"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="0">
+                            <p class="mt-1 text-xs text-gray-500">Current number of members (optional)</p>
+                        </div>
+                        
+                        <div class="md:col-span-2">
                             <label for="contact_email" class="block text-sm font-medium text-gray-700">Contact Email *</label>
                             <input type="email" id="contact_email" name="contact_email" required
                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -83,7 +91,7 @@
                 <!-- Leadership -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-lg font-medium text-gray-900 mb-6">Club Leadership</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 gap-6">
                         <div>
                             <label for="leader_search" class="block text-sm font-medium text-gray-700">Club Leader *</label>
                             <div class="relative mt-1">
@@ -112,14 +120,6 @@
                                 </div>
                             </div>
                             <p class="mt-1 text-xs text-gray-500">The selected user will be granted club leader permissions</p>
-                        </div>
-                        
-                        <div>
-                            <label for="members_count" class="block text-sm font-medium text-gray-700">Initial Members Count</label>
-                            <input type="number" id="members_count" name="members_count" min="0" max="10000"
-                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                   placeholder="0">
-                            <p class="mt-1 text-xs text-gray-500">Current number of members (optional)</p>
                         </div>
                     </div>
                 </div>
