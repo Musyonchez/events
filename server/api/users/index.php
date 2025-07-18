@@ -27,6 +27,8 @@ switch ($method) {
             require __DIR__ . '/events.php';
         } elseif (isset($_GET['action']) && $_GET['action'] === 'stats') {
             require __DIR__ . '/stats.php';
+        } elseif (isset($_GET['action']) && $_GET['action'] === 'list') {
+            require __DIR__ . '/list.php';
         } else {
             require __DIR__ . '/details.php';
         }

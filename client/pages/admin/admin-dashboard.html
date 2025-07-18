@@ -5,10 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - USIU Events</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body class="bg-gray-50">
     <div id="navbar-placeholder"></div>
+
+    <!-- Success Message -->
+    <div id="success-message" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span id="success-text">Success message</span>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="error-message" class="hidden fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <span id="error-text">Error message</span>
+        </div>
+    </div>
 
     <!-- Page Content -->
     <div class="pt-16 min-h-screen">
@@ -48,7 +69,6 @@
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Total Events</p>
                             <p id="total-events" class="text-2xl font-semibold text-gray-900">0</p>
-                            <p class="text-xs text-green-600">+12% from last month</p>
                         </div>
                     </div>
                 </div>
@@ -65,7 +85,6 @@
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Total Users</p>
                             <p id="total-users" class="text-2xl font-semibold text-gray-900">0</p>
-                            <p class="text-xs text-green-600">+8% from last month</p>
                         </div>
                     </div>
                 </div>
@@ -82,7 +101,6 @@
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Revenue</p>
                             <p id="total-revenue" class="text-2xl font-semibold text-gray-900">KSh 0</p>
-                            <p class="text-xs text-green-600">+15% from last month</p>
                         </div>
                     </div>
                 </div>
@@ -99,7 +117,6 @@
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Active Clubs</p>
                             <p id="active-clubs" class="text-2xl font-semibold text-gray-900">0</p>
-                            <p class="text-xs text-blue-600">+3 new this month</p>
                         </div>
                     </div>
                 </div>
@@ -116,9 +133,6 @@
                     </button>
                     <button id="tab-clubs" class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                         Clubs Management
-                    </button>
-                    <button id="tab-analytics" class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        Analytics
                     </button>
                 </nav>
             </div>
@@ -214,64 +228,6 @@
                     </div>
                 </div>
 
-                <!-- Analytics Tab -->
-                <div id="content-analytics" class="tab-content hidden">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Event Analytics -->
-                        <div class="bg-white rounded-lg shadow-md p-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Event Analytics</h3>
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Events This Month</span>
-                                    <span id="events-this-month" class="text-lg font-semibold">0</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Average Attendance</span>
-                                    <span id="avg-attendance" class="text-lg font-semibold">0%</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Most Popular Category</span>
-                                    <span id="popular-category" class="text-lg font-semibold">-</span>
-                                </div>
-                            </div>
-                            <div class="mt-6">
-                                <canvas id="events-chart" class="w-full h-64"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- User Analytics -->
-                        <div class="bg-white rounded-lg shadow-md p-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">User Analytics</h3>
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">New Users This Month</span>
-                                    <span id="new-users-month" class="text-lg font-semibold">0</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Active Users</span>
-                                    <span id="active-users" class="text-lg font-semibold">0</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">Email Verification Rate</span>
-                                    <span id="verification-rate" class="text-lg font-semibold">0%</span>
-                                </div>
-                            </div>
-                            <div class="mt-6">
-                                <canvas id="users-chart" class="w-full h-64"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activity -->
-                    <div class="mt-6 bg-white rounded-lg shadow-md">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">Recent Activity</h3>
-                        </div>
-                        <div id="recent-activity" class="divide-y divide-gray-200">
-                            <!-- Activity items will be loaded here -->
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -281,6 +237,5 @@
     <script src="../../assets/js/main.js" type="module"></script>
     <script src="../../assets/js/component-loader.js" type="module"></script>
     <script src="../../assets/js/admin/admin-dashboard.js" type="module"></script>
-    <script src="../../assets/js/admin/admin-stats.js" type="module"></script>
 </body>
 </html>

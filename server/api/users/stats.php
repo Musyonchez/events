@@ -1,61 +1,61 @@
 <?php
-if (!defined('IS_USER_ROUTE')) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Forbidden']);
-    exit;
-}
-
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../config/cors.php';
-require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../../models/Event.php';
+require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../utils/response.php';
-require_once __DIR__ . '/../../middleware/auth.php';
 
-use MongoDB\BSON\ObjectId;
-use MongoDB\BSON\UTCDateTime;
-
-authenticate(); // Ensure user is logged in
-
-header('Content-Type: application/json');
-
-try {
-    $userId = new ObjectId($GLOBALS['user']->userId);
-    $now = new UTCDateTime();
-    
-    $eventModel = new EventModel($db->events);
-    
-    // Count registered events
-    $registeredEventsCount = $eventModel->count([
-        'registered_users' => $userId
-    ]);
-    
-    // Count attended events (past registered events)
-    $attendedEventsCount = $eventModel->count([
-        'registered_users' => $userId,
-        'event_date' => ['$lt' => $now]
-    ]);
-    
-    // Count created events
-    $createdEventsCount = $eventModel->count([
-        'created_by' => $userId
-    ]);
-    
-    // Count upcoming events (all public upcoming events)
-    $upcomingEventsCount = $eventModel->count([
-        'event_date' => ['$gte' => $now],
-        'status' => 'published'
-    ]);
-    
-    $stats = [
-        'registered_events' => $registeredEventsCount,
-        'attended_events' => $attendedEventsCount,
-        'created_events' => $createdEventsCount,
-        'upcoming_events' => $upcomingEventsCount
-    ];
-
-    send_success('User statistics fetched successfully', 200, $stats);
-
-} catch (Exception $e) {
-    send_error('An error occurred while fetching user statistics: ' . $e->getMessage(), 500);
+if (!defined('IS_USER_ROUTE')) {
+    send_error('Invalid request', 400);
 }
+
+// Get current date info
+$currentDate = new DateTime();
+$currentMonth = $currentDate->format('n'); // 1-12
+$currentYear = $currentDate->format('Y');
+
+// Get first day of current month
+$monthStart = new DateTime("$currentYear-$currentMonth-01");
+$monthStartTimestamp = $monthStart->getTimestamp() * 1000; // Convert to milliseconds for MongoDB
+
+// Get total users count
+$totalUsersResult = $db->users->countDocuments([]);
+
+// Get active users count (not suspended)
+$activeUsersResult = $db->users->countDocuments([
+    'status' => ['$ne' => 'suspended']
+]);
+
+// Get new users this month
+$newUsersThisMonthResult = $db->users->countDocuments([
+    'created_at' => [
+        '$gte' => new MongoDB\BSON\UTCDateTime($monthStartTimestamp)
+    ]
+]);
+
+// Get email verification rate
+$verifiedUsersResult = $db->users->countDocuments([
+    'is_email_verified' => true
+]);
+
+$verificationRate = $totalUsersResult > 0 ? 
+    round(($verifiedUsersResult / $totalUsersResult) * 100) : 0;
+
+// Get user role distribution
+$roleDistribution = [];
+$roles = ['student', 'club_leader', 'admin'];
+
+foreach ($roles as $role) {
+    $count = $db->users->countDocuments(['role' => $role]);
+    $roleDistribution[$role] = $count;
+}
+
+// Prepare response data
+$stats = [
+    'total_users' => $totalUsersResult,
+    'active_users' => $activeUsersResult,
+    'new_users_month' => $newUsersThisMonthResult,
+    'verification_rate' => $verificationRate,
+    'role_distribution' => $roleDistribution,
+    'current_month' => $currentDate->format('F Y')
+];
+
+// Send success response
+send_success('User statistics retrieved successfully', 200, $stats);
