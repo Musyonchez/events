@@ -69,3 +69,7 @@ function authorize(array $allowedRoles) {
         exit;
     }
 }
+
+function getCurrentUser() {
+    return isset($GLOBALS['user']) ? $GLOBALS['user'] : null;
+}

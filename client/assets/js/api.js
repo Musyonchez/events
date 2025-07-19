@@ -46,7 +46,7 @@ export async function getClubDetails(clubId) {
  * @returns {Promise<any>}
  */
 export async function createClub(clubData) {
-    return await requestWithAuth('/clubs/index.php', 'POST', clubData);
+    return await requestWithAuth('/clubs/index.php?action=create', 'POST', clubData);
 }
 
 /**
@@ -55,7 +55,7 @@ export async function createClub(clubData) {
  * @returns {Promise<any>}
  */
 export async function getEventComments(eventId) {
-    return await request(`/comments/index.php?event_id=${eventId}&status=all`, 'GET');
+    return await requestWithAuth(`/comments/index.php?action=list&event_id=${eventId}&status=approved`, 'GET');
 }
 
 /**
@@ -64,5 +64,5 @@ export async function getEventComments(eventId) {
  * @returns {Promise<any>}
  */
 export async function postComment(commentData) {
-    return await requestWithAuth('/comments/index.php', 'POST', commentData);
+    return await requestWithAuth('/comments/index.php?action=create', 'POST', commentData);
 }

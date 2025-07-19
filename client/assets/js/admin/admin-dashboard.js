@@ -37,12 +37,19 @@ function initializeAdminDashboard() {
 
     // Filter event listeners
     setupFilterEventListeners();
+    
+    // Comments export functionality
+    const exportCommentsBtn = document.getElementById('export-comments');
+    if (exportCommentsBtn) {
+        exportCommentsBtn.addEventListener('click', exportComments);
+    }
 }
 
 function setupFilterEventListeners() {
     const eventsFilter = document.getElementById('events-filter');
     const usersFilter = document.getElementById('users-filter');
     const clubsFilter = document.getElementById('clubs-filter');
+    const commentsFilter = document.getElementById('comments-filter');
 
     if (eventsFilter) {
         eventsFilter.addEventListener('change', function() {
@@ -59,6 +66,12 @@ function setupFilterEventListeners() {
     if (clubsFilter) {
         clubsFilter.addEventListener('change', function() {
             loadAllClubs(this.value);
+        });
+    }
+
+    if (commentsFilter) {
+        commentsFilter.addEventListener('change', function() {
+            loadAllComments(this.value);
         });
     }
 }
@@ -172,6 +185,9 @@ function loadTabContent(tabId) {
             break;
         case 'clubs':
             loadAllClubs();
+            break;
+        case 'comments':
+            loadAllComments();
             break;
     }
 }
@@ -692,5 +708,152 @@ async function exportPlatformData() {
         showSuccessMessage('Data exported successfully');
     } catch (error) {
         showErrorMessage('Failed to export data: ' + error.message);
+    }
+}
+
+async function loadAllComments(statusFilter = '') {
+    const container = document.getElementById('comments-list');
+    if (!container) return;
+
+    showLoadingState(container, 'Loading comments...');
+    
+    try {
+        const params = new URLSearchParams({
+            action: 'list',
+            limit: 50
+        });
+
+        if (statusFilter) {
+            params.append('status', statusFilter);
+        }
+
+        const response = await requestWithAuth(`/comments/index.php?${params.toString()}`, 'GET');
+        const comments = response.data?.comments || [];
+
+        if (comments.length === 0) {
+            container.innerHTML = createEmptyState('No comments found', 'No comments match the selected criteria.');
+        } else {
+            container.innerHTML = comments.map(comment => createCommentAdminItem(comment)).join('');
+        }
+
+    } catch (error) {
+        console.error('Error loading comments:', error);
+        showErrorState(container, 'Error loading comments. Please try again.');
+    }
+}
+
+function createCommentAdminItem(comment) {
+    const commentId = comment._id?.$oid || comment._id;
+    const statusColors = {
+        approved: 'bg-green-100 text-green-800',
+        pending: 'bg-yellow-100 text-yellow-800',
+        flagged: 'bg-red-100 text-red-800',
+        deleted: 'bg-gray-100 text-gray-800'
+    };
+
+    return `
+        <div class="px-6 py-4 hover:bg-gray-50">
+            <div class="flex items-start justify-between">
+                <div class="flex items-start flex-1">
+                    <div class="flex-shrink-0">
+                        <img src="${comment.user?.profile_image || '../../assets/images/avatar.png'}" 
+                             alt="${comment.user?.first_name || 'Unknown'}" 
+                             class="w-10 h-10 rounded-full">
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <div class="flex items-center">
+                            <h4 class="text-sm font-medium text-gray-900">${comment.user?.first_name || 'Unknown'} ${comment.user?.last_name || 'User'}</h4>
+                            <span class="ml-2 ${statusColors[comment.status] || 'bg-gray-100 text-gray-800'} text-xs px-2 py-1 rounded-full">${comment.status}</span>
+                        </div>
+                        <div class="mt-1 text-sm text-gray-600">
+                            <p class="line-clamp-2">${comment.content}</p>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500">
+                            <span>On: ${comment.event_title || 'Unknown Event'}</span>
+                            <span class="mx-2">•</span>
+                            <span>${new Date(comment.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="approveComment('${commentId}')" class="text-green-600 hover:text-green-800 text-sm font-medium">
+                        Approve
+                    </button>
+                    <button onclick="flagComment('${commentId}')" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
+                        Flag
+                    </button>
+                    <button onclick="deleteComment('${commentId}')" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Global functions for comment actions
+window.approveComment = async function(commentId) {
+    try {
+        await requestWithAuth(`/comments/index.php?action=approve&id=${commentId}`, 'PATCH');
+        showSuccessMessage('Comment approved successfully');
+        loadAllComments();
+    } catch (error) {
+        showErrorMessage('Failed to approve comment: ' + error.message);
+    }
+};
+
+window.flagComment = async function(commentId) {
+    try {
+        await requestWithAuth(`/comments/index.php?action=flag&id=${commentId}`, 'PATCH');
+        showSuccessMessage('Comment flagged successfully');
+        loadAllComments();
+    } catch (error) {
+        showErrorMessage('Failed to flag comment: ' + error.message);
+    }
+};
+
+window.deleteComment = async function(commentId) {
+    if (confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+        try {
+            await requestWithAuth(`/comments/index.php?action=delete&id=${commentId}`, 'DELETE');
+            showSuccessMessage('Comment deleted successfully');
+            loadAllComments();
+        } catch (error) {
+            showErrorMessage('Failed to delete comment: ' + error.message);
+        }
+    }
+};
+
+async function exportComments() {
+    try {
+        showSuccessMessage('Preparing comments export...');
+        
+        const response = await requestWithAuth('/comments/index.php?action=list&limit=1000', 'GET').catch(() => ({ data: { comments: [] } }));
+        const comments = response.data?.comments || [];
+
+        // Create CSV data
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "COMMENTS DATA\n";
+        csvContent += "ID,User,Event,Content,Status,Created\n";
+        
+        comments.forEach(comment => {
+            const userInfo = `${comment.user?.first_name || 'Unknown'} ${comment.user?.last_name || 'User'}`;
+            const eventTitle = comment.event_title || 'Unknown Event';
+            const content = (comment.content || '').replace(/"/g, '""'); // Escape quotes
+            csvContent += `"${comment._id?.$oid || comment._id}","${userInfo}","${eventTitle}","${content}","${comment.status}","${comment.created_at}"\n`;
+        });
+        
+        // Create and trigger download
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `usiu-events-comments-${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showSuccessMessage('Comments exported successfully');
+    } catch (error) {
+        showErrorMessage('Failed to export comments: ' + error.message);
     }
 }

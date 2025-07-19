@@ -21,18 +21,58 @@ if ($requestData !== null) {
     $requestData = sanitizeInput($requestData);
 }
 
-switch ($method) {
-    case 'GET':
-        require __DIR__ . '/get.php';
+// Determine the action based on a query parameter
+$action = $_GET['action'] ?? null;
+
+switch ($action) {
+    case 'create':
+        if ($method === 'POST') {
+            require __DIR__ . '/create.php';
+        } else {
+            send_method_not_allowed();
+        }
         break;
-    case 'POST':
-        require __DIR__ . '/create.php';
+    case 'list':
+        if ($method === 'GET') {
+            require __DIR__ . '/list.php';
+        } else {
+            send_method_not_allowed();
+        }
         break;
-    case 'DELETE':
-        require __DIR__ . '/delete.php';
+    case 'details':
+        if ($method === 'GET') {
+            require __DIR__ . '/details.php';
+        } else {
+            send_method_not_allowed();
+        }
         break;
-    // Add PATCH for update/moderation later if needed
+    case 'approve':
+        if ($method === 'PATCH') {
+            require __DIR__ . '/approve.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
+    case 'flag':
+        if ($method === 'PATCH') {
+            require __DIR__ . '/flag.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
+    case 'delete':
+        if ($method === 'DELETE') {
+            require __DIR__ . '/delete.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
     default:
-        send_method_not_allowed();
+        // For backward compatibility, if no action is specified, use the old behavior
+        if ($method === 'GET') {
+            require __DIR__ . '/get.php';
+        } else {
+            send_error('Invalid comment action or missing action parameter.');
+        }
         break;
 }
