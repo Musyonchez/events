@@ -87,11 +87,11 @@ function setupTabNavigation() {
             // Update active tab
             tabButtons.forEach(btn => {
                 btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
-                btn.classList.add('border-transparent', 'text-gray-500');
+                btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             });
             
             this.classList.add('active', 'border-blue-500', 'text-blue-600');
-            this.classList.remove('border-transparent', 'text-gray-500');
+            this.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
 
             // Show corresponding content
             tabContents.forEach(content => {
@@ -314,7 +314,7 @@ function createEventAdminItem(event) {
 
     return `
         <div class="px-6 py-4 hover:bg-gray-50">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between flex-col md:flex-row max-md:space-y-3">
                 <div class="flex items-center flex-1">
                     <div class="flex-shrink-0">
                         <img src="${event.banner_image || '../../assets/images/hero-bg.jpg'}" 
