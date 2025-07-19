@@ -347,6 +347,9 @@ function createEventAdminItem(event) {
                     <button onclick="toggleEventStatus('${eventId}', '${event.status}')" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
                         ${event.status === 'published' ? 'Unpublish' : 'Publish'}
                     </button>
+                    <button onclick="toggleEventFeatured('${eventId}', ${event.featured || false})" class="text-purple-600 hover:text-purple-800 text-sm font-medium">
+                        ${event.featured ? 'Unfeature' : 'Feature'}
+                    </button>
                     <button onclick="deleteEvent('${eventId}')" class="text-red-600 hover:text-red-800 text-sm font-medium">
                         Delete
                     </button>
@@ -571,6 +574,19 @@ window.toggleEventStatus = async function(eventId, currentStatus) {
         loadAllEvents();
     } catch (error) {
         showErrorMessage('Failed to update event status: ' + error.message);
+    }
+};
+
+window.toggleEventFeatured = async function(eventId, currentFeatured) {
+    const newFeatured = !currentFeatured;
+    try {
+        await requestWithAuth(`/events/index.php?action=update&id=${eventId}`, 'PATCH', { 
+            featured: newFeatured 
+        });
+        showSuccessMessage(`Event ${newFeatured ? 'featured' : 'unfeatured'} successfully`);
+        loadAllEvents();
+    } catch (error) {
+        showErrorMessage('Failed to update event featured status: ' + error.message);
     }
 };
 

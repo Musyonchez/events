@@ -6,7 +6,7 @@ require_once __DIR__ . '/config.php'; // Load configuration, including frontend_
 $allowedOrigin = $config['frontend_url'] ?? '*';
 
 header("Access-Control-Allow-Origin: $allowedOrigin");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Handle preflight OPTIONS requests

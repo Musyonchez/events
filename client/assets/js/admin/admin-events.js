@@ -208,7 +208,35 @@ function setupEventForm(isEditing, eventId) {
             }, 2000);
 
         } catch (error) {
-            showErrorMessage(error.message || 'Failed to save event. Please try again.');
+            console.error('Event creation error:', error);
+            
+            // Try to extract specific validation errors from the response
+            let errorMessage = 'Failed to save event. Please try again.';
+            
+            if (error.response && error.response.data) {
+                const responseData = error.response.data;
+                
+                // If there are specific field errors, format them nicely
+                if (responseData.details && typeof responseData.details === 'object') {
+                    const errorMessages = Object.entries(responseData.details)
+                        .map(([field, message]) => `${field}: ${message}`)
+                        .join('\n\n');
+                    errorMessage = `Validation errors:\n\n${errorMessages}`;
+                } else if (responseData.errors && typeof responseData.errors === 'object') {
+                    const errorMessages = Object.entries(responseData.errors)
+                        .map(([field, message]) => `${field}: ${message}`)
+                        .join('\n\n');
+                    errorMessage = `Validation errors:\n\n${errorMessages}`;
+                } else if (responseData.message) {
+                    errorMessage = responseData.message;
+                } else if (responseData.error) {
+                    errorMessage = responseData.error;
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            showErrorMessage(errorMessage);
         } finally {
             // Reset button state
             setButtonLoading(button, buttonText, buttonSpinner, false);
@@ -222,12 +250,19 @@ function updateUIForEditing() {
     const submitText = document.getElementById('submit-text');
     const submitSpinnerText = document.getElementById('submit-spinner-text');
     const draftText = document.getElementById('draft-text');
+    const clubSearch = document.getElementById('club_search');
 
     if (pageTitle) pageTitle.textContent = 'Edit Event';
     if (mainTitle) mainTitle.textContent = 'Edit Event';
     if (submitText) submitText.textContent = 'Update Event';
     if (submitSpinnerText) submitSpinnerText.textContent = 'Updating...';
     if (draftText) draftText.textContent = 'Save Changes';
+    
+    // Remove required attribute from club search in edit mode
+    // This prevents browser validation issues with pre-filled search inputs
+    if (clubSearch) {
+        clubSearch.removeAttribute('required');
+    }
 }
 
 async function processFormData(formData, status) {
