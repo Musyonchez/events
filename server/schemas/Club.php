@@ -233,6 +233,30 @@ class ClubSchema
       case 'bool':
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? (bool) $value;
 
+      case 'array':
+        if (is_array($value)) {
+          $arrayValue = $value;
+        } elseif (is_string($value) && ($value === 'Array' || $value === '[]' || empty($value))) {
+          // Handle cases where array was incorrectly stored as string
+          $arrayValue = [];
+        } else {
+          throw new InvalidArgumentException("Invalid array for field '{$fieldName}': {$value}");
+        }
+        
+        // Validate array items if specified
+        if (isset($config['items'])) {
+          $itemConfig = $config['items'];
+          foreach ($arrayValue as $index => $item) {
+            try {
+              $arrayValue[$index] = self::castValue($item, $itemConfig, "{$fieldName}[{$index}]");
+            } catch (InvalidArgumentException $e) {
+              throw new InvalidArgumentException("Invalid array item at index {$index} for field '{$fieldName}': " . $e->getMessage());
+            }
+          }
+        }
+        
+        return $arrayValue;
+
       case 'string':
       default:
         $stringValue = trim((string) $value);

@@ -469,6 +469,13 @@ class ClubModel
   public function addMember(string $clubId, string $userId): bool
   {
     try {
+      // First, fix any clubs where members field is incorrectly stored as string
+      $this->collection->updateOne(
+        ['_id' => new ObjectId($clubId), 'members' => ['$type' => 'string']],
+        ['$set' => ['members' => []]]
+      );
+      
+      // Now add the member
       $updateResult = $this->collection->updateOne(
         ['_id' => new ObjectId($clubId)],
         [
