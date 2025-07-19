@@ -304,7 +304,6 @@ async function loadAllClubs(statusFilter = '') {
 
 // Template functions
 function createEventAdminItem(event) {
-    const eventDate = new Date(event.event_date);
     const eventId = event._id?.$oid || event._id;
     const statusColors = {
         published: 'bg-green-100 text-green-800',
@@ -329,7 +328,7 @@ function createEventAdminItem(event) {
                             ${event.featured ? '<span class="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Featured</span>' : ''}
                         </div>
                         <div class="mt-1 flex items-center text-sm text-gray-500">
-                            <span>${eventDate.toLocaleDateString()}</span>
+                            <span>${formatUserDate(event.event_date)}</span>
                             <span class="mx-2">•</span>
                             <span>${event.location || 'TBA'}</span>
                             <span class="mx-2">•</span>
@@ -885,8 +884,34 @@ function createCommentAdminItem(comment) {
     const statusColors = {
         approved: 'bg-green-100 text-green-800',
         pending: 'bg-yellow-100 text-yellow-800',
-        flagged: 'bg-red-100 text-red-800',
+        rejected: 'bg-red-100 text-red-800',
         deleted: 'bg-gray-100 text-gray-800'
+    };
+
+    // Create appropriate action buttons based on current status
+    const getActionButtons = (status, flagged) => {
+        let buttons = [];
+        
+        // Approve/Reject toggle button
+        if (status === 'approved') {
+            buttons.push(`<button onclick="toggleCommentApproval('${commentId}', '${status}')" class="text-red-600 hover:text-red-800 text-sm font-medium">Reject</button>`);
+        } else if (status === 'rejected') {
+            buttons.push(`<button onclick="toggleCommentApproval('${commentId}', '${status}')" class="text-green-600 hover:text-green-800 text-sm font-medium">Approve</button>`);
+        } else { // pending
+            buttons.push(`<button onclick="toggleCommentApproval('${commentId}', '${status}')" class="text-green-600 hover:text-green-800 text-sm font-medium">Approve</button>`);
+        }
+        
+        // Flag/Unflag toggle button
+        if (flagged) {
+            buttons.push(`<button onclick="toggleCommentFlag('${commentId}', ${flagged})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Unflag</button>`);
+        } else {
+            buttons.push(`<button onclick="toggleCommentFlag('${commentId}', ${flagged})" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">Flag</button>`);
+        }
+        
+        // Delete button
+        buttons.push(`<button onclick="deleteComment('${commentId}')" class="text-red-600 hover:text-red-800 text-sm font-medium">Delete</button>`);
+        
+        return buttons.join('');
     };
 
     return `
@@ -902,27 +927,20 @@ function createCommentAdminItem(comment) {
                         <div class="flex items-center">
                             <h4 class="text-sm font-medium text-gray-900">${comment.user?.first_name || 'Unknown'} ${comment.user?.last_name || 'User'}</h4>
                             <span class="ml-2 ${statusColors[comment.status] || 'bg-gray-100 text-gray-800'} text-xs px-2 py-1 rounded-full">${comment.status}</span>
+                            ${comment.flagged ? '<span class="ml-2 bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">Flagged</span>' : ''}
                         </div>
                         <div class="mt-1 text-sm text-gray-600">
                             <p class="line-clamp-2">${comment.content}</p>
                         </div>
                         <div class="mt-2 text-xs text-gray-500">
-                            <span>On: ${comment.event_title || 'Unknown Event'}</span>
+                            <span>On: ${comment.event_title || comment.event?.title || 'Unknown Event'}</span>
                             <span class="mx-2">•</span>
-                            <span>${new Date(comment.created_at).toLocaleDateString()}</span>
+                            <span>${formatUserDate(comment.created_at)}</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button onclick="approveComment('${commentId}')" class="text-green-600 hover:text-green-800 text-sm font-medium">
-                        Approve
-                    </button>
-                    <button onclick="flagComment('${commentId}')" class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
-                        Flag
-                    </button>
-                    <button onclick="deleteComment('${commentId}')" class="text-red-600 hover:text-red-800 text-sm font-medium">
-                        Delete
-                    </button>
+                    ${getActionButtons(comment.status, comment.flagged)}
                 </div>
             </div>
         </div>
@@ -930,23 +948,37 @@ function createCommentAdminItem(comment) {
 }
 
 // Global functions for comment actions
-window.approveComment = async function(commentId) {
+window.toggleCommentApproval = async function(commentId, currentStatus) {
+    let newStatus;
+    let action;
+    
+    if (currentStatus === 'approved') {
+        newStatus = 'rejected';
+        action = 'reject';
+    } else {
+        newStatus = 'approved';
+        action = 'approve';
+    }
+    
     try {
-        await requestWithAuth(`/comments/index.php?action=approve&id=${commentId}`, 'PATCH', {});
-        showSuccessMessage('Comment approved successfully');
+        await requestWithAuth(`/comments/index.php?action=${action}&id=${commentId}`, 'PATCH', {});
+        showSuccessMessage(`Comment ${newStatus} successfully`);
         loadAllComments();
     } catch (error) {
-        showErrorMessage('Failed to approve comment: ' + error.message);
+        showErrorMessage(`Failed to ${action} comment: ` + error.message);
     }
 };
 
-window.flagComment = async function(commentId) {
+window.toggleCommentFlag = async function(commentId, currentFlagged) {
+    const action = currentFlagged ? 'unflag' : 'flag';
+    const actionText = currentFlagged ? 'unflagged' : 'flagged';
+    
     try {
-        await requestWithAuth(`/comments/index.php?action=flag&id=${commentId}`, 'PATCH', {});
-        showSuccessMessage('Comment flagged successfully');
+        await requestWithAuth(`/comments/index.php?action=${action}&id=${commentId}`, 'PATCH', {});
+        showSuccessMessage(`Comment ${actionText} successfully`);
         loadAllComments();
     } catch (error) {
-        showErrorMessage('Failed to flag comment: ' + error.message);
+        showErrorMessage(`Failed to ${action} comment: ` + error.message);
     }
 };
 

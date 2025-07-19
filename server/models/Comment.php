@@ -240,6 +240,63 @@ class CommentModel
     return array_map(fn($doc) => $doc->getArrayCopy(), $comments);
   }
 
+  // List comments with joined user and event data for admin dashboard
+  public function listWithDetails(array $filters = [], int $limit = 50, int $skip = 0): array
+  {
+    $pipeline = [];
+    
+    // Only add match stage if we have filters
+    if (!empty($filters)) {
+      $pipeline[] = ['$match' => $filters];
+    }
+    
+    // Add lookup stages
+    $pipeline = array_merge($pipeline, [
+      // Lookup user details
+      [
+        '$lookup' => [
+          'from' => 'users',
+          'localField' => 'user_id',
+          'foreignField' => '_id',
+          'as' => 'user'
+        ]
+      ],
+      
+      // Lookup event details
+      [
+        '$lookup' => [
+          'from' => 'events',
+          'localField' => 'event_id',
+          'foreignField' => '_id',
+          'as' => 'event'
+        ]
+      ],
+      
+      // Unwind arrays to get single objects
+      ['$unwind' => ['path' => '$user', 'preserveNullAndEmptyArrays' => true]],
+      ['$unwind' => ['path' => '$event', 'preserveNullAndEmptyArrays' => true]],
+      
+      // Add event title field for easier access
+      [
+        '$addFields' => [
+          'event_title' => '$event.title'
+        ]
+      ],
+      
+      // Sort by creation date (newest first)
+      ['$sort' => ['created_at' => -1]],
+      
+      // Skip and limit for pagination
+      ['$skip' => $skip],
+      ['$limit' => $limit]
+    ]);
+
+    $cursor = $this->collection->aggregate($pipeline);
+    $comments = iterator_to_array($cursor);
+
+    return array_map(fn($doc) => $doc->getArrayCopy(), $comments);
+  }
+
   // Get total count of comments (useful for pagination)
   public function count(array $filters = []): int
   {

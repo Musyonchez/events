@@ -51,12 +51,12 @@ try {
         // Get comments for a specific event
         $comments = $commentModel->findByEventId($eventId, $options);
     } else {
-        // Get all comments (admin functionality)
+        // Get all comments (admin functionality) with joined user and event details
         $filters = [];
         if ($status) {
             $filters['status'] = $status;
         }
-        $comments = $commentModel->list($filters, $limit, $skip);
+        $comments = $commentModel->listWithDetails($filters, $limit, $skip);
     }
     
     send_success('Comments fetched successfully', 200, ['comments' => $comments]);

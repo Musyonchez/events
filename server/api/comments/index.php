@@ -53,9 +53,23 @@ switch ($action) {
             send_method_not_allowed();
         }
         break;
+    case 'reject':
+        if ($method === 'PATCH') {
+            require __DIR__ . '/reject.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
     case 'flag':
         if ($method === 'PATCH') {
             require __DIR__ . '/flag.php';
+        } else {
+            send_method_not_allowed();
+        }
+        break;
+    case 'unflag':
+        if ($method === 'PATCH') {
+            require __DIR__ . '/unflag.php';
         } else {
             send_method_not_allowed();
         }
