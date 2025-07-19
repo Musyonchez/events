@@ -374,7 +374,7 @@ function createUserAdminItem(user) {
 
     return `
         <div class="px-6 py-4 hover:bg-gray-50">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between flex-col md:flex-row max-md:space-y-3 max-md:items-center">
                 <div class="flex items-center flex-1">
                     <div class="flex-shrink-0">
                         <img src="${user.profile_image || '../../assets/images/avatar.png'}" 
@@ -429,7 +429,7 @@ function createClubAdminItem(club) {
 
     return `
         <div class="px-6 py-4 hover:bg-gray-50">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between flex-col md:flex-row max-md:space-y-3 max-md:items-center">
                 <div class="flex items-center flex-1">
                     <div class="flex-shrink-0">
                         <img src="${club.logo || '../../assets/images/logo.png'}" 
@@ -916,7 +916,7 @@ function createCommentAdminItem(comment) {
 
     return `
         <div class="px-6 py-4 hover:bg-gray-50">
-            <div class="flex items-start justify-between">
+            <div class="flex items-start justify-between flex-col md:flex-row max-md:space-y-3 max-md:items-center">
                 <div class="flex items-start flex-1">
                     <div class="flex-shrink-0">
                         <img src="${comment.user?.profile_image || '../../assets/images/avatar.png'}" 
