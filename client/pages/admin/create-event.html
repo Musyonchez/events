@@ -73,6 +73,23 @@
                         
                         <div class="md:col-span-2">
                             <label for="club_search" class="block text-sm font-medium text-gray-700">Organizing Club *</label>
+                            
+                            <!-- Current Club Info (shown in edit mode) -->
+                            <div id="current_club_info" class="hidden mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <img id="current_club_logo" src="" alt="" class="w-8 h-8 rounded-full object-cover">
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-blue-900" id="current_club_name"></p>
+                                        <p class="text-xs text-blue-700" id="current_club_category"></p>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="text-xs text-blue-600">Currently selected</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div class="relative mt-1">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

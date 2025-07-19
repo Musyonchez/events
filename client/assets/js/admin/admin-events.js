@@ -456,6 +456,9 @@ function setupClubSearch() {
         clubIdHidden.value = clubId;
         clubDropdown.classList.add('hidden');
         
+        // Hide the current club info when a new club is selected
+        hideCurrentClubInfo();
+        
         // Remove any validation errors
         clubSearch.setCustomValidity('');
         clubIdHidden.setCustomValidity('');
@@ -503,7 +506,12 @@ async function loadEventForEditing(eventId) {
         
         // Set club with special handling for search component
         if (event.club_id && event.club_name) {
-            setClubValue(event.club_id?.$oid || event.club_id, event.club_name);
+            const clubData = {
+                name: event.club_name,
+                category: event.club_category || 'No category',
+                logo: event.club_logo || null
+            };
+            setClubValue(event.club_id?.$oid || event.club_id, event.club_name, clubData);
         }
 
         // Date fields
@@ -571,13 +579,47 @@ function setCheckboxValue(fieldId, value) {
     }
 }
 
-function setClubValue(clubId, clubName) {
+function setClubValue(clubId, clubName, clubData = null) {
     const clubSearch = document.getElementById('club_search');
     const clubIdHidden = document.getElementById('club_id');
     
     if (clubSearch && clubIdHidden && clubId && clubName) {
         clubSearch.value = clubName;
         clubIdHidden.value = clubId;
+        
+        // Show club info in edit mode if club data is available
+        if (clubData) {
+            showCurrentClubInfo(clubData);
+        }
+    }
+}
+
+function showCurrentClubInfo(clubData) {
+    // Only show club info in edit mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEditMode = !!urlParams.get('edit');
+    
+    if (!isEditMode) return;
+    
+    const clubInfo = document.getElementById('current_club_info');
+    const clubLogo = document.getElementById('current_club_logo');
+    const clubName = document.getElementById('current_club_name');
+    const clubCategory = document.getElementById('current_club_category');
+    
+    if (clubInfo && clubLogo && clubName && clubCategory) {
+        clubLogo.src = clubData.logo || '../../assets/images/logo.png';
+        clubLogo.alt = clubData.name;
+        clubName.textContent = clubData.name;
+        clubCategory.textContent = clubData.category || 'No category';
+        
+        clubInfo.classList.remove('hidden');
+    }
+}
+
+function hideCurrentClubInfo() {
+    const clubInfo = document.getElementById('current_club_info');
+    if (clubInfo) {
+        clubInfo.classList.add('hidden');
     }
 }
 

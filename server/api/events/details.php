@@ -22,6 +22,16 @@ if (isset($_GET['id'])) {
     try {
         $event = $eventModel->findById($eventId);
         if ($event) {
+            // Populate club information if club_id exists
+            if (isset($event['club_id'])) {
+                $club = $db->clubs->findOne(['_id' => $event['club_id']]);
+                if ($club) {
+                    $event['club_name'] = $club['name'];
+                    $event['club_category'] = $club['category'];
+                    $event['club_logo'] = $club['logo'] ?? null;
+                }
+            }
+            
             send_success('Event details fetched successfully', 200, $event);
         } else {
             send_not_found('Event');
