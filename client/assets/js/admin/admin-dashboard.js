@@ -317,7 +317,7 @@ function createEventAdminItem(event) {
             <div class="flex items-center justify-between flex-col md:flex-row max-md:space-y-3">
                 <div class="flex items-center flex-1">
                     <div class="flex-shrink-0">
-                        <img src="${event.banner_image || '../../assets/images/hero-bg.jpg'}" 
+                        <img src="${event.banner_image || 'https://placehold.co/400x200'}" 
                              alt="${event.title}" 
                              class="w-12 h-12 rounded-lg object-cover">
                     </div>
@@ -432,7 +432,7 @@ function createClubAdminItem(club) {
             <div class="flex items-center justify-between flex-col md:flex-row max-md:space-y-3 max-md:items-center">
                 <div class="flex items-center flex-1">
                     <div class="flex-shrink-0">
-                        <img src="${club.logo || '../../assets/images/logo.png'}" 
+                        <img src="${club.logo || 'https://placehold.co/100x100'}" 
                              alt="${club.name}" 
                              class="w-12 h-12 rounded-lg object-cover">
                     </div>
