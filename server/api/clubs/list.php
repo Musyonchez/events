@@ -57,6 +57,21 @@ try {
     $clubs = $clubModel->listClubs($filters, $page, $limit, $sort_options);
     $total_clubs = $clubModel->countClubs($filters);
 
+    // Populate leader information for each club
+    foreach ($clubs as &$club) {
+        if (isset($club['leader_id'])) {
+            $leader = $db->users->findOne(['_id' => $club['leader_id']]);
+            if ($leader) {
+                $club['leader'] = [
+                    'first_name' => $leader['first_name'],
+                    'last_name' => $leader['last_name'],
+                    'email' => $leader['email'],
+                    'profile_image' => $leader['profile_image'] ?? null
+                ];
+            }
+        }
+    }
+
     send_response([
         'clubs' => $clubs,
         'total_clubs' => $total_clubs,
