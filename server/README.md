@@ -57,9 +57,11 @@ This project implements the backend API for the USIU Events application. It is b
 *   Event Management (Create, Read, Update, Delete)
 *   User Registration for Events with email notifications.
 *   Club Management (Create, Read, Update, Delete)
-*   Comment Management (Create, Read, Delete)
+*   **Enhanced Comment Management** (Create, Read, Update, Delete, Approve, Reject, Flag, Unflag)
+*   **Admin Comment Moderation** with MongoDB aggregation pipelines for user/event data joining
+*   **Data Export Functionality** - CSV export for all platform data
 *   Input Validation and Sanitization.
-*   JWT-based Authorization.
+*   JWT-based Authorization with role-based permissions.
 
 ### How to Run:
 
@@ -73,7 +75,28 @@ This project implements the backend API for the USIU Events application. It is b
 5.  Start a PHP development server (e.g., `php -S localhost:8000 -t .` from the project root).
 6.  Access API endpoints via `http://localhost:8000/api/...`
 
+### Recent Enhancements:
+
+#### Comment Moderation System
+*   **New Endpoints**: Added `reject.php` and `unflag.php` for complete comment moderation
+*   **MongoDB Aggregation**: `listWithDetails()` method uses aggregation pipelines to join comments with users and events
+*   **Enhanced Admin API**: `/api/comments/index.php?action=list` provides enriched comment data with user and event details
+*   **Toggle Functionality**: Admin can seamlessly switch between approve/reject and flag/unflag states
+
+#### Admin Dashboard Improvements
+*   **Consistent Date Formatting**: All date displays use proper MongoDB date handling across events, users, clubs, and comments
+*   **Data Aggregation**: Comments list includes complete user profiles and event information
+*   **Export Functionality**: CSV export for comments, events, users, and clubs
+*   **Real-time UI Updates**: Admin actions immediately reflect in the interface
+
+#### Technical Improvements
+*   **Aggregation Pipeline Optimization**: Conditional `$match` stages to handle empty filters
+*   **Error Handling**: Better MongoDB error handling and validation
+*   **Data Structure**: Enhanced comment schema with `flagged` field and proper date handling
+
 ### Testing:
 
 *   Use a tool like Postman or Insomnia to send requests to the API endpoints.
 *   Check your Mailtrap inbox for test emails (verification, password reset, event registration).
+*   **Admin Testing**: Access admin dashboard at `/pages/admin/admin-dashboard.html` to test comment moderation features.
+*   **Comment Moderation**: Test approve/reject and flag/unflag toggles with different comment statuses.

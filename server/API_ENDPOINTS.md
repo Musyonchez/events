@@ -138,15 +138,21 @@ Remember to replace `http://<your_server_address>` with the actual address of yo
 
 | Action Parameter  | Method   | Description                                       | Body (JSON) / Notes                                          |
 | :---------------- | :------- | :------------------------------------------------ | :----------------------------------------------------------- |
-| (No action param) | `GET`    | Get comments by event ID or single comment by ID. | `?event_id=...` or `?id=...`                                 |
-| (No action param) | `POST`   | Create a new comment.                             | ```json
+| `?action=list`    | `GET`    | Get all comments with user and event details (Admin). | `?status=...&limit=...&skip=...` (Requires Admin Auth)     |
+| `?action=details` | `GET`    | Get single comment by ID.                        | `?id=...`                                                   |
+| `?action=create`  | `POST`   | Create a new comment.                             | ```json
 {
     "event_id": "65c7a1b2c3d4e5f6a7b8c9d2",
     "user_id": "65c7a1b2c3d4e5f6a7b8c9d1",
     "content": "This is a great event! Looking forward to it."
 }
 ``` (Requires Auth) |
-| (No action param) | `DELETE` | Delete a comment.                                 | `?id=...` in URL. (Requires Auth)                            |
+| `?action=approve` | `PATCH`  | Approve a comment (Admin).                        | `?id=...` in URL. (Requires Admin Auth)                     |
+| `?action=reject`  | `PATCH`  | Reject a comment (Admin).                         | `?id=...` in URL. (Requires Admin Auth)                     |
+| `?action=flag`    | `PATCH`  | Flag a comment (Admin).                           | `?id=...` in URL. (Requires Admin Auth)                     |
+| `?action=unflag`  | `PATCH`  | Unflag a comment (Admin).                         | `?id=...` in URL. (Requires Admin Auth)                     |
+| `?action=delete`  | `DELETE` | Delete a comment.                                 | `?id=...` in URL. (Requires Auth)                            |
+| (No action param) | `GET`    | Get comments by event ID (Legacy).               | `?event_id=...` - **Deprecated**: Use `?action=list&event_id=...` |
 
 ---
 

@@ -55,6 +55,12 @@ All data exchanged with the API (both requests and responses) is in **JSON forma
     *   `content` (string)
     *   `parent_comment_id` (string, nullable): For replies. Only one level of nesting.
     *   `status` (string): `pending`, `approved`, `rejected`.
+    *   `flagged` (boolean): Whether the comment has been flagged by moderators.
+    *   `created_at`, `updated_at` (ISO 8601 string)
+    *   **Admin List Response includes:**
+        *   `user` (object): Complete user details (first_name, last_name, profile_image, etc.)
+        *   `event` (object): Complete event details (title, description, event_date, etc.)
+        *   `event_title` (string): Quick access field for event title
 
 ---
 
@@ -146,7 +152,81 @@ Files (e.g., `banner_image`, `logo`, `profile_image`) are uploaded directly to A
 
 ---
 
-## 5. Environment Variables
+## 5. Admin Features & Data Aggregation
+
+### Comment Management with Enhanced Data
+
+The admin comment listing (`/api/comments/index.php?action=list`) uses MongoDB aggregation pipelines to provide enriched data:
+
+**Query Parameters:**
+*   `status` (optional): Filter by comment status (`approved`, `pending`, `rejected`, `flagged`)
+*   `limit` (optional): Number of comments to return (default: 50)
+*   `skip` (optional): Number of comments to skip for pagination (default: 0)
+
+**Enhanced Response Structure:**
+```json
+{
+    "status": "success", 
+    "data": {
+        "comments": [
+            {
+                "_id": "...",
+                "content": "Great event!",
+                "status": "approved",
+                "flagged": false,
+                "created_at": { "$date": { "$numberLong": "..." } },
+                "user": {
+                    "_id": "...",
+                    "first_name": "John",
+                    "last_name": "Doe", 
+                    "profile_image": "https://...",
+                    "email": "john@usiu.ac.ke"
+                },
+                "event": {
+                    "_id": "...",
+                    "title": "Tech Summit 2025",
+                    "description": "...",
+                    "event_date": { "$date": { "$numberLong": "..." } }
+                },
+                "event_title": "Tech Summit 2025"
+            }
+        ]
+    }
+}
+```
+
+### Date Handling Best Practices
+
+**Frontend Date Processing:**
+All MongoDB dates are returned in the format `{ "$date": { "$numberLong": "timestamp" } }`. The frontend should use the provided `formatUserDate()` utility function:
+
+```javascript
+function formatUserDate(dateObj) {
+    if (!dateObj) return 'Unknown';
+    
+    const getTimestamp = (dateObj) => {
+        if (dateObj.$date && dateObj.$date.$numberLong) {
+            return parseInt(dateObj.$date.$numberLong);
+        }
+        return new Date(dateObj).getTime();
+    };
+    
+    return new Date(getTimestamp(dateObj)).toLocaleDateString();
+}
+```
+
+### Admin Actions
+
+All admin comment moderation actions require `admin` or `club_leader` role:
+
+*   **Approve/Reject Toggle**: Changes comment status between `approved` ↔ `rejected`
+*   **Flag/Unflag Toggle**: Changes comment `flagged` field between `true` ↔ `false`
+*   **Status Filtering**: Admin dashboard supports filtering by any status
+*   **Real-time Updates**: Actions immediately reflect in the admin interface
+
+---
+
+## 6. Environment Variables
 
 The backend uses environment variables for sensitive information (database credentials, JWT secret, AWS keys). The frontend does not directly access these. However, the frontend should be configured with the **base URL of the API** (e.g., `http://localhost:8000` or your deployed domain).
 
