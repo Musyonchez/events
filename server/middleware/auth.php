@@ -8,7 +8,7 @@ function authenticate() {
 
     if (empty($authHeader)) {
         http_response_code(401); // Unauthorized
-        echo json_encode(['error' => 'Authorization header missing']);
+        echo json_encode(['error' => 'Authentication required. Please log in to access this resource.']);
         exit;
     }
 
@@ -16,7 +16,7 @@ function authenticate() {
 
     if (!$jwt) {
         http_response_code(401); // Unauthorized
-        echo json_encode(['error' => 'Bearer token not found in Authorization header']);
+        echo json_encode(['error' => 'Invalid authentication format. Please log in again.']);
         exit;
     }
 
@@ -42,7 +42,7 @@ function authenticate() {
                 send_unauthorized('Token not yet valid', ['error_type' => 'not_yet_valid']);
                 break;
             default:
-                send_unauthorized('Invalid token', ['error_type' => 'invalid_token']);
+                send_unauthorized('Session expired or invalid. Please log in again.', ['error_type' => 'invalid_token']);
                 break;
         }
     }

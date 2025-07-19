@@ -113,11 +113,17 @@ This system provides a complete solution for university event management with:
 
 ## Documentation
 
-- **[API Endpoints](server/API_ENDPOINTS.md)** - Complete API reference
-- **[Backend Contract](server/BACKEND_CONTRACT.md)** - Frontend integration guide  
-- **[Data Schemas](server/SCHEMAS.md)** - Database structure reference
-- **[Client README](client/README.md)** - Frontend architecture details
-- **[Server README](server/README.md)** - Backend implementation details
+### For Developers & AI Agents
+- **[Technical Reference](TECHNICAL_REFERENCE.md)** - Comprehensive system architecture guide
+- **[API Debugging Guide](API_DEBUGGING_GUIDE.md)** - Troubleshooting and diagnosis tools
+- **[Database Schemas](server/SCHEMAS.md)** - Complete data structure reference
+- **[Client Architecture](client/README.md)** - Frontend implementation details
+
+### API Reference
+- **[API Endpoints](server/API_ENDPOINTS.md)** - Complete endpoint documentation
+- **[Backend Contract](server/BACKEND_CONTRACT.md)** - Frontend integration guide
+- **[Server Implementation](server/README.md)** - Backend architecture details
+- **[Authentication Guide](server/api/auth/README.md)** - Auth module access patterns
 
 ## Contributing
 

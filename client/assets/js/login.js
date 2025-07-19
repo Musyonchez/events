@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
             
         } catch (error) {
-            let message = 'An error occurred during login.';
+            let message = 'Login failed. Please check your email and password and try again.';
             if (error instanceof AuthError) {
                 if (error.details?.error_type === 'email_not_verified') {
                     message = 'Please verify your email before logging in.';

@@ -223,7 +223,7 @@ async function loadAllEvents(statusFilter = '') {
 
     } catch (error) {
         console.error('Error loading events:', error);
-        showErrorState(container, 'Error loading events. Please try again.');
+        showErrorState(container, 'Failed to load events from database. Check your connection and refresh the page.');
     }
 }
 
@@ -254,7 +254,7 @@ async function loadAllUsers(roleFilter = '') {
 
     } catch (error) {
         console.error('Error loading users:', error);
-        showErrorState(container, 'Error loading users. Please try again.');
+        showErrorState(container, 'Failed to load user accounts from database. Check your connection and refresh the page.');
     }
 }
 
@@ -297,7 +297,7 @@ async function loadAllClubs(statusFilter = '') {
 
     } catch (error) {
         console.error('Error loading clubs:', error);
-        showErrorState(container, 'Error loading clubs. Please try again.');
+        showErrorState(container, 'Failed to load clubs from database. Check your connection and refresh the page.');
     }
 }
 
@@ -875,7 +875,7 @@ async function loadAllComments(statusFilter = '') {
 
     } catch (error) {
         console.error('Error loading comments:', error);
-        showErrorState(container, 'Error loading comments. Please try again.');
+        showErrorState(container, 'Failed to load comments from database. Check your connection and refresh the page.');
     }
 }
 

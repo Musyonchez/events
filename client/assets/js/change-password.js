@@ -74,7 +74,7 @@ function setupChangeForm() {
 
         } catch (error) {
             // Show error message
-            changeErrorText.textContent = error.message || 'Failed to change password. Please try again.';
+            changeErrorText.textContent = error.message || 'Password change failed. Please verify your current password is correct and try again.';
             changeError.classList.remove('hidden');
         } finally {
             // Reset button state

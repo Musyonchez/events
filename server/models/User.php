@@ -31,7 +31,7 @@ class UserModel
 
     $result = $this->collection->insertOne($user);
     if (!$result->isAcknowledged()) {
-      throw new Exception("Failed to create user");
+      throw new Exception("Database error: Unable to save user account. Please try again.");
     }
 
     return $result->getInsertedId();
@@ -51,7 +51,7 @@ class UserModel
 
       $result = $this->collection->insertOne($user);
       if (!$result->isAcknowledged()) {
-        return ['success' => false, 'errors' => ['database' => 'Failed to create user']];
+        return ['success' => false, 'errors' => ['database' => 'Database error: Unable to save user account. Please try again or contact support.']];
       }
 
       $userId = $result->getInsertedId();

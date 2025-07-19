@@ -63,7 +63,7 @@ export async function request(endpoint, method, data = null) {
             } else if (response.status === 401 || response.status === 403) {
                 throw new AuthError(responseData.error || 'Authentication or authorization failed.', errorDetails);
             } else {
-                const error = new Error(responseData.error || 'An unknown error occurred');
+                const error = new Error(responseData.error || `HTTP ${response.status} ${response.statusText}: Please check your request and try again.`);
                 error.status = response.status;
                 error.details = errorDetails;
                 error.response = { data: responseData }; // Include full response data for validation errors
@@ -125,7 +125,7 @@ export async function requestWithAuth(endpoint, method, data = null) {
             } else if (response.status === 401 || response.status === 403) {
                 throw new AuthError(responseData.error || 'Authentication or authorization failed.', errorDetails);
             } else {
-                const error = new Error(responseData.error || 'An unknown error occurred');
+                const error = new Error(responseData.error || `HTTP ${response.status} ${response.statusText}: Please check your request and try again.`);
                 error.status = response.status;
                 error.details = errorDetails;
                 error.response = { data: responseData }; // Include full response data for validation errors

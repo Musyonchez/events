@@ -206,8 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
         } catch (error) {
-            console.error('Error loading events:', error);
-            resultsCount.textContent = 'Error loading events';
+            console.error('Failed to load events from server. Please check your connection and refresh the page.:', error);
+            resultsCount.textContent = 'Failed to load events from server. Please check your connection and refresh the page.';
             eventsGrid.innerHTML = ''; // Clear skeletons on error
             noResults.classList.remove('hidden');
         } finally {
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadEvents(true);
             
         } catch (error) {
-            showNotification('Registration failed: ' + (error.message || 'An unknown error occurred.'), true);
+            showNotification('Registration failed: ' + (error.message || 'Unable to register for this event. Please try again or contact support.'), true);
         }
     };
 
