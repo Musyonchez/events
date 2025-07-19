@@ -142,7 +142,7 @@ function updateJoinButton(club) {
 
     // Check if user is already a member
     const userId = currentUser._id?.$oid || currentUser._id;
-    const isMember = club.members && club.members.some(memberId => {
+    const isMember = club.members && Array.isArray(club.members) && club.members.some(memberId => {
         const memberIdStr = memberId.$oid || memberId;
         return memberIdStr === userId;
     });
