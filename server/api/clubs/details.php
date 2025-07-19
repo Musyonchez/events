@@ -24,6 +24,19 @@ if ($clubId) {
     try {
         $club = $clubModel->findById($clubId);
         if ($club) {
+            // Populate leader information if leader_id exists
+            if (isset($club['leader_id'])) {
+                $leader = $db->users->findOne(['_id' => $club['leader_id']]);
+                if ($leader) {
+                    $club['leader'] = [
+                        'first_name' => $leader['first_name'],
+                        'last_name' => $leader['last_name'],
+                        'email' => $leader['email'],
+                        'profile_image' => $leader['profile_image'] ?? null
+                    ];
+                }
+            }
+            
             send_success('Club details fetched successfully', 200, $club);
         } else {
             send_not_found('Club');

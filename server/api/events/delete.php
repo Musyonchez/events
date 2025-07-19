@@ -23,8 +23,19 @@ $eventId = $_GET['id'];
 $eventModel = new EventModel($db->events);
 
 try {
+  // First delete all comments associated with this event
+  $eventObjectId = new MongoDB\BSON\ObjectId($eventId);
+  $deletedComments = $db->comments->deleteMany([
+      'event_id' => $eventObjectId
+  ]);
+  
+  // Then delete the event
   if ($eventModel->delete($eventId)) {
-    send_success('Event deleted successfully');
+    $message = 'Event deleted successfully';
+    if ($deletedComments->getDeletedCount() > 0) {
+      $message .= ' (including ' . $deletedComments->getDeletedCount() . ' associated comment(s))';
+    }
+    send_success($message);
   } else {
     send_not_found('Event');
   }

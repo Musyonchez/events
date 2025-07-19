@@ -35,6 +35,16 @@ $clubModel = new ClubModel($db->clubs);
 // }
 
 try {
+    // Check if club has any events before deletion
+    $clubObjectId = new MongoDB\BSON\ObjectId($clubId);
+    $clubEvents = $db->events->find([
+        'club_id' => $clubObjectId
+    ])->toArray();
+    
+    if (count($clubEvents) > 0) {
+        send_error('Cannot delete club. Club has ' . count($clubEvents) . ' event(s) associated with it. Please delete these events first.', 400);
+    }
+    
     if ($clubModel->delete($clubId)) {
         send_success('Club deleted successfully');
     } else {

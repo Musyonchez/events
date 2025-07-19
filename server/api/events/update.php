@@ -18,10 +18,17 @@ authenticate();
 
 header('Content-Type: application/json');
 
-// Get the event ID from the URL
-$eventId = $_GET['id'];
+// Get the event ID from the URL or request data
+$eventId = $_GET['id'] ?? $requestData['id'] ?? null;
+
+if (!$eventId) {
+    send_error('Event ID is required for update', 400);
+}
 
 $data = $requestData;
+
+// Remove ID from data to avoid conflicts (ID is passed separately)
+unset($data['id']);
 
 // Handle file upload if present
 if (isset($_FILES['banner_image'])) {

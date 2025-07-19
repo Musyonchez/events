@@ -397,8 +397,8 @@ function createUserAdminItem(user) {
                             <span>${user.course || 'No course'}</span>
                         </div>
                         <div class="mt-1 text-xs text-gray-500">
-                            Joined: ${new Date(user.created_at).toLocaleDateString()}
-                            ${user.last_login ? ` • Last login: ${new Date(user.last_login).toLocaleDateString()}` : ''}
+                            Joined: ${formatUserDate(user.created_at)}
+                            ${user.last_login ? ` • Last login: ${formatUserDate(user.last_login)}` : ''}
                         </div>
                     </div>
                 </div>
@@ -498,6 +498,20 @@ function createActivityItem(activity) {
 }
 
 // Utility functions
+function formatUserDate(dateObj) {
+    if (!dateObj) return 'Unknown';
+    
+    // Handle MongoDB date format
+    const getTimestamp = (dateObj) => {
+        if (dateObj.$date && dateObj.$date.$numberLong) {
+            return parseInt(dateObj.$date.$numberLong);
+        }
+        return new Date(dateObj).getTime();
+    };
+    
+    return new Date(getTimestamp(dateObj)).toLocaleDateString();
+}
+
 function createEmptyState(title, message, actionButton = '') {
     return `
         <div class="px-6 py-8 text-center">
@@ -603,9 +617,117 @@ window.deleteEvent = async function(eventId) {
     }
 };
 
-window.viewUserDetails = function(userId) {
-    // Open user details in a modal or new page
-    window.open(`../user-profile.html?id=${userId}`, '_blank');
+window.viewUserDetails = async function(userId) {
+    try {
+        const response = await requestWithAuth(`/users/index.php?action=details&id=${userId}`, 'GET');
+        const user = response.data;
+        
+        showUserModal(user);
+    } catch (error) {
+        showErrorMessage('Failed to load user details: ' + error.message);
+    }
+};
+
+function showUserModal(user) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('user-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Handle MongoDB date format
+    const getTimestamp = (dateObj) => {
+        if (!dateObj) return null;
+        if (dateObj.$date && dateObj.$date.$numberLong) {
+            return parseInt(dateObj.$date.$numberLong);
+        }
+        return new Date(dateObj).getTime();
+    };
+    
+    const joinDate = user.created_at ? new Date(getTimestamp(user.created_at)).toLocaleDateString() : 'Unknown';
+    const lastLoginDate = user.last_login ? new Date(getTimestamp(user.last_login)).toLocaleDateString() : null;
+    
+    // Create modal HTML
+    const modalHTML = `
+        <div id="user-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">User Details</h3>
+                        <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <img src="${user.profile_image || '../../assets/images/avatar.png'}" 
+                                 alt="${user.first_name}" 
+                                 class="w-16 h-16 rounded-full object-cover mr-4">
+                            <div>
+                                <h4 class="font-medium text-gray-900">${user.first_name} ${user.last_name}</h4>
+                                <p class="text-sm text-gray-500">${user.email}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t pt-3 space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-500">Student ID:</span>
+                                <span class="text-sm text-gray-900">${user.student_id || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-500">Role:</span>
+                                <span class="text-sm text-gray-900 capitalize">${user.role}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-500">Status:</span>
+                                <span class="text-sm text-gray-900 capitalize">${user.status}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-500">Course:</span>
+                                <span class="text-sm text-gray-900">${user.course || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-500">Email Verified:</span>
+                                <span class="text-sm ${user.is_email_verified ? 'text-green-600' : 'text-red-600'}">${user.is_email_verified ? 'Yes' : 'No'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-500">Joined:</span>
+                                <span class="text-sm text-gray-900">${joinDate}</span>
+                            </div>
+                            ${lastLoginDate ? `
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-500">Last Login:</span>
+                                <span class="text-sm text-gray-900">${lastLoginDate}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end mt-6">
+                        <button onclick="closeUserModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 mr-2">
+                            Close
+                        </button>
+                        <button onclick="editUser('${user._id?.$oid || user._id}')" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Edit User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+window.closeUserModal = function() {
+    const modal = document.getElementById('user-modal');
+    if (modal) {
+        modal.remove();
+    }
 };
 
 window.editUser = function(userId) {

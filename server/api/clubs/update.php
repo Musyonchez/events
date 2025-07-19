@@ -18,11 +18,23 @@ authenticate(); // Ensure user is logged in
 
 header('Content-Type: application/json');
 
-// Get the club ID from the URL (validated by middleware/validate.php)
-$clubId = $_GET['id'];
+// Get the club ID from the URL or request data
+$clubId = $_GET['id'] ?? $requestData['id'] ?? null;
+
+if (!$clubId) {
+    send_error('Club ID is required for update', 400);
+}
 
 // $requestData is available from index.php after validation and sanitization
 $data = $requestData;
+
+// Remove ID from data to avoid conflicts (ID is passed separately)
+unset($data['id']);
+
+// Decode HTML entities in category field (reverse the sanitization for predefined values)
+if (isset($data['category'])) {
+    $data['category'] = htmlspecialchars_decode($data['category'], ENT_QUOTES);
+}
 
 // Handle file upload if present
 if (isset($_FILES['logo'])) {

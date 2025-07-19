@@ -208,12 +208,19 @@ function updateUIForEditing() {
     const submitText = document.getElementById('submit-text');
     const submitSpinnerText = document.getElementById('submit-spinner-text');
     const inactiveText = document.getElementById('inactive-text');
+    const leaderSearch = document.getElementById('leader_search');
 
     if (pageTitle) pageTitle.textContent = 'Edit Club';
     if (mainTitle) mainTitle.textContent = 'Edit Club';
     if (submitText) submitText.textContent = 'Update Club';
     if (submitSpinnerText) submitSpinnerText.textContent = 'Updating...';
     if (inactiveText) inactiveText.textContent = 'Save Changes';
+    
+    // Remove required attribute from leader search in edit mode
+    // This prevents browser validation issues with pre-filled search inputs
+    if (leaderSearch) {
+        leaderSearch.removeAttribute('required');
+    }
 }
 
 async function processFormData(formData, status) {
@@ -389,6 +396,9 @@ function setupLeaderSearch() {
         leaderIdHidden.value = userId;
         leaderDropdown.classList.add('hidden');
         
+        // Hide the current leader info when a new leader is selected
+        hideCurrentLeaderInfo();
+        
         // Remove any validation errors
         leaderSearch.setCustomValidity('');
         leaderIdHidden.setCustomValidity('');
@@ -435,7 +445,13 @@ async function loadClubForEditing(clubId) {
         if (club.leader_id && club.leader) {
             const leaderId = club.leader_id?.$oid || club.leader_id;
             const leaderName = `${club.leader.first_name} ${club.leader.last_name}`;
-            setLeaderValue(leaderId, leaderName);
+            const leaderData = {
+                first_name: club.leader.first_name,
+                last_name: club.leader.last_name,
+                email: club.leader.email,
+                profile_image: club.leader.profile_image || null
+            };
+            setLeaderValue(leaderId, leaderName, leaderData);
         }
         setFieldValue('members_count', club.members_count);
         setFieldValue('status', club.status);
@@ -467,13 +483,47 @@ function setFieldValue(fieldId, value) {
     }
 }
 
-function setLeaderValue(leaderId, leaderName) {
+function setLeaderValue(leaderId, leaderName, leaderData = null) {
     const leaderSearch = document.getElementById('leader_search');
     const leaderIdHidden = document.getElementById('leader_id');
     
     if (leaderSearch && leaderIdHidden && leaderId && leaderName) {
         leaderSearch.value = leaderName;
         leaderIdHidden.value = leaderId;
+        
+        // Show leader info in edit mode if leader data is available
+        if (leaderData) {
+            showCurrentLeaderInfo(leaderData);
+        }
+    }
+}
+
+function showCurrentLeaderInfo(leaderData) {
+    // Only show leader info in edit mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEditMode = !!urlParams.get('edit');
+    
+    if (!isEditMode) return;
+    
+    const leaderInfo = document.getElementById('current_leader_info');
+    const leaderAvatar = document.getElementById('current_leader_avatar');
+    const leaderName = document.getElementById('current_leader_name');
+    const leaderEmail = document.getElementById('current_leader_email');
+    
+    if (leaderInfo && leaderAvatar && leaderName && leaderEmail) {
+        leaderAvatar.src = leaderData.profile_image || '../../assets/images/avatar.png';
+        leaderAvatar.alt = leaderData.first_name;
+        leaderName.textContent = `${leaderData.first_name} ${leaderData.last_name}`;
+        leaderEmail.textContent = leaderData.email;
+        
+        leaderInfo.classList.remove('hidden');
+    }
+}
+
+function hideCurrentLeaderInfo() {
+    const leaderInfo = document.getElementById('current_leader_info');
+    if (leaderInfo) {
+        leaderInfo.classList.add('hidden');
     }
 }
 

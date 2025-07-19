@@ -23,6 +23,32 @@ $userId = $_GET['id'];
 $userModel = new UserModel($db->users);
 
 try {
+  // Check if user has any events or clubs before deletion
+  $userObjectId = new MongoDB\BSON\ObjectId($userId);
+  
+  // Check for events created by this user
+  $userEvents = $db->events->find([
+      'created_by' => $userObjectId
+  ])->toArray();
+  
+  // Check for clubs led by this user
+  $userClubs = $db->clubs->find([
+      'leader_id' => $userObjectId
+  ])->toArray();
+  
+  $errors = [];
+  if (count($userEvents) > 0) {
+      $errors[] = count($userEvents) . ' event(s)';
+  }
+  if (count($userClubs) > 0) {
+      $errors[] = count($userClubs) . ' club(s)';
+  }
+  
+  if (!empty($errors)) {
+      $errorMessage = 'Cannot delete user. User has ' . implode(' and ', $errors) . ' associated with them. Please delete or transfer these first.';
+      send_error($errorMessage, 400);
+  }
+  
   if ($userModel->delete($userId)) {
     send_success('User deleted successfully');
   } else {
