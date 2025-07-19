@@ -250,18 +250,8 @@ class CommentModel
       $pipeline[] = ['$match' => $filters];
     }
     
-    // Add lookup stages
+    // Add lookup stages (only for event since user should be embedded)
     $pipeline = array_merge($pipeline, [
-      // Lookup user details
-      [
-        '$lookup' => [
-          'from' => 'users',
-          'localField' => 'user_id',
-          'foreignField' => '_id',
-          'as' => 'user'
-        ]
-      ],
-      
       // Lookup event details
       [
         '$lookup' => [
@@ -272,8 +262,7 @@ class CommentModel
         ]
       ],
       
-      // Unwind arrays to get single objects
-      ['$unwind' => ['path' => '$user', 'preserveNullAndEmptyArrays' => true]],
+      // Unwind event array to get single object
       ['$unwind' => ['path' => '$event', 'preserveNullAndEmptyArrays' => true]],
       
       // Add event title field for easier access
