@@ -32,7 +32,7 @@ if (!$commentId) {
 $commentModel = new CommentModel($db->comments);
 
 try {
-    $result = $commentModel->updateStatus($commentId, 'approved');
+    $result = $commentModel->approve($commentId);
     
     if ($result) {
         send_success('Comment approved successfully');

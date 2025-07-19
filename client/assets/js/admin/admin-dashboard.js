@@ -932,7 +932,7 @@ function createCommentAdminItem(comment) {
 // Global functions for comment actions
 window.approveComment = async function(commentId) {
     try {
-        await requestWithAuth(`/comments/index.php?action=approve&id=${commentId}`, 'PATCH');
+        await requestWithAuth(`/comments/index.php?action=approve&id=${commentId}`, 'PATCH', {});
         showSuccessMessage('Comment approved successfully');
         loadAllComments();
     } catch (error) {
@@ -942,7 +942,7 @@ window.approveComment = async function(commentId) {
 
 window.flagComment = async function(commentId) {
     try {
-        await requestWithAuth(`/comments/index.php?action=flag&id=${commentId}`, 'PATCH');
+        await requestWithAuth(`/comments/index.php?action=flag&id=${commentId}`, 'PATCH', {});
         showSuccessMessage('Comment flagged successfully');
         loadAllComments();
     } catch (error) {

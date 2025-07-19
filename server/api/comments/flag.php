@@ -32,7 +32,7 @@ if (!$commentId) {
 $commentModel = new CommentModel($db->comments);
 
 try {
-    $result = $commentModel->updateStatus($commentId, 'flagged');
+    $result = $commentModel->flag($commentId);
     
     if ($result) {
         send_success('Comment flagged successfully');
