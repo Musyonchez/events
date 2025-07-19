@@ -354,7 +354,9 @@ async function loadComments(eventId) {
         
         // Handle different response structures
         let comments = [];
-        if (response && Array.isArray(response)) {
+        if (response && response.data && response.data.comments && Array.isArray(response.data.comments)) {
+            comments = response.data.comments;
+        } else if (response && Array.isArray(response)) {
             comments = response;
         } else if (response && response.data && Array.isArray(response.data)) {
             comments = response.data;
