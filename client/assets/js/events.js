@@ -1,19 +1,57 @@
 
+/**
+ * Events Listing and Management Module
+ * 
+ * This module handles the events listing page functionality including
+ * event display, filtering, searching, pagination, and user registration.
+ * It provides a comprehensive interface for browsing and interacting with
+ * university events.
+ * 
+ * Key Features:
+ * - Event grid display with card-based layout
+ * - Advanced filtering (search, category, date, status)
+ * - Pagination with "Load More" functionality
+ * - Real-time event registration
+ * - Responsive design with skeleton loading states
+ * - MongoDB date format handling
+ * - Authentication-aware registration buttons
+ * 
+ * Dependencies:
+ * - http.js: API communication and authentication
+ * - auth.js: User authentication state management
+ * 
+ * Page Elements:
+ * - Event grid container for displaying event cards
+ * - Filter controls (search, category, date, status, sort)
+ * - Pagination controls and loading indicators
+ * - Registration buttons with authentication checks
+ * 
+ * Data Flow:
+ * 1. Load events from API with current filters
+ * 2. Render event cards with registration status
+ * 3. Handle user interactions (filters, registration)
+ * 4. Update UI state based on authentication status
+ */
+
 import { request, requestWithAuth } from './http.js';
 import { isAuthenticated, logout, refreshToken } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
-    let currentPage = 1;
-    let currentFilters = {};
-    let allEvents = [];
-    let isLoading = false;
+    // Application state management
+    let currentPage = 1;           // Current pagination page
+    let currentFilters = {};       // Active filter criteria
+    let allEvents = [];           // Cached events data
+    let isLoading = false;        // Loading state prevention
 
+    // DOM element references for events page functionality
     const eventsGrid = document.getElementById('events-grid');
     const resultsCount = document.getElementById('results-count');
     const noResults = document.getElementById('no-results');
     const loadMoreBtn = document.getElementById('load-more-btn');
     const loadMoreText = document.getElementById('load-more-text');
     const loadMoreSpinner = document.getElementById('load-more-spinner');
+    
+    // Filter and search controls
     const searchInput = document.getElementById('search-input');
     const categoryFilter = document.getElementById('category-filter');
     const dateFilter = document.getElementById('date-filter');
@@ -21,14 +59,46 @@ document.addEventListener('DOMContentLoaded', function() {
     const sortBy = document.getElementById('sort-by');
     const clearFiltersBtn = document.getElementById('clear-filters');
 
-    // Initialize page
+    // Initialize page with initial event loading
     loadEvents();
 
-    // Event card template
+    /**
+     * Event card HTML generator
+     * 
+     * Creates a responsive event card with all relevant event information
+     * including registration status, featured badges, and interactive elements.
+     * 
+     * Card Features:
+     * - Featured event badge for promoted events
+     * - Event banner image with fallback placeholder
+     * - Event category badge overlay
+     * - Date and location information with icons
+     * - Registration information and pricing
+     * - Registration button with status checking
+     * - Click-to-navigate functionality
+     * 
+     * Registration Logic:
+     * - Checks if registration is required and open
+     * - Validates registration deadline
+     * - Compares current vs maximum attendees
+     * - Shows appropriate button or status message
+     * 
+     * @param {Object} event - Event data from API
+     * @returns {string} HTML string for event card
+     */
     function createEventCard(event) {
-        // Handle complex date objects from MongoDB JSON representation
+        /**
+         * MongoDB date format handler
+         * 
+         * Converts MongoDB's complex date format to JavaScript timestamp.
+         * Handles both $date.$numberLong format and ISO string fallbacks.
+         * 
+         * @param {Object|string} dateObj - MongoDB date object or ISO string
+         * @returns {number|null} JavaScript timestamp or null if invalid
+         */
         const getTimestamp = (dateObj) => {
             if (!dateObj) return null;
+            // Handle MongoDB's $date.$numberLong format
             if (dateObj.$date && dateObj.$date.$numberLong) {
                 return parseInt(dateObj.$date.$numberLong);
             }
@@ -36,13 +106,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return new Date(dateObj).getTime();
         };
 
+        // Convert event dates to JavaScript Date objects
         const eventDate = new Date(getTimestamp(event.event_date));
         const deadline = new Date(getTimestamp(event.registration_deadline));
 
+        // Determine if registration is currently open
         const isRegistrationOpen = event.registration_required && 
-            !isNaN(deadline.getTime()) && // Check if the date is valid
-            deadline > new Date() && 
-            event.current_registrations < event.max_attendees;
+            !isNaN(deadline.getTime()) &&              // Valid deadline date
+            deadline > new Date() &&                   // Deadline not passed
+            event.current_registrations < event.max_attendees; // Space available
 
         return `
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer" onclick="handleCardClick(event, '${event._id.$oid}')">
@@ -117,7 +189,21 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Skeleton card template
+    /**
+     * Loading skeleton card generator
+     * 
+     * Creates a skeleton loading card that mimics the structure of a real
+     * event card while content is loading. Uses Tailwind's animate-pulse
+     * for smooth loading animation.
+     * 
+     * Skeleton Structure:
+     * - Card container with pulse animation
+     * - Gray placeholder for banner image
+     * - Gray bars representing title and metadata
+     * - Multiple lines representing description text
+     * 
+     * @returns {string} HTML string for skeleton loading card
+     */
     function createSkeletonCard() {
         return `
             <div class="animate-pulse">
@@ -136,25 +222,59 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Handle card click for navigation
+    /**
+     * Event card click handler
+     * 
+     * Handles navigation when users click on event cards. Implements
+     * smart click detection to avoid conflicts with buttons and links
+     * within the card.
+     * 
+     * Click Logic:
+     * - Checks if click target is a button or link (or child of one)
+     * - If interactive element clicked: Does nothing (lets element handle)
+     * - If card background clicked: Navigates to event details page
+     * 
+     * This allows cards to be clickable while preserving button functionality
+     * for registration and "View Details" links.
+     * 
+     * @param {Event} event - The click event object
+     * @param {string} eventId - The MongoDB ObjectId of the event
+     */
     window.handleCardClick = function(event, eventId) {
-        // Do not navigate if the click was on a button, a link, or any element with its own click handler
+        // Prevent navigation if user clicked on interactive elements
         if (event.target.closest('button, a')) {
             return;
         }
+        // Navigate to event details page
         window.location.href = `./event-details.html?id=${eventId}`;
     };
 
-    // Load events function
+    /**
+     * Main events loading function
+     * 
+     * Fetches events from the API based on current filters and pagination.
+     * Handles both initial loading and "Load More" functionality with
+     * appropriate loading states and error handling.
+     * 
+     * Loading States:
+     * - Initial/Filter: Shows skeleton cards
+     * - Load More: Shows spinner in load more button
+     * - Prevents multiple simultaneous requests
+     * 
+     * @param {boolean} reset - If true, resets pagination and shows skeletons
+     */
     async function loadEvents(reset = false) {
+        // Prevent multiple simultaneous requests
         if (isLoading) return;
         isLoading = true;
 
+        // Handle reset scenario (initial load or filter change)
         if (reset) {
             currentPage = 1;
             allEvents = [];
             noResults.classList.add('hidden');
-            // Show skeletons on initial load or filter change
+            
+            // Display skeleton loading cards
             let skeletonHTML = '';
             for (let i = 0; i < 6; i++) {
                 skeletonHTML += createSkeletonCard();
@@ -163,6 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
+            // Build API request parameters
             const params = new URLSearchParams({
                 action: 'list',
                 page: currentPage,

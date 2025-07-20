@@ -1,4 +1,21 @@
 
+/**
+ * User Dashboard Module
+ * 
+ * Handles the user dashboard page functionality including user profile display,
+ * registered events management, and account information. Provides a personalized
+ * interface for users to manage their event participation.
+ * 
+ * Key Features:
+ * - User profile information display
+ * - Registered events listing and management
+ * - Tab-based navigation for different sections
+ * - Event registration status tracking
+ * - Authentication-protected content
+ * 
+ * Dependencies: auth.js, http.js
+ */
+
 import { isAuthenticated, getCurrentUser } from './auth.js';
 import { request, requestWithAuth } from './http.js';
 

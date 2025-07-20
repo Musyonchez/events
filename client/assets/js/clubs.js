@@ -1,4 +1,21 @@
 
+/**
+ * Clubs Listing Page Module
+ * 
+ * Handles the clubs listing page functionality including club display,
+ * filtering by category, search functionality, and club joining.
+ * Provides grid and list view options for browsing university clubs.
+ * 
+ * Key Features:
+ * - Club grid/list display with category filtering
+ * - Search and pagination functionality
+ * - Club joining with authentication checks
+ * - Responsive design with loading states
+ * - Category-based organization
+ * 
+ * Dependencies: http.js, auth.js
+ */
+
 import { request, requestWithAuth } from './http.js';
 import { isAuthenticated } from './auth.js';
 

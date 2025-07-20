@@ -1,28 +1,90 @@
-<!-- Main application entry point -->
+<!--
+    USIU Events Management System - Homepage
+    
+    Main application entry point and landing page for the university events platform.
+    Provides hero section, featured content preview, and navigation to main application sections.
+    
+    Page Structure:
+    - Dynamic navbar component (loaded via component-loader.js)
+    - Hero section with call-to-action buttons
+    - Featured events grid (populated via main.js)
+    - Clubs preview section (populated via main.js)
+    - About section with platform benefits
+    - Footer with navigation links and contact info
+    
+    Technical Implementation:
+    - Tailwind CSS for styling and responsive design
+    - ES6 modules for JavaScript functionality
+    - Component-based architecture with dynamic loading
+    - Mobile-first responsive design approach
+    
+    JavaScript Dependencies:
+    - component-loader.js: Loads navbar component
+    - main.js: Handles featured content and authentication state
+    - auth.js: Manages user authentication state
+    - http.js: API communication layer
+    
+    SEO and Performance:
+    - Semantic HTML structure for accessibility
+    - Optimized meta tags and favicon
+    - Loading states for dynamic content
+    - Progressive enhancement approach
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic document metadata -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>USIU Events - Discover Campus Events</title>
+    
+    <!-- Styling: Tailwind CSS CDN + custom styles -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./assets/css/style.css">
+    
+    <!-- Favicon for browser tab -->
     <link rel="icon" href="./assets/images/favicon.ico" type="image/x-icon">
 </head>
 <body class="bg-gray-50">
+    <!-- 
+        Navbar Placeholder: Populated by component-loader.js
+        This element is dynamically filled with navbar.html content
+    -->
     <div id="navbar-placeholder"></div>
 
-    <!-- Hero Section -->
+    <!-- 
+        Hero Section: Main landing page banner
+        
+        Features:
+        - Gradient background with overlay for text readability
+        - Responsive typography (text-4xl on mobile, text-6xl on desktop)
+        - Call-to-action buttons for primary user flows
+        - Centered layout with consistent spacing
+        
+        Design Patterns:
+        - Relative positioning for overlay effects
+        - Mobile-first responsive design (flex-col -> sm:flex-row)
+        - Hover states for better user interaction feedback
+        - Semantic heading structure for accessibility
+    -->
     <section class="relative bg-gradient-to-r from-blue-600 to-purple-600 pt-16">
+        <!-- Dark overlay for text contrast -->
         <div class="absolute inset-0 bg-black opacity-50"></div>
+        
+        <!-- Hero content container with responsive padding -->
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div class="text-center">
+                <!-- Main heading with responsive font sizing -->
                 <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
                     Discover Amazing Campus Events
                 </h1>
+                
+                <!-- Subtitle with content width constraint -->
                 <p class="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
                     Join clubs, attend events, and make the most of your USIU experience. Never miss out on what's happening on campus.
                 </p>
+                
+                <!-- Primary action buttons with responsive stacking -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="./pages/events.html" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
                         Browse Events
@@ -35,18 +97,41 @@
         </div>
     </section>
 
-    <!-- Featured Events Section -->
+    <!-- 
+        Featured Events Section: Dynamic content preview
+        
+        Functionality:
+        - Displays 3 featured events from the API
+        - Content populated by main.js loadFeaturedEvents()
+        - Includes loading skeleton states for better UX
+        - Responsive grid layout (1 column mobile, 2 tablet, 3 desktop)
+        
+        Loading Strategy:
+        - Shows skeleton loading cards while API request is pending
+        - Graceful fallback for API failures
+        - Progressive enhancement approach
+    -->
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section header -->
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Events</h2>
                 <p class="text-xl text-gray-600">Don't miss these amazing upcoming events</p>
             </div>
             
-            <!-- Featured Events Grid -->
+            <!-- 
+                Featured Events Grid Container
+                
+                JavaScript Integration:
+                - ID "featured-events" targeted by main.js
+                - Initial content replaced by API data
+                - Responsive grid with gap spacing
+            -->
             <div id="featured-events" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Featured events will be populated here via JavaScript -->
-                <!-- Loading placeholder -->
+                <!-- 
+                    Initial Loading State: Skeleton cards
+                    These are replaced by actual event cards from the API
+                -->
                 <div class="animate-pulse">
                     <div class="bg-gray-300 h-48 rounded-lg mb-4"></div>
                     <div class="space-y-2">

@@ -1,3 +1,20 @@
+/**
+ * Change Password Module
+ * 
+ * Handles authenticated password change functionality for logged-in users.
+ * Provides secure password update interface with current password verification
+ * and new password validation.
+ * 
+ * Key Features:
+ * - Current password verification
+ * - New password validation and confirmation
+ * - Authenticated password change via auth.js
+ * - Form validation and user feedback
+ * - Loading states and error handling
+ * 
+ * Dependencies: auth.js
+ */
+
 import { changePassword, logout } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {

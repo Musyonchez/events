@@ -1,7 +1,22 @@
+/**
+ * Admin Statistics Module
+ * 
+ * Provides statistical analysis and dashboard metrics for the admin interface.
+ * Calculates and displays various system metrics including user counts, event
+ * statistics, registration data, and performance analytics.
+ * 
+ * Key Features:
+ * - Real-time statistics calculation
+ * - Dashboard metrics display
+ * - Chart and visualization support
+ * - Automatic refresh capabilities
+ * - Performance monitoring
+ * 
+ * Dependencies: ../http.js, ../auth.js
+ */
+
 import { requestWithAuth } from '../http.js';
 import { isAuthenticated, getCurrentUser } from '../auth.js';
-
-// Admin Statistics and Analytics Module
 export class AdminStats {
     constructor() {
         this.charts = {};

@@ -1,3 +1,20 @@
+/**
+ * Login Form Module
+ * 
+ * Handles user login form functionality including form validation,
+ * authentication processing, and user feedback. Provides secure
+ * login interface with proper error handling and loading states.
+ * 
+ * Key Features:
+ * - Form validation and submission handling
+ * - Authentication via auth.js module
+ * - Loading states and user feedback
+ * - Error handling for authentication failures
+ * - Automatic redirection on successful login
+ * 
+ * Dependencies: auth.js, http.js, utils.js
+ */
+
 import { login } from './auth.js';
 import { AuthError } from './http.js';
 import { displayError, displaySuccess, hideMessage, toggleButtonLoading } from './utils.js';

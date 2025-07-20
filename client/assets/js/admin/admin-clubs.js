@@ -1,3 +1,21 @@
+/**
+ * Admin Clubs Management Module
+ * 
+ * Handles administrative club management functionality including club
+ * creation, editing, approval, and deletion. Provides comprehensive
+ * club administration interface for admin users.
+ * 
+ * Key Features:
+ * - Club creation and editing forms
+ * - Club approval and status management
+ * - Leader assignment and management
+ * - Club logo upload handling
+ * - Member management and monitoring
+ * - Admin-only access control
+ * 
+ * Dependencies: ../http.js, ../auth.js
+ */
+
 import { request, requestWithAuth } from '../http.js';
 import { isAuthenticated, getCurrentUser } from '../auth.js';
 

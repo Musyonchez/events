@@ -1,3 +1,20 @@
+/**
+ * Club Details Page Module
+ * 
+ * Handles individual club page functionality including club information display,
+ * member management, and club events. Provides detailed view of clubs with
+ * joining capabilities and event listings.
+ * 
+ * Key Features:
+ * - Club details display with logo, description, and metadata
+ * - Member joining functionality with authentication checks
+ * - Club events listing and integration
+ * - Member count and leader information
+ * - Responsive design and error handling
+ * 
+ * Dependencies: http.js, auth.js
+ */
+
 import { request, requestWithAuth } from './http.js';
 import { isAuthenticated, getCurrentUser } from './auth.js';
 

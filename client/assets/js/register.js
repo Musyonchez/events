@@ -1,3 +1,20 @@
+/**
+ * Registration Form Module
+ * 
+ * Handles user registration form functionality including validation,
+ * password confirmation, and account creation. Provides comprehensive
+ * registration interface with field validation and user feedback.
+ * 
+ * Key Features:
+ * - Multi-field form validation
+ * - Password confirmation checking
+ * - USIU email domain validation
+ * - Real-time feedback and error display
+ * - Registration success handling
+ * 
+ * Dependencies: auth.js, utils.js
+ */
+
 import { register } from './auth.js';
 import { displayError, displaySuccess, hideMessage, toggleButtonLoading } from './utils.js';
 

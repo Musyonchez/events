@@ -1,3 +1,20 @@
+/**
+ * Password Reset Module
+ * 
+ * Handles both password reset request and reset completion functionality.
+ * Manages the two-step password reset process: email request and token-based
+ * password update.
+ * 
+ * Key Features:
+ * - Email-based reset request handling
+ * - Token validation and password reset completion
+ * - Form switching between request and reset modes
+ * - Comprehensive validation and user feedback
+ * - Secure token handling
+ * 
+ * Dependencies: auth.js, utils.js
+ */
+
 import { requestPasswordReset, resetPassword } from './auth.js';
 import { displayError, hideMessage, toggleButtonLoading } from './utils.js';
 

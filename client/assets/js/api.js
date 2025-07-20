@@ -1,8 +1,24 @@
-// Centralized API interaction logic
+/**
+ * API Service Layer Module
+ * 
+ * Provides a centralized API service layer with higher-level functions
+ * for common operations. This module wraps the basic HTTP functionality
+ * with specific business logic and endpoint knowledge.
+ * 
+ * Key Features:
+ * - Centralized API endpoint management
+ * - Business logic abstraction over HTTP calls
+ * - Consistent parameter handling
+ * - Authentication-aware request routing
+ * - Error handling at the service level
+ * 
+ * Note: This module may be considered for deprecation in favor of
+ * direct http.js usage to reduce abstraction layers.
+ * 
+ * Dependencies: http.js
+ */
 
 import { request, requestWithAuth } from './http.js';
-
-// Example API calls using the request function
 
 /**
  * Fetches event details.

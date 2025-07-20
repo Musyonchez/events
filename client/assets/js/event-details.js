@@ -1,3 +1,20 @@
+/**
+ * Event Details Page Module
+ * 
+ * Handles individual event page functionality including event information display,
+ * comments system, and event registration. Provides detailed view of events with
+ * user interaction capabilities.
+ * 
+ * Key Features:
+ * - Event details display with banner, description, and metadata
+ * - User registration functionality with authentication checks
+ * - Comments system with posting and display
+ * - Club information integration
+ * - MongoDB date formatting and responsive design
+ * 
+ * Dependencies: http.js, auth.js, api.js
+ */
+
 import { request, requestWithAuth } from './http.js';
 import { isAuthenticated } from './auth.js';
 import { getEventDetails, getEventComments, postComment, registerForEvent, getClubDetails } from './api.js';

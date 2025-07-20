@@ -1,3 +1,21 @@
+/**
+ * Admin Events Management Module
+ * 
+ * Handles administrative event management functionality including event
+ * creation, editing, publishing, and deletion. Provides comprehensive
+ * event administration interface for admin users.
+ * 
+ * Key Features:
+ * - Event creation and editing forms
+ * - Event publishing and unpublishing
+ * - Event status management
+ * - Banner image upload handling
+ * - Event deletion and archiving
+ * - Admin-only access control
+ * 
+ * Dependencies: ../http.js, ../auth.js
+ */
+
 import { request, requestWithAuth } from '../http.js';
 import { isAuthenticated, getCurrentUser } from '../auth.js';
 

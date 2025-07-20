@@ -1,3 +1,22 @@
+/**
+ * Admin Dashboard Module
+ * 
+ * Main administrative interface for the USIU Events system. Provides comprehensive
+ * management capabilities for events, users, clubs, and comments with tabbed
+ * navigation and CRUD operations.
+ * 
+ * Key Features:
+ * - Tabbed interface for different admin sections
+ * - Comment moderation with approve/reject and flag/unflag
+ * - Event management and publishing controls
+ * - User management and role administration
+ * - Club management and approval workflows
+ * - Statistics dashboard and data export
+ * - Role-based access control
+ * 
+ * Dependencies: ../http.js, ../auth.js
+ */
+
 import { request, requestWithAuth } from '../http.js';
 import { isAuthenticated, getCurrentUser } from '../auth.js';
 
