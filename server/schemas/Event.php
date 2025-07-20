@@ -1,13 +1,42 @@
 <?php
+/**
+ * USIU Events Management System - Event Schema Validation
+ * 
+ * Comprehensive event data structure and validation schema for the USIU Events
+ * system. Provides field definitions, type validation, and business rule
+ * enforcement for event management operations.
+ * 
+ * Features:
+ * - Event field definitions and validation rules
+ * - Date and time validation with timezone handling
+ * - Registration capacity and fee validation
+ * - Event status lifecycle management
+ * - Image gallery and media validation
+ * - Complex object and array field handling
+ * 
+ * @author USIU Events Development Team
+ * @version 2.0.0
+ * @since 2024-01-01
+ */
 
 require_once __DIR__ . '/../utils/exceptions.php';
 
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 
-
+/**
+ * Event Schema Class
+ * 
+ * Manages event data validation, type conversion, and MongoDB document mapping
+ * with comprehensive field definitions and business rule validation.
+ */
 class EventSchema
 {
+  /**
+   * Get event field definitions with validation rules and constraints
+   * 
+   * @return array Field definitions with type, validation, and constraint rules
+   */
   public static function getFieldDefinitions(): array
   {
     return [
@@ -35,6 +64,13 @@ class EventSchema
     ];
   }
 
+  /**
+   * Map and validate event data for creation with comprehensive validation
+   * 
+   * @param array $data Raw event data to validate and map
+   * @return array Validated and mapped event data
+   * @throws ValidationException On validation failure with detailed error messages
+   */
   public static function mapAndValidate(array $data): array
   {
     $now = new UTCDateTime();
@@ -81,6 +117,13 @@ class EventSchema
     return $event;
   }
 
+  /**
+   * Map and validate event data for updates with selective field validation
+   * 
+   * @param array $data Event data to update
+   * @return array Validated update data
+   * @throws ValidationException On validation failure
+   */
   public static function mapForUpdate(array $data): array
   {
     $definitions = self::getFieldDefinitions();
@@ -124,6 +167,15 @@ class EventSchema
     return $updateData;
   }
 
+  /**
+   * Cast and validate field values according to configuration rules
+   * 
+   * @param mixed $value Value to cast and validate
+   * @param array $config Field configuration with type and constraints
+   * @param string $fieldName Field name for error reporting
+   * @return mixed Casted and validated value
+   * @throws InvalidArgumentException On type casting or validation failure
+   */
   private static function castValue($value, array $config, string $fieldName)
   {
     if ($value === null) {
@@ -255,7 +307,12 @@ class EventSchema
     }
   }
 
-  // Helper method to validate data without mapping (useful for API validation)
+  /**
+   * Validate event data without mapping (useful for API validation)
+   * 
+   * @param array $data Event data to validate
+   * @return array Validation errors (empty if valid)
+   */
   public static function validate(array $data): array
   {
     try {
@@ -266,7 +323,12 @@ class EventSchema
     }
   }
 
-  // Helper method to validate update data
+  /**
+   * Validate update data without mapping
+   * 
+   * @param array $data Update data to validate
+   * @return array Validation errors (empty if valid)
+   */
   public static function validateUpdate(array $data): array
   {
     try {

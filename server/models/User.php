@@ -1,4 +1,32 @@
 <?php
+/**
+ * USIU Events Management System - User Model
+ * 
+ * Comprehensive user data model providing CRUD operations, authentication support,
+ * email verification, password management, and user search functionality for the
+ * USIU Events system using MongoDB as the data store.
+ * 
+ * Features:
+ * - User registration with email verification
+ * - Password hashing and authentication
+ * - Profile management and updates
+ * - Password reset with secure tokens
+ * - JWT refresh token management
+ * - User search and filtering
+ * - Duplicate email/student ID prevention
+ * - Comprehensive validation and error handling
+ * 
+ * Security Features:
+ * - Password hashing with PHP's password_hash()
+ * - Secure token generation for email verification and password reset
+ * - Protection against duplicate registrations
+ * - Password exclusion from query results
+ * - Token expiration and validation
+ * 
+ * @author USIU Events Development Team
+ * @version 3.0.0
+ * @since 2024-01-01
+ */
 
 require_once __DIR__ . '/../schemas/User.php';
 require_once __DIR__ . '/../utils/email.php';
@@ -8,19 +36,40 @@ use MongoDB\BSON\UTCDateTime;
 use ValidationException;
 use UserSchema;
 
+/**
+ * User Model Class
+ * 
+ * Handles all user-related database operations including authentication,
+ * profile management, email verification, and password reset functionality.
+ */
 class UserModel
 {
+  /**
+   * MongoDB collection instance for user documents
+   */
   private Collection $collection;
 
+  /**
+   * Initialize user model with MongoDB collection
+   * 
+   * @param Collection $collection MongoDB collection for users
+   */
   public function __construct(Collection $collection)
   {
     $this->collection = $collection;
   }
 
-  // Create a new user document
+  /**
+   * Create a new user account with validation and duplicate checking
+   * 
+   * @param array $data User registration data
+   * @return ObjectId Generated user ID
+   * @throws Exception On validation failure or database error
+   */
   public function create(array $data): ObjectId
   {
     try {
+      // Validate and map user data using schema
       $user = UserSchema::mapAndValidate($data);
     } catch (ValidationException $e) {
       throw new Exception("Validation failed: " . json_encode($e->getErrors()));
@@ -29,6 +78,7 @@ class UserModel
     // Check for duplicate email or student_id
     $this->checkDuplicates($user['email'], $user['student_id']);
 
+    // Insert user document into MongoDB
     $result = $this->collection->insertOne($user);
     if (!$result->isAcknowledged()) {
       throw new Exception("Database error: Unable to save user account. Please try again.");
@@ -37,7 +87,13 @@ class UserModel
     return $result->getInsertedId();
   }
 
-  // Create with validation errors returned instead of thrown
+  /**
+   * Create user with comprehensive validation and email verification
+   * Returns validation errors instead of throwing exceptions
+   * 
+   * @param array $data User registration data
+   * @return array Success/failure result with errors or user ID
+   */
   public function createWithValidation(array $data): array
   {
     try {
@@ -72,7 +128,13 @@ class UserModel
     }
   }
 
-  // Find a user by ID
+  /**
+   * Find user by MongoDB ObjectId (excludes password for security)
+   * 
+   * @param string $id User ID as string
+   * @return array|null User data without password, or null if not found
+   * @throws Exception On invalid ID format
+   */
   public function findById(string $id): ?array
   {
     try {
@@ -89,7 +151,12 @@ class UserModel
     }
   }
 
-  // Find a user by email (useful for authentication)
+  /**
+   * Find user by email address (includes password for authentication)
+   * 
+   * @param string $email User email address
+   * @return array|null Complete user data including password, or null
+   */
   public function findByEmail(string $email): ?array
   {
     $user = $this->collection->findOne(['email' => $email]);
@@ -227,7 +294,14 @@ class UserModel
     }
   }
 
-  // Change user password (with validation)
+  /**
+   * Change user password with old password verification
+   * 
+   * @param string $id User ID
+   * @param string $oldPassword Current password for verification
+   * @param string $newPassword New password to set
+   * @return array Success/failure result with validation errors
+   */
   public function changePassword(string $id, string $oldPassword, string $newPassword): array
   {
     try {
@@ -265,7 +339,13 @@ class UserModel
     }
   }
 
-  // Search users by name, email, or student ID
+  /**
+   * Search users by name, email, student ID, or course (case-insensitive)
+   * 
+   * @param string $searchTerm Search query
+   * @param int $limit Maximum number of results
+   * @return array Array of matching users (passwords excluded)
+   */
   public function search(string $searchTerm, int $limit = 20): array
   {
     $regex = new \MongoDB\BSON\Regex($searchTerm, 'i'); // Case-insensitive search
@@ -336,7 +416,13 @@ class UserModel
     return $errors;
   }
 
-  // Generate and save email verification token
+  /**
+   * Generate secure email verification token with expiration
+   * 
+   * @param string $userId User ID to generate token for
+   * @return string|null Generated token or null on failure
+   * @throws Exception On database error
+   */
   public function generateVerificationToken(string $userId): ?string
   {
     try {
@@ -360,7 +446,13 @@ class UserModel
     }
   }
 
-  // Verify email address using token
+  /**
+   * Verify user email using verification token
+   * 
+   * @param string $token Email verification token
+   * @return string Result: 'success', 'invalid_token', 'already_verified', 'expired_token', 'verification_failed'
+   * @throws Exception On database error
+   */
   public function verifyEmail(string $token): string
   {
     try {

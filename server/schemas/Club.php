@@ -1,8 +1,32 @@
 <?php
+/**
+ * USIU Events Management System - Club Schema Validation
+ * 
+ * Club data structure and validation schema for the USIU Events system.
+ * Provides comprehensive field definitions, validation rules, and business
+ * logic enforcement for club management operations.
+ * 
+ * Features:
+ * - Club field definitions and validation rules
+ * - Category-based club organization
+ * - Membership tracking and validation
+ * - Content moderation and profanity filtering
+ * - Leadership transfer validation
+ * - Public data sanitization
+ * 
+ * @author USIU Events Development Team
+ * @version 2.0.0
+ * @since 2024-01-01
+ */
 
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 
+/**
+ * Validation Exception Class for Club Schema
+ * 
+ * Custom exception for handling validation errors with detailed error messages
+ */
 class ValidationException extends Exception
 {
   private array $errors;
@@ -19,8 +43,19 @@ class ValidationException extends Exception
   }
 }
 
+/**
+ * Club Schema Class
+ * 
+ * Manages club data validation, type conversion, and MongoDB document mapping
+ * with comprehensive field definitions and business rule validation.
+ */
 class ClubSchema
 {
+  /**
+   * Get club field definitions with validation rules and constraints
+   * 
+   * @return array Field definitions with type, validation, and constraint rules
+   */
   public static function getFieldDefinitions(): array
   {
     return [
@@ -47,6 +82,13 @@ class ClubSchema
     ];
   }
 
+  /**
+   * Map and validate club data for creation with comprehensive validation
+   * 
+   * @param array $data Raw club data to validate and map
+   * @return array Validated and mapped club data
+   * @throws ValidationException On validation failure with detailed error messages
+   */
   public static function mapAndValidate(array $data): array
   {
     $now = new UTCDateTime();
@@ -103,6 +145,13 @@ class ClubSchema
     return $club;
   }
 
+  /**
+   * Map and validate club data for updates with selective field validation
+   * 
+   * @param array $data Club data to update
+   * @return array Validated update data
+   * @throws ValidationException On validation failure
+   */
   public static function mapForUpdate(array $data): array
   {
     $definitions = self::getFieldDefinitions();
@@ -167,6 +216,15 @@ class ClubSchema
     return $updateData;
   }
 
+  /**
+   * Cast and validate field values according to configuration rules
+   * 
+   * @param mixed $value Value to cast and validate
+   * @param array $config Field configuration with type and constraints
+   * @param string $fieldName Field name for error reporting
+   * @return mixed Casted and validated value
+   * @throws InvalidArgumentException On type casting or validation failure
+   */
   private static function castValue($value, array $config, string $fieldName)
   {
     if ($value === null) {
@@ -274,6 +332,12 @@ class ClubSchema
     }
   }
 
+  /**
+   * Validate club name for appropriateness and policy compliance
+   * 
+   * @param string $name Club name to validate
+   * @return array Validation errors (empty if valid)
+   */
   private static function validateName(string $name): array
   {
     $errors = [];
@@ -309,6 +373,12 @@ class ClubSchema
     return $errors;
   }
 
+  /**
+   * Validate club contact email for USIU domain compliance
+   * 
+   * @param string $email Contact email to validate
+   * @return array Validation errors (empty if valid)
+   */
   private static function validateContactEmail(string $email): array
   {
     $errors = [];
@@ -321,6 +391,12 @@ class ClubSchema
     return $errors;
   }
 
+  /**
+   * Validate club description for content quality and appropriateness
+   * 
+   * @param string $description Club description to validate
+   * @return array Validation errors (empty if valid)
+   */
   private static function validateDescription(string $description): array
   {
     $errors = [];
@@ -359,7 +435,12 @@ class ClubSchema
     return $errors;
   }
 
-  // Helper method to validate data without mapping (useful for API validation)
+  /**
+   * Validate club data without mapping (useful for API validation)
+   * 
+   * @param array $data Club data to validate
+   * @return array Validation errors (empty if valid)
+   */
   public static function validate(array $data): array
   {
     try {
@@ -370,7 +451,12 @@ class ClubSchema
     }
   }
 
-  // Helper method to validate update data
+  /**
+   * Validate update data without mapping
+   * 
+   * @param array $data Update data to validate
+   * @return array Validation errors (empty if valid)
+   */
   public static function validateUpdate(array $data): array
   {
     try {
@@ -381,7 +467,12 @@ class ClubSchema
     }
   }
 
-  // Helper method to validate club category
+  /**
+   * Validate club category against allowed categories
+   * 
+   * @param string $category Category to validate
+   * @return array Validation errors (empty if valid)
+   */
   public static function validateCategory(string $category): array
   {
     $errors = [];
@@ -395,14 +486,23 @@ class ClubSchema
     return $errors;
   }
 
-  // Helper method to get all available categories
+  /**
+   * Get all available club categories
+   * 
+   * @return array List of allowed club categories
+   */
   public static function getCategories(): array
   {
     $definitions = self::getFieldDefinitions();
     return $definitions['category']['allowed'];
   }
 
-  // Helper method to validate club leadership transfer
+  /**
+   * Validate club leadership transfer data
+   * 
+   * @param array $data Leadership transfer data
+   * @return array Validation errors (empty if valid)
+   */
   public static function validateLeadershipTransfer(array $data): array
   {
     $errors = [];
@@ -424,7 +524,12 @@ class ClubSchema
     return $errors;
   }
 
-  // Helper method to sanitize club data for public display
+  /**
+   * Sanitize club data for public display by removing sensitive information
+   * 
+   * @param array $club Complete club data
+   * @return array Sanitized club data for public display
+   */
   public static function sanitizeForPublic(array $club): array
   {
     // Remove sensitive information for public display

@@ -1,12 +1,42 @@
 <?php
+/**
+ * USIU Events Management System - User Schema Validation
+ * 
+ * Defines user data structure, validation rules, and data mapping for the
+ * USIU Events system. Provides comprehensive field validation, data type
+ * enforcement, and MongoDB document mapping.
+ * 
+ * Features:
+ * - Field-level validation rules and constraints
+ * - Data type enforcement and conversion
+ * - Required field validation
+ * - Length and range validation
+ * - Email format validation
+ * - Password security requirements
+ * 
+ * @author USIU Events Development Team
+ * @version 2.0.0
+ * @since 2024-01-01
+ */
 
 require_once __DIR__ . '/../utils/exceptions.php';
 
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 
+/**
+ * User Schema Class
+ * 
+ * Manages user data validation, type conversion, and MongoDB document mapping
+ * with comprehensive field definitions and validation rules.
+ */
 class UserSchema
 {
+  /**
+   * Get user field definitions with validation rules
+   * 
+   * @return array Field definitions with validation constraints
+   */
   public static function getFieldDefinitions(): array
   {
     return [

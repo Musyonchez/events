@@ -1,4 +1,23 @@
 <?php
+/**
+ * USIU Events Management System - Event Model
+ * 
+ * Event data model providing comprehensive CRUD operations, registration management,
+ * and event lifecycle functionality for the USIU Events system. Handles event creation,
+ * updates, user registration, and various filtering and search capabilities.
+ * 
+ * Features:
+ * - Event creation and management
+ * - User registration for events
+ * - Event status management (draft, published, cancelled)
+ * - Registration capacity and deadline handling
+ * - Event search and filtering
+ * - Registration history tracking
+ * 
+ * @author USIU Events Development Team
+ * @version 2.0.0
+ * @since 2024-01-01
+ */
 
 require_once __DIR__ . '/../schemas/Event.php';
 
@@ -6,18 +25,36 @@ use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 
-
-
+/**
+ * Event Model Class
+ * 
+ * Manages all event-related database operations including CRUD operations,
+ * user registration, and event lifecycle management.
+ */
 class EventModel
 {
+  /**
+   * MongoDB collection instance for event documents
+   */
   private Collection $collection;
 
+  /**
+   * Initialize event model with MongoDB collection
+   * 
+   * @param Collection $collection MongoDB collection for events
+   */
   public function __construct(Collection $collection)
   {
     $this->collection = $collection;
   }
 
-  // Create a new event document
+  /**
+   * Create new event with validation
+   * 
+   * @param array $data Event data to create
+   * @return ObjectId Generated event ID
+   * @throws Exception On validation failure or database error
+   */
   public function create(array $data): ObjectId
   {
     try {

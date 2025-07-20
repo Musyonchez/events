@@ -1,12 +1,42 @@
 <?php
+/**
+ * USIU Events Management System - Comment Schema Validation
+ * 
+ * Comment data structure and validation schema for the USIU Events system.
+ * Provides comprehensive field definitions, validation rules, and content
+ * moderation for comment management operations.
+ * 
+ * Features:
+ * - Comment field definitions and validation rules
+ * - Content moderation and profanity filtering
+ * - Threading support for nested comments
+ * - Comment status management (pending, approved, rejected)
+ * - Content sanitization and display formatting
+ * - Spam detection and prevention
+ * 
+ * @author USIU Events Development Team
+ * @version 2.0.0
+ * @since 2024-01-01
+ */
 
 require_once __DIR__ . '/../utils/exceptions.php';
 
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 
+/**
+ * Comment Schema Class
+ * 
+ * Manages comment data validation, type conversion, and MongoDB document mapping
+ * with comprehensive field definitions and content moderation.
+ */
 class CommentSchema
 {
+  /**
+   * Get comment field definitions with validation rules and constraints
+   * 
+   * @return array Field definitions with type, validation, and constraint rules
+   */
   public static function getFieldDefinitions(): array
   {
     return [
@@ -20,6 +50,13 @@ class CommentSchema
     ];
   }
 
+  /**
+   * Map and validate comment data for creation with comprehensive validation
+   * 
+   * @param array $data Raw comment data to validate and map
+   * @return array Validated and mapped comment data
+   * @throws ValidationException On validation failure with detailed error messages
+   */
   public static function mapAndValidate(array $data): array
   {
     $now = new UTCDateTime();
@@ -72,6 +109,13 @@ class CommentSchema
     return $comment;
   }
 
+  /**
+   * Map and validate comment data for updates with selective field validation
+   * 
+   * @param array $data Comment data to update
+   * @return array Validated update data
+   * @throws ValidationException On validation failure
+   */
   public static function mapForUpdate(array $data): array
   {
     $definitions = self::getFieldDefinitions();
@@ -126,6 +170,15 @@ class CommentSchema
     return $updateData;
   }
 
+  /**
+   * Cast and validate field values according to configuration rules
+   * 
+   * @param mixed $value Value to cast and validate
+   * @param array $config Field configuration with type and constraints
+   * @param string $fieldName Field name for error reporting
+   * @return mixed Casted and validated value
+   * @throws InvalidArgumentException On type casting or validation failure
+   */
   private static function castValue($value, array $config, string $fieldName)
   {
     if ($value === null) {
@@ -205,6 +258,12 @@ class CommentSchema
     }
   }
 
+  /**
+   * Validate comment content for appropriateness and quality
+   * 
+   * @param string $content Comment content to validate
+   * @return array Validation errors (empty if valid)
+   */
   private static function validateContent(string $content): array
   {
     $errors = [];
@@ -244,7 +303,12 @@ class CommentSchema
     return $errors;
   }
 
-  // Helper method to validate data without mapping (useful for API validation)
+  /**
+   * Validate comment data without mapping (useful for API validation)
+   * 
+   * @param array $data Comment data to validate
+   * @return array Validation errors (empty if valid)
+   */
   public static function validate(array $data): array
   {
     try {
@@ -255,7 +319,12 @@ class CommentSchema
     }
   }
 
-  // Helper method to validate update data
+  /**
+   * Validate update data without mapping
+   * 
+   * @param array $data Update data to validate
+   * @return array Validation errors (empty if valid)
+   */
   public static function validateUpdate(array $data): array
   {
     try {
@@ -266,7 +335,12 @@ class CommentSchema
     }
   }
 
-  // Helper method to validate comment moderation action
+  /**
+   * Validate comment moderation action
+   * 
+   * @param string $action Moderation action to validate
+   * @return array Validation errors (empty if valid)
+   */
   public static function validateModerationAction(string $action): array
   {
     $errors = [];
@@ -279,7 +353,12 @@ class CommentSchema
     return $errors;
   }
 
-  // Helper method to sanitize content for display
+  /**
+   * Sanitize comment content for safe display
+   * 
+   * @param string $content Raw comment content
+   * @return string Sanitized content safe for display
+   */
   public static function sanitizeContent(string $content): string
   {
     // Remove any HTML tags

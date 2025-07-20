@@ -1,4 +1,22 @@
 <?php
+/**
+ * USIU Events Management System - Club Model
+ * 
+ * Club data model managing student organizations including creation, membership,
+ * leadership, and club-related operations. Handles club lifecycle, membership
+ * management, and club-event relationships.
+ * 
+ * Features:
+ * - Club creation and management
+ * - Membership tracking and management
+ * - Leadership assignment and permissions
+ * - Club status and visibility control
+ * - Club search and categorization
+ * 
+ * @author USIU Events Development Team
+ * @version 2.0.0
+ * @since 2024-01-01
+ */
 
 require_once __DIR__ . '/../schemas/Club.php';
 use MongoDB\Collection;
@@ -7,16 +25,36 @@ use MongoDB\BSON\UTCDateTime;
 use ValidationException;
 use ClubSchema;
 
+/**
+ * Club Model Class
+ * 
+ * Manages all club-related database operations including CRUD operations,
+ * membership management, and leadership assignment.
+ */
 class ClubModel
 {
+  /**
+   * MongoDB collection instance for club documents
+   */
   private Collection $collection;
 
+  /**
+   * Initialize club model with MongoDB collection
+   * 
+   * @param Collection $collection MongoDB collection for clubs
+   */
   public function __construct(Collection $collection)
   {
     $this->collection = $collection;
   }
 
-  // Create a new club document
+  /**
+   * Create new club with validation and duplicate checking
+   * 
+   * @param array $data Club data to create
+   * @return ObjectId Generated club ID
+   * @throws Exception On validation failure or database error
+   */
   public function create(array $data): ObjectId
   {
     try {

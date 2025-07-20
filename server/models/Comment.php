@@ -1,4 +1,22 @@
 <?php
+/**
+ * USIU Events Management System - Comment Model
+ * 
+ * Comment data model managing user comments on events including creation,
+ * moderation, threading, and approval workflows. Supports hierarchical
+ * comment structures and comprehensive moderation features.
+ * 
+ * Features:
+ * - Comment creation and threading
+ * - Comment moderation and approval
+ * - Flagging system for inappropriate content
+ * - Reply threading and parent-child relationships
+ * - Comment search and filtering
+ * 
+ * @author USIU Events Development Team
+ * @version 2.0.0
+ * @since 2024-01-01
+ */
 
 require_once __DIR__ . '/../schemas/Comment.php';
 use MongoDB\Collection;
@@ -7,16 +25,36 @@ use MongoDB\BSON\UTCDateTime;
 use ValidationException;
 use CommentSchema;
 
+/**
+ * Comment Model Class
+ * 
+ * Manages all comment-related database operations including CRUD operations,
+ * moderation workflows, and threading functionality.
+ */
 class CommentModel
 {
+  /**
+   * MongoDB collection instance for comment documents
+   */
   private Collection $collection;
 
+  /**
+   * Initialize comment model with MongoDB collection
+   * 
+   * @param Collection $collection MongoDB collection for comments
+   */
   public function __construct(Collection $collection)
   {
     $this->collection = $collection;
   }
 
-  // Create a new comment document
+  /**
+   * Create new comment with validation and threading support
+   * 
+   * @param array $data Comment data to create
+   * @return ObjectId Generated comment ID
+   * @throws Exception On validation failure or database error
+   */
   public function create(array $data): ObjectId
   {
     try {
