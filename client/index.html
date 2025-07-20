@@ -163,18 +163,42 @@
         </div>
     </section>
 
-    <!-- Clubs Section -->
+    <!-- 
+        Clubs Section: Preview of available student clubs
+        
+        Functionality:
+        - Displays 4 club previews from the API
+        - Content populated by main.js loadClubs()
+        - Compact card layout optimized for club information
+        - Links to full clubs listing page
+        
+        Design Notes:
+        - Different background (gray-50) for visual separation
+        - 4-column grid on desktop for more compact display
+        - Circular placeholders for club logos
+        - Section has anchor ID for footer navigation
+    -->
     <section id="clubs" class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section header -->
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Student Clubs</h2>
                 <p class="text-xl text-gray-600">Join communities that share your interests</p>
             </div>
             
-            <!-- Clubs Grid -->
+            <!-- 
+                Clubs Grid Container
+                
+                JavaScript Integration:
+                - ID "clubs-grid" targeted by main.js
+                - Populated with club data from API
+                - 4-column layout for compact display
+            -->
             <div id="clubs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Clubs will be populated here via JavaScript -->
-                <!-- Loading placeholder -->
+                <!-- 
+                    Initial Loading State: Skeleton cards for clubs
+                    Replaced by actual club cards from the API
+                -->
                 <div class="animate-pulse">
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
@@ -311,7 +335,23 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- 
+        JavaScript Module Loading
+        
+        Module Loading Order:
+        1. utils.js - UI utility functions (loaded first for dependencies)
+        2. http.js - API communication layer
+        3. api.js - Higher-level API service functions
+        4. auth.js - Authentication state management
+        5. main.js - Main application logic and homepage functionality
+        6. component-loader.js - Dynamic component loading (navbar)
+        
+        Loading Strategy:
+        - ES6 modules with type="module" for modern browsers
+        - Dependencies resolved automatically by ES6 import system
+        - component-loader.js executes immediately on DOM ready
+        - main.js waits for 'navbarLoaded' event before initialization
+    -->
     <script type="module" src="./assets/js/utils.js"></script>
     <script type="module" src="./assets/js/http.js"></script>
     <script type="module" src="./assets/js/api.js"></script>

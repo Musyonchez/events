@@ -1,8 +1,38 @@
-<!-- Reusable Navbar Component -->
+<!--
+    Reusable Navigation Component
+    
+    This component is dynamically loaded into pages via component-loader.js
+    and provides consistent navigation across the entire application.
+    
+    Key Features:
+    - Responsive design with mobile hamburger menu
+    - Authentication state awareness (login/logout states)
+    - Dynamic path resolution using data attributes
+    - User profile dropdown with role-based links
+    - Fixed positioning for persistent navigation
+    
+    JavaScript Integration:
+    - Populated into #navbar-placeholder by component-loader.js
+    - Event listeners and functionality added by main.js
+    - Authentication state managed by auth.js
+    - Path resolution handled by main.js setNavbarLinks()
+    
+    Data Attributes for Path Resolution:
+    - data-root-path: Links to root-level files (index.html)
+    - data-pages-path: Links to pages directory files
+    - data-admin-path: Links to admin directory files
+    
+    Responsive Design:
+    - Desktop: Full horizontal navigation (md:flex)
+    - Mobile: Hamburger menu with overlay (block md:hidden)
+-->
 <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-            <!-- Logo -->
+            <!-- 
+                Brand Logo and Name
+                Uses data-root-path for dynamic path resolution
+            -->
             <div class="flex items-center">
                 <a href="#" data-root-path="index.html" class="flex items-center">
                     <img src="/assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
@@ -10,19 +40,29 @@
                 </a>
             </div>
             
-            <!-- Desktop Navigation -->
+            <!-- 
+                Desktop Navigation Menu
+                Hidden on mobile (md:flex), uses data attributes for path resolution
+            -->
             <div class="hidden md:flex items-center space-x-8">
                 <a href="#" data-root-path="index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
                 <a href="#" data-pages-path="events.html" class="text-gray-700 hover:text-blue-600 font-medium">Events</a>
                 <a href="#" data-pages-path="clubs.html" class="text-gray-700 hover:text-blue-600 font-medium">Clubs</a>
                 
-                <!-- Auth Buttons - Show when not logged in -->
+                <!-- 
+                    Authentication Buttons
+                    Shown when user is not logged in, hidden by main.js when authenticated
+                -->
                 <div id="auth-buttons" class="flex items-center space-x-4">
                     <a href="#" data-pages-path="login.html" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
                     <a href="#" data-pages-path="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">Register</a>
                 </div>
                 
-                <!-- User Menu - Show when logged in -->
+                <!-- 
+                    User Profile Menu
+                    Hidden by default, shown by main.js when user is authenticated
+                    Contains user avatar, name, and dropdown with profile options
+                -->
                 <div id="user-menu" class="hidden relative">
                     <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
                         <img id="user-avatar" src="/assets/images/avatar.png" alt="User Avatar" class="w-8 h-8 rounded-full">

@@ -1,3 +1,36 @@
+<!--
+    Admin Dashboard - USIU Events Management System
+    
+    Comprehensive administrative interface for managing the events platform.
+    Provides tabbed interface for managing events, users, clubs, and comments
+    with statistics overview and bulk operations.
+    
+    Key Features:
+    - Statistics dashboard with real-time metrics
+    - Tabbed interface for different management sections
+    - Comment moderation with approve/reject and flag/unflag
+    - Event management (publish, unpublish, feature, delete)
+    - User management with role assignments
+    - Club management and approval workflows
+    - Data export functionality (CSV)
+    - Role-based access control (admin only)
+    
+    JavaScript Dependencies:
+    - admin-dashboard.js: Main dashboard functionality
+    - admin-stats.js: Statistics calculation and display
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication and role verification
+    - http.js: API communication with authentication
+    
+    External Libraries:
+    - Chart.js: For statistics visualization and charts
+    - Tailwind CSS: For responsive design and styling
+    
+    Security Notes:
+    - Admin role verification on page load
+    - All operations require admin authentication
+    - CSRF protection via JWT tokens
+-->
 <!doctype html>
 <html lang="en">
   <head>
@@ -9,6 +42,7 @@
     <link rel="stylesheet" href="../../assets/css/style.css" />
   </head>
   <body class="bg-gray-50">
+    <!-- Navbar component placeholder -->
     <div id="navbar-placeholder"></div>
 
     <!-- Success Message -->
