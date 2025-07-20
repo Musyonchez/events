@@ -1,4 +1,52 @@
-<!-- Create event page -->
+<!--
+    Create Event Page - USIU Events Management System
+    
+    Comprehensive event creation interface for administrators and club leaders.
+    Provides multi-section form with advanced features including club selection,
+    registration settings, media uploads, and event management options.
+    
+    Page Features:
+    - Multi-section form with logical grouping
+    - Club search and selection with autocomplete
+    - Date/time pickers for event scheduling
+    - Registration settings with capacity management
+    - Media upload for banner images
+    - Tag system for event categorization
+    - Draft and publish options
+    
+    Form Sections:
+    - Basic Information: Title, description, category, club
+    - Date and Time: Start/end dates with validation
+    - Location: Venue and capacity information
+    - Registration Settings: Requirements, deadlines, fees
+    - Event Media: Banner upload and tags
+    - Event Settings: Status and featured options
+    
+    JavaScript Dependencies:
+    - admin-events.js: Form handling and event creation logic
+    - component-loader.js: Navbar component loading
+    - utils.js: UI utilities and form validation
+    - main.js: General application functionality
+    
+    Dynamic Features:
+    - Club search with real-time results
+    - Registration settings toggle
+    - Image preview for banner uploads
+    - Form validation with error messages
+    - Loading states for form submission
+    
+    Access Control:
+    - Requires admin or club leader privileges
+    - Club selection restricted to user's permissions
+    - Form validation ensures data integrity
+    
+    User Experience:
+    - Progressive disclosure for optional sections
+    - Clear field labels and validation hints
+    - Responsive layout adapting to screen size
+    - Save draft functionality for incomplete forms
+    - Success/error feedback for all operations
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>

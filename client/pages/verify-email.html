@@ -1,4 +1,48 @@
-<!-- Email verification status page -->
+<!--
+    Email Verification Page - USIU Events Management System
+    
+    Multi-state email verification interface handling both token-based
+    verification from email links and manual verification email resending.
+    Provides comprehensive error handling and user feedback.
+    
+    Page States:
+    - Loading State: Token validation in progress
+    - Success State: Email successfully verified
+    - Error State: Invalid/expired token with resend option
+    - Resend Form State: Manual verification email request
+    
+    URL Parameters:
+    - token: Email verification token from email link
+    - When accessed with token, attempts automatic verification
+    - When accessed without token, shows resend form
+    
+    JavaScript Dependencies:
+    - Inline JavaScript for verification logic and API calls
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication API functions
+    - utils.js: UI utilities and helper functions
+    - api.js: API communication for verification operations
+    
+    Verification Process:
+    - Token-based verification from email links
+    - Error handling for expired/invalid tokens
+    - Different error messages based on error type
+    - Manual verification email resending
+    - USIU email domain validation
+    
+    User Experience:
+    - Clear state indicators for each step
+    - Helpful error messages with next actions
+    - Loading states for async operations
+    - Easy navigation back to login
+    - Responsive centered layout
+    
+    Security Features:
+    - Token validation and expiration handling
+    - Email domain restrictions (USIU only)
+    - Rate limiting protection
+    - Secure verification API endpoints
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>

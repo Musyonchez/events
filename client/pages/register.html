@@ -1,4 +1,46 @@
-<!-- Registration page -->
+<!--
+    User Registration Page - USIU Events Management System
+    
+    Secure user account creation interface with comprehensive form validation
+    and USIU-specific requirements (student ID, email domain validation).
+    
+    Page Features:
+    - Multi-field registration form with validation
+    - Real-time password confirmation checking
+    - USIU email domain enforcement
+    - Loading states during registration process
+    - Error and success message display
+    - Terms and conditions agreement
+    
+    Form Fields:
+    - Student ID (required, 8-20 characters)
+    - First/Last Name (required, 2-50 characters)
+    - Email (required, must be @usiu.ac.ke domain)
+    - Phone (optional, up to 20 characters)
+    - Course/Program (optional, up to 100 characters)
+    - Year of Study (dropdown, 1st-6th year)
+    - Password (required, minimum 8 characters)
+    - Confirm Password (required, must match)
+    
+    JavaScript Dependencies:
+    - register.js: Form handling and validation
+    - auth.js: Authentication state management
+    - utils.js: UI utilities for messages and loading states
+    - api.js: API communication for registration
+    
+    Security Features:
+    - Client-side input validation with server-side verification
+    - Password confirmation matching
+    - Email domain restrictions for university users
+    - Terms and conditions agreement requirement
+    
+    User Experience:
+    - Responsive centered layout
+    - Clear field labels and validation hints
+    - Loading spinners during form submission
+    - Immediate feedback on validation errors
+    - Links to login page for existing users
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>

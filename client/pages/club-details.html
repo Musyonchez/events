@@ -1,3 +1,50 @@
+<!--
+    Club Details Page - USIU Events Management System
+    
+    Comprehensive individual club profile page displaying detailed information
+    about a specific student club, including membership options, events,
+    leadership team, and management capabilities for authorized users.
+    
+    Page Features:
+    - Dynamic club header with logo, name, and key statistics
+    - Detailed club description and information
+    - Recent events listing with links to full event details
+    - Leadership team showcase
+    - Join/leave club functionality with authentication
+    - Role-based admin actions for club leaders
+    - Contact information and club metadata
+    
+    Page States:
+    - Loading state: Skeleton while fetching club data
+    - Content state: Full club details display
+    - Error state: Club not found or access denied
+    
+    JavaScript Dependencies:
+    - club-details.js: Main page functionality and club management
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication and authorization checks
+    - utils.js: UI utilities and helper functions
+    - api.js: API communication for club data and actions
+    
+    Dynamic Content:
+    - Club information populated via URL parameter (club ID)
+    - Membership status and join/leave button states
+    - Admin actions shown only to authorized users
+    - Recent events fetched and displayed dynamically
+    - Leadership team information loaded from API
+    
+    User Interactions:
+    - Join/leave club with confirmation and loading states
+    - Share club functionality
+    - Report club issues
+    - Admin management actions (edit, create events, manage members)
+    
+    Responsive Design:
+    - Two-column layout (content + sidebar) on desktop
+    - Single column stacked layout on mobile
+    - Sticky sidebar for easy access to actions
+    - Mobile-optimized touch targets and spacing
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>

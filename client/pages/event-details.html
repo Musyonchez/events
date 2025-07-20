@@ -1,4 +1,56 @@
-<!-- Single event details page -->
+<!--
+    Event Details Page - USIU Events Management System
+    
+    Comprehensive individual event profile page displaying detailed information
+    about a specific event, including registration functionality, comments,
+    and social sharing capabilities.
+    
+    Page Features:
+    - Dynamic event header with title, date, location, and category
+    - Detailed event description and information
+    - Event registration with progress tracking and capacity management
+    - Comments system with authentication-based access
+    - Social media sharing integration
+    - Event gallery and tags (if available)
+    - Registration deadline and fee information
+    
+    Page States:
+    - Loading state: Skeleton while fetching event data
+    - Content state: Full event details display
+    - Error state: Event not found or access denied
+    
+    JavaScript Dependencies:
+    - event-details.js: Main page functionality and event management
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication and user state management
+    - utils.js: UI utilities and helper functions
+    - api.js: API communication for event data and actions
+    
+    Registration System:
+    - Registration progress bar showing current capacity
+    - Registration deadline tracking
+    - Fee information and payment status
+    - Registration status indicators (open, closed, full)
+    - Authentication-based registration access
+    
+    Comments System:
+    - Authenticated users can post comments
+    - Real-time comment loading and display
+    - Comment moderation support
+    - Login prompts for unauthenticated users
+    
+    Social Features:
+    - Share to Facebook, Twitter, Instagram
+    - Copy event link functionality
+    - Event gallery display (if available)
+    - Related events suggestions
+    
+    Responsive Design:
+    - Two-column layout (content + sidebar) on desktop
+    - Single column stacked layout on mobile
+    - Sticky registration card for easy access
+    - Mobile-optimized touch targets and spacing
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>

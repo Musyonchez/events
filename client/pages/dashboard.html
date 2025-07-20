@@ -1,4 +1,48 @@
-<!-- User dashboard page -->
+<!--
+    User Dashboard Page - USIU Events Management System
+    
+    Personalized user dashboard displaying event statistics, registrations,
+    and management capabilities. Provides different views based on user role
+    (student, club leader, admin) with comprehensive event tracking.
+    
+    Page Features:
+    - Statistics cards showing user's event metrics
+    - Tabbed interface for different event categories
+    - Role-based content (admin/club leader features)
+    - Event registration management
+    - Quick access to account settings and admin functions
+    
+    User Statistics:
+    - Registered Events: Events user has signed up for
+    - Attended Events: Events user has attended (completed)
+    - Created Events: Events user has created (admin/club leaders)
+    - Upcoming Events: Events happening soon
+    
+    Tab Sections:
+    - My Registrations: User's event registrations with status
+    - Upcoming Events: Recommended events based on interests
+    - Manage Events: Created events (admin/club leaders only)
+    - Event History: Past events user has attended
+    
+    JavaScript Dependencies:
+    - dashboard.js: Main dashboard functionality and data loading
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication state and role management
+    - utils.js: UI utilities and helper functions
+    - api.js: API communication for user data and events
+    
+    Dynamic Content:
+    - Statistics populated from user's event data
+    - Tab content loaded dynamically based on selection
+    - Role-based UI elements shown/hidden as appropriate
+    - Real-time updates for registration status changes
+    
+    User Experience:
+    - Quick action buttons for common tasks
+    - Loading states for async operations
+    - Error and success message display
+    - Responsive layout adapting to screen size
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
