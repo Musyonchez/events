@@ -1,0 +1,302 @@
+<!--
+    Club Details Page - USIU Events Management System
+    
+    Comprehensive individual club profile page displaying detailed information
+    about a specific student club, including membership options, events,
+    leadership team, and management capabilities for authorized users.
+    
+    Page Features:
+    - Dynamic club header with logo, name, and key statistics
+    - Detailed club description and information
+    - Recent events listing with links to full event details
+    - Leadership team showcase
+    - Join/leave club functionality with authentication
+    - Role-based admin actions for club leaders
+    - Contact information and club metadata
+    
+    Page States:
+    - Loading state: Skeleton while fetching club data
+    - Content state: Full club details display
+    - Error state: Club not found or access denied
+    
+    JavaScript Dependencies:
+    - club-details.js: Main page functionality and club management
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication and authorization checks
+    - utils.js: UI utilities and helper functions
+    - api.js: API communication for club data and actions
+    
+    Dynamic Content:
+    - Club information populated via URL parameter (club ID)
+    - Membership status and join/leave button states
+    - Admin actions shown only to authorized users
+    - Recent events fetched and displayed dynamically
+    - Leadership team information loaded from API
+    
+    User Interactions:
+    - Join/leave club with confirmation and loading states
+    - Share club functionality
+    - Report club issues
+    - Admin management actions (edit, create events, manage members)
+    
+    Responsive Design:
+    - Two-column layout (content + sidebar) on desktop
+    - Single column stacked layout on mobile
+    - Sticky sidebar for easy access to actions
+    - Mobile-optimized touch targets and spacing
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Details - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <div id="navbar-placeholder"></div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="pt-16 min-h-screen flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="mt-4 text-gray-600">Loading club details...</p>
+        </div>
+    </div>
+
+    <!-- Club Details Content -->
+    <div id="club-content" class="hidden pt-16">
+
+        <!-- Club Header -->
+        <section class="bg-gradient-to-r from-blue-600 to-purple-600">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+                    <div class="flex-shrink-0">
+                        <img id="club-logo" src="../assets/images/club-placeholder.jpg" alt="Club Logo" class="w-32 h-32 md:w-40 md:h-40 rounded-lg object-cover shadow-lg">
+                    </div>
+                    <div class="flex-1 text-center md:text-left text-white">
+                        <h1 id="club-name" class="text-3xl md:text-4xl font-bold mb-4"></h1>
+                        <div class="flex flex-wrap justify-center md:justify-start items-center gap-4 text-lg mb-4">
+                            <div id="club-category-badge" class="bg-white bg-opacity-20 text-white px-3 py-1 rounded-full text-sm font-semibold"></div>
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                <span id="club-members-count">0 members</span>
+                            </div>
+                            <div id="club-status-badge" class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Active</div>
+                        </div>
+                        <p id="club-description-short" class="text-lg text-gray-200 max-w-2xl"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notification Messages -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-md p-3 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p id="error-text" class="text-sm text-red-800"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-md p-3 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p id="success-text" class="text-sm text-green-800"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Club Content -->
+        <section class="py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Main Content -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- About Section -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-4">About This Club</h2>
+                            <div id="club-description" class="prose prose-lg text-gray-700"></div>
+                        </div>
+
+                        <!-- Recent Events -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold text-gray-900">Recent Events</h2>
+                                <a href="./events.html" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View All Events</a>
+                            </div>
+                            <div id="club-events" class="space-y-4">
+                                <!-- Loading state -->
+                                <div class="text-center py-4 text-gray-500">
+                                    Loading events...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leadership Team -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-6">Leadership Team</h2>
+                            <div id="club-leadership" class="space-y-4">
+                                <!-- Leaders will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- Join Club Card -->
+                        <div class="bg-white rounded-lg shadow-md p-6 sticky top-20">
+                            <div id="join-section">
+                                <!-- Join Button -->
+                                <div id="join-actions" class="space-y-3">
+                                    <button id="join-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <span id="join-text">Join Club</span>
+                                        <div id="join-spinner" class="hidden">
+                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Joining...
+                                        </div>
+                                    </button>
+                                    
+                                    <div id="join-status" class="hidden text-center p-3 rounded-md">
+                                        <span id="status-text"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Club Info Card -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Club Information</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Category</p>
+                                        <p id="club-category-detail" class="text-sm text-gray-600"></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Club Leader</p>
+                                        <p id="club-leader" class="text-sm text-gray-600"></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Contact</p>
+                                        <p id="club-contact" class="text-sm text-gray-600"></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Members</p>
+                                        <p id="club-members-detail" class="text-sm text-gray-600">0 members</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Established</p>
+                                        <p id="club-created" class="text-sm text-gray-600"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                            <div class="space-y-3">
+                                <a href="./events.html" class="block w-full text-center bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-200">
+                                    View All Club Events
+                                </a>
+                                <button onclick="shareClub()" class="block w-full text-center bg-blue-100 text-blue-700 py-2 px-4 rounded-md hover:bg-blue-200 transition duration-200">
+                                    Share Club
+                                </button>
+                                <button onclick="reportClub()" class="block w-full text-center bg-red-100 text-red-700 py-2 px-4 rounded-md hover:bg-red-200 transition duration-200">
+                                    Report Issue
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Admin Actions (Club Leaders/Admins only) -->
+                        <div id="admin-actions" class="hidden bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Club Management</h3>
+                            <div class="space-y-3">
+                                <button onclick="editClub()" class="block w-full text-center bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200">
+                                    Edit Club
+                                </button>
+                                <a href="./admin/create-event.html" class="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
+                                    Create Event
+                                </a>
+                                <button onclick="manageMembers()" class="block w-full text-center bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200">
+                                    Manage Members
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden pt-16 min-h-screen flex items-center justify-center">
+        <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.268 19c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Club not found</h3>
+            <p class="mt-1 text-sm text-gray-500">The club you're looking for doesn't exist or has been removed.</p>
+            <div class="mt-6">
+                <a href="../index.html#clubs" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
+                    Browse Clubs
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/utils.js" type="module"></script>
+    <script src="../assets/js/api.js" type="module"></script>
+    <script src="../assets/js/auth.js" type="module"></script>
+    <script src="../assets/js/component-loader.js" type="module"></script>
+    <script src="../assets/js/main.js" type="module"></script>
+    <script src="../assets/js/club-details.js" type="module"></script>
+</body>
+</html>

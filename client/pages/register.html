@@ -1,0 +1,235 @@
+<!--
+    User Registration Page - USIU Events Management System
+    
+    Secure user account creation interface with comprehensive form validation
+    and USIU-specific requirements (student ID, email domain validation).
+    
+    Page Features:
+    - Multi-field registration form with validation
+    - Real-time password confirmation checking
+    - USIU email domain enforcement
+    - Loading states during registration process
+    - Error and success message display
+    - Terms and conditions agreement
+    
+    Form Fields:
+    - Student ID (required, 8-20 characters)
+    - First/Last Name (required, 2-50 characters)
+    - Email (required, must be @usiu.ac.ke domain)
+    - Phone (optional, up to 20 characters)
+    - Course/Program (optional, up to 100 characters)
+    - Year of Study (dropdown, 1st-6th year)
+    - Password (required, minimum 8 characters)
+    - Confirm Password (required, must match)
+    
+    JavaScript Dependencies:
+    - register.js: Form handling and validation
+    - auth.js: Authentication state management
+    - utils.js: UI utilities for messages and loading states
+    - api.js: API communication for registration
+    
+    Security Features:
+    - Client-side input validation with server-side verification
+    - Password confirmation matching
+    - Email domain restrictions for university users
+    - Terms and conditions agreement requirement
+    
+    User Experience:
+    - Responsive centered layout
+    - Clear field labels and validation hints
+    - Loading spinners during form submission
+    - Immediate feedback on validation errors
+    - Links to login page for existing users
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="navbar-placeholder"></div>
+
+    <div class="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Create your account
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Or
+                    <a href="./login.html" class="font-medium text-blue-600 hover:text-blue-500">
+                        sign in to your existing account
+                    </a>
+                </p>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="register-form" class="mt-8 space-y-6">
+                <div class="space-y-4">
+                    <!-- Student ID -->
+                    <div>
+                        <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID</label>
+                        <input id="student_id" name="student_id" type="text" required
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="e.g., USIU12345"
+                               minlength="8" maxlength="20">
+                    </div>
+
+                    <!-- First Name and Last Name -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                            <input id="first_name" name="first_name" type="text" required
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                   placeholder="John"
+                                   minlength="2" maxlength="50">
+                        </div>
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                            <input id="last_name" name="last_name" type="text" required
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                   placeholder="Doe"
+                                   minlength="2" maxlength="50">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input id="email" name="email" type="email" required
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="john.doe@usiu.ac.ke"
+                               pattern="[a-zA-Z0-9._%+-]+@usiu\.ac\.ke$">
+                        <p class="mt-1 text-xs text-gray-500">Must be a valid USIU email address</p>
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <input id="phone" name="phone" type="tel"
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="+254712345678"
+                               maxlength="20">
+                    </div>
+
+                    <!-- Course -->
+                    <div>
+                        <label for="course" class="block text-sm font-medium text-gray-700">Course/Program</label>
+                        <input id="course" name="course" type="text"
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="e.g., Computer Science"
+                               maxlength="100">
+                    </div>
+
+                    <!-- Year of Study -->
+                    <div>
+                        <label for="year_of_study" class="block text-sm font-medium text-gray-700">Year of Study</label>
+                        <select id="year_of_study" name="year_of_study"
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                            <option value="5">5th Year</option>
+                            <option value="6">6th Year</option>
+                        </select>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input id="password" name="password" type="password" required
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="Password"
+                               minlength="8" maxlength="255">
+                        <p class="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                        <input id="confirm_password" name="confirm_password" type="password" required
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="Confirm Password">
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="flex items-center">
+                    <input id="terms" name="terms" type="checkbox" required
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="terms" class="ml-2 block text-sm text-gray-900">
+                        I agree to the
+                        <a href="#" class="text-blue-600 hover:text-blue-500">Terms and Conditions</a>
+                        and
+                        <a href="#" class="text-blue-600 hover:text-blue-500">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Error Message -->
+                <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-md p-3">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p id="error-text" class="text-sm text-red-800"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-md p-3">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p id="success-text" class="text-sm text-green-800"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button id="register-button" type="submit"
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="register-text">Create Account</span>
+                        <div id="register-spinner" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Creating Account...
+                        </div>
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center">
+                <p class="text-sm text-gray-600">
+                    Already have an account?
+                    <a href="./login.html" class="font-medium text-blue-600 hover:text-blue-500">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/utils.js" type="module"></script>
+    <script src="../assets/js/api.js" type="module"></script>
+    <script src="../assets/js/auth.js" type="module"></script>
+    <script src="../assets/js/main.js" type="module"></script>
+    <script src="../assets/js/component-loader.js" type="module"></script>
+    <script src="../assets/js/register.js" type="module"></script>
+</body>
+</html>

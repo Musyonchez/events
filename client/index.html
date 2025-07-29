@@ -1,0 +1,363 @@
+<!--
+    USIU Events Management System - Homepage
+    
+    Main application entry point and landing page for the university events platform.
+    Provides hero section, featured content preview, and navigation to main application sections.
+    
+    Page Structure:
+    - Dynamic navbar component (loaded via component-loader.js)
+    - Hero section with call-to-action buttons
+    - Featured events grid (populated via main.js)
+    - Clubs preview section (populated via main.js)
+    - About section with platform benefits
+    - Footer with navigation links and contact info
+    
+    Technical Implementation:
+    - Tailwind CSS for styling and responsive design
+    - ES6 modules for JavaScript functionality
+    - Component-based architecture with dynamic loading
+    - Mobile-first responsive design approach
+    
+    JavaScript Dependencies:
+    - component-loader.js: Loads navbar component
+    - main.js: Handles featured content and authentication state
+    - auth.js: Manages user authentication state
+    - http.js: API communication layer
+    
+    SEO and Performance:
+    - Semantic HTML structure for accessibility
+    - Optimized meta tags and favicon
+    - Loading states for dynamic content
+    - Progressive enhancement approach
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Basic document metadata -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USIU Events - Discover Campus Events</title>
+    
+    <!-- Styling: Tailwind CSS CDN + custom styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    
+    <!-- Favicon for browser tab -->
+    <link rel="icon" href="./assets/images/favicon.ico" type="image/x-icon">
+</head>
+<body class="bg-gray-50">
+    <!-- 
+        Navbar Placeholder: Populated by component-loader.js
+        This element is dynamically filled with navbar.html content
+    -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- 
+        Hero Section: Main landing page banner
+        
+        Features:
+        - Gradient background with overlay for text readability
+        - Responsive typography (text-4xl on mobile, text-6xl on desktop)
+        - Call-to-action buttons for primary user flows
+        - Centered layout with consistent spacing
+        
+        Design Patterns:
+        - Relative positioning for overlay effects
+        - Mobile-first responsive design (flex-col -> sm:flex-row)
+        - Hover states for better user interaction feedback
+        - Semantic heading structure for accessibility
+    -->
+    <section class="relative bg-gradient-to-r from-blue-600 to-purple-600 pt-16">
+        <!-- Dark overlay for text contrast -->
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        
+        <!-- Hero content container with responsive padding -->
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div class="text-center">
+                <!-- Main heading with responsive font sizing -->
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+                    Discover Amazing Campus Events
+                </h1>
+                
+                <!-- Subtitle with content width constraint -->
+                <p class="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
+                    Join clubs, attend events, and make the most of your USIU experience. Never miss out on what's happening on campus.
+                </p>
+                
+                <!-- Primary action buttons with responsive stacking -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="./pages/events.html" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
+                        Browse Events
+                    </a>
+                    <a href="./pages/register.html" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition duration-200">
+                        Join Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 
+        Featured Events Section: Dynamic content preview
+        
+        Functionality:
+        - Displays 3 featured events from the API
+        - Content populated by main.js loadFeaturedEvents()
+        - Includes loading skeleton states for better UX
+        - Responsive grid layout (1 column mobile, 2 tablet, 3 desktop)
+        
+        Loading Strategy:
+        - Shows skeleton loading cards while API request is pending
+        - Graceful fallback for API failures
+        - Progressive enhancement approach
+    -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section header -->
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Events</h2>
+                <p class="text-xl text-gray-600">Don't miss these amazing upcoming events</p>
+            </div>
+            
+            <!-- 
+                Featured Events Grid Container
+                
+                JavaScript Integration:
+                - ID "featured-events" targeted by main.js
+                - Initial content replaced by API data
+                - Responsive grid with gap spacing
+            -->
+            <div id="featured-events" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 
+                    Initial Loading State: Skeleton cards
+                    These are replaced by actual event cards from the API
+                -->
+                <div class="animate-pulse">
+                    <div class="bg-gray-300 h-48 rounded-lg mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-gray-300 h-48 rounded-lg mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-gray-300 h-48 rounded-lg mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="./pages/events.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200">
+                    View All Events
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 
+        Clubs Section: Preview of available student clubs
+        
+        Functionality:
+        - Displays 4 club previews from the API
+        - Content populated by main.js loadClubs()
+        - Compact card layout optimized for club information
+        - Links to full clubs listing page
+        
+        Design Notes:
+        - Different background (gray-50) for visual separation
+        - 4-column grid on desktop for more compact display
+        - Circular placeholders for club logos
+        - Section has anchor ID for footer navigation
+    -->
+    <section id="clubs" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section header -->
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Student Clubs</h2>
+                <p class="text-xl text-gray-600">Join communities that share your interests</p>
+            </div>
+            
+            <!-- 
+                Clubs Grid Container
+                
+                JavaScript Integration:
+                - ID "clubs-grid" targeted by main.js
+                - Populated with club data from API
+                - 4-column layout for compact display
+            -->
+            <div id="clubs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 
+                    Initial Loading State: Skeleton cards for clubs
+                    Replaced by actual club cards from the API
+                -->
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+                <div class="animate-pulse">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">About USIU Events</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        USIU Events is the central hub for all campus activities at United States International University. 
+                        Our platform connects students with exciting events, vibrant clubs, and meaningful opportunities 
+                        to engage with the campus community.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="ml-4 text-lg text-gray-600">Discover events that match your interests</p>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="ml-4 text-lg text-gray-600">Join clubs and build lasting friendships</p>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="ml-4 text-lg text-gray-600">Never miss important campus activities</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:pl-8">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white">
+                        <h3 class="text-2xl font-bold mb-4">Ready to Get Started?</h3>
+                        <p class="text-lg mb-6">
+                            Join thousands of USIU students who are already using our platform to discover amazing events and connect with like-minded peers.
+                        </p>
+                        <a href="./pages/register.html" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
+                            Create Your Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="./assets/images/logo.png" alt="USIU Events" class="h-8 w-auto">
+                        <span class="ml-2 text-xl font-bold">USIU Events</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Your gateway to amazing campus experiences at United States International University.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="./pages/events.html" class="text-gray-400 hover:text-white">Events</a></li>
+                        <li><a href="#clubs" class="text-gray-400 hover:text-white">Clubs</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Account</h3>
+                    <ul class="space-y-2">
+                        <li><a href="./pages/login.html" class="text-gray-400 hover:text-white">Login</a></li>
+                        <li><a href="./pages/register.html" class="text-gray-400 hover:text-white">Register</a></li>
+                        <li><a href="./pages/dashboard.html" class="text-gray-400 hover:text-white">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">support@usiu.ac.ke</li>
+                        <li class="text-gray-400">+254 123 456 789</li>
+                        <li class="text-gray-400">USIU Campus, Nairobi</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 USIU Events. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 
+        JavaScript Module Loading
+        
+        Module Loading Order:
+        1. utils.js - UI utility functions (loaded first for dependencies)
+        2. http.js - API communication layer
+        3. api.js - Higher-level API service functions
+        4. auth.js - Authentication state management
+        5. main.js - Main application logic and homepage functionality
+        6. component-loader.js - Dynamic component loading (navbar)
+        
+        Loading Strategy:
+        - ES6 modules with type="module" for modern browsers
+        - Dependencies resolved automatically by ES6 import system
+        - component-loader.js executes immediately on DOM ready
+        - main.js waits for 'navbarLoaded' event before initialization
+    -->
+    <script type="module" src="./assets/js/utils.js"></script>
+    <script type="module" src="./assets/js/http.js"></script>
+    <script type="module" src="./assets/js/api.js"></script>
+    <script type="module" src="./assets/js/auth.js"></script>
+    <script type="module" src="./assets/js/main.js"></script>
+    <script type="module" src="./assets/js/component-loader.js"></script>
+    
+</body>
+</html>

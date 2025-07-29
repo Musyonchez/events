@@ -1,0 +1,332 @@
+<!--
+    Email Verification Page - USIU Events Management System
+    
+    Multi-state email verification interface handling both token-based
+    verification from email links and manual verification email resending.
+    Provides comprehensive error handling and user feedback.
+    
+    Page States:
+    - Loading State: Token validation in progress
+    - Success State: Email successfully verified
+    - Error State: Invalid/expired token with resend option
+    - Resend Form State: Manual verification email request
+    
+    URL Parameters:
+    - token: Email verification token from email link
+    - When accessed with token, attempts automatic verification
+    - When accessed without token, shows resend form
+    
+    JavaScript Dependencies:
+    - Inline JavaScript for verification logic and API calls
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication API functions
+    - utils.js: UI utilities and helper functions
+    - api.js: API communication for verification operations
+    
+    Verification Process:
+    - Token-based verification from email links
+    - Error handling for expired/invalid tokens
+    - Different error messages based on error type
+    - Manual verification email resending
+    - USIU email domain validation
+    
+    User Experience:
+    - Clear state indicators for each step
+    - Helpful error messages with next actions
+    - Loading states for async operations
+    - Easy navigation back to login
+    - Responsive centered layout
+    
+    Security Features:
+    - Token validation and expiration handling
+    - Email domain restrictions (USIU only)
+    - Rate limiting protection
+    - Secure verification API endpoints
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="navbar-placeholder"></div>
+
+    <div class="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Verifying your email...</h2>
+                <p class="text-gray-600">Please wait while we verify your email address.</p>
+            </div>
+
+            <!-- Success State -->
+            <div id="success-state" class="hidden text-center">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Email verified successfully!</h2>
+                <p class="text-gray-600 mb-6">Your email address has been verified. You can now access all features of USIU Events.</p>
+                <div class="space-y-3">
+                    <a href="./login.html" class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Continue to Login
+                    </a>
+                    <a href="./events.html" class="w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Browse Events
+                    </a>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="hidden text-center">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Verification failed</h2>
+                <p id="error-message" class="text-gray-600 mb-6">The verification link is invalid or has expired.</p>
+                <div class="space-y-3">
+                    <button id="resend-verification" class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="resend-text">Resend Verification Email</span>
+                        <div id="resend-spinner" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Sending...
+                        </div>
+                    </button>
+                    <a href="./login.html" class="w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Back to Login
+                    </a>
+                </div>
+            </div>
+
+            <!-- Resend Verification Form -->
+            <div id="resend-form-state" class="hidden">
+                <div>
+                    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                        Resend verification email
+                    </h2>
+                    <p class="mt-2 text-center text-sm text-gray-600">
+                        Enter your email address to receive a new verification link
+                    </p>
+                </div>
+
+                <form id="resend-form" class="mt-8 space-y-6">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                        <input id="email" name="email" type="email" required
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="Enter your USIU email address">
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="resend-error-message" class="hidden bg-red-50 border border-red-200 rounded-md p-3">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p id="resend-error-text" class="text-sm text-red-800"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success Message -->
+                    <div id="resend-success-message" class="hidden bg-green-50 border border-green-200 rounded-md p-3">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-green-800">Verification email sent!</h3>
+                                <div class="mt-2 text-sm text-green-700">
+                                    <p>Please check your email and click the verification link.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button id="resend-form-button" type="submit"
+                                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="resend-form-text">Send Verification Email</span>
+                            <div id="resend-form-spinner" class="hidden">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Sending...
+                            </div>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-4">
+                    <a href="./login.html" class="text-sm text-blue-600 hover:text-blue-500">
+                        Back to login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/component-loader.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (token) {
+                // If there's a token, attempt verification
+                verifyEmail(token);
+            } else {
+                // If no token, show resend form
+                showResendForm();
+            }
+
+            // Setup resend verification button (from error state)
+            document.getElementById('resend-verification').addEventListener('click', function() {
+                showResendForm();
+            });
+
+            // Setup resend form submission
+            setupResendForm();
+        });
+
+        async function verifyEmail(token) {
+            try {
+                await verifyEmailToken(token);
+
+                // Show success state
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('success-state').classList.remove('hidden');
+
+            } catch (error) {
+                // Show error state
+                document.getElementById('loading-state').classList.add('hidden');
+                
+                const errorMessage = document.getElementById('error-message');
+                
+                // Handle different error types based on error.details?.error_type
+                if (error.details?.error_type === 'token_expired') {
+                    errorMessage.textContent = 'This verification link has expired. Please request a new one.';
+                } else if (error.details?.error_type === 'invalid_token') {
+                    errorMessage.textContent = 'This verification link is invalid. Please request a new one.';
+                } else if (error.details?.error_type === 'already_verified') {
+                    errorMessage.textContent = 'Your email has already been verified. You can now log in.';
+                    // Hide resend button for already verified emails
+                    document.getElementById('resend-verification').classList.add('hidden');
+                } else if (error.details?.error_type === 'verification_failed') {
+                    errorMessage.textContent = 'Email verification failed due to an unexpected issue. Please try again.';
+                } else {
+                    // Fallback for other errors or generic messages from the backend
+                    errorMessage.textContent = error.message || 'An unexpected error occurred during verification. Please try again.';
+                }
+
+                document.getElementById('error-state').classList.remove('hidden');
+            }
+        }
+
+        function showResendForm() {
+            // Hide all other states
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('success-state').classList.add('hidden');
+            document.getElementById('error-state').classList.add('hidden');
+            
+            // Show resend form
+            document.getElementById('resend-form-state').classList.remove('hidden');
+        }
+
+        function setupResendForm() {
+            const resendForm = document.getElementById('resend-form');
+            const resendFormButton = document.getElementById('resend-form-button');
+            const resendFormText = document.getElementById('resend-form-text');
+            const resendFormSpinner = document.getElementById('resend-form-spinner');
+            const resendErrorMessageDiv = document.getElementById('resend-error-message');
+            const resendSuccessMessageDiv = document.getElementById('resend-success-message');
+            const resendErrorText = document.getElementById('resend-error-text');
+
+            resendForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Hide previous messages and clear error text
+                hideMessage(resendErrorMessageDiv);
+                hideMessage(resendSuccessMessageDiv);
+                resendErrorText.textContent = '';
+
+                // Show loading state
+                toggleButtonLoading(resendFormButton, true);
+
+                const formData = new FormData(resendForm);
+                const email = formData.get('email');
+
+                try {
+                    const response = await resendVerificationEmail(email);
+
+                    // Check the specific message from the backend
+                    if (response.message === 'If an account with that email exists, a new verification link has been sent.') {
+                        resendErrorText.textContent = 'If an account with that email exists, a new verification link has been sent.';
+                        resendErrorMessageDiv.classList.remove('hidden');
+                        hideMessage(resendSuccessMessageDiv);
+                    } else {
+                        // Show success message and ensure error is hidden
+                        resendSuccessMessageDiv.classList.remove('hidden');
+                        hideMessage(resendErrorMessageDiv);
+                    }
+
+                    // Clear form
+                    resendForm.reset();
+
+                } catch (error) {
+                    // Show error message and ensure success is hidden
+                    hideMessage(resendSuccessMessageDiv);
+
+                    // Handle different error types
+                    let message = 'Failed to send verification email. Please try again.';
+                    if (error.status === 404) {
+                        message = 'No account found with this email address.';
+                    } else if (error.status === 400 && error.details?.error_type === 'already_verified') {
+                        message = 'This email is already verified. You can log in now.';
+                    } else if (error.message) {
+                        message = error.message;
+                    }
+                    displayError(message, resendErrorMessageDiv);
+                } finally {
+                    // Reset button state
+                    toggleButtonLoading(resendFormButton, false);
+                }
+            });
+
+            // Email validation for USIU domain
+            const emailInput = document.getElementById('email');
+            emailInput.addEventListener('input', function() {
+                const email = emailInput.value;
+                if (email && !email.endsWith('@usiu.ac.ke')) {
+                    emailInput.setCustomValidity('Please use your USIU email address (@usiu.ac.ke)');
+                } else {
+                    emailInput.setCustomValidity('');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

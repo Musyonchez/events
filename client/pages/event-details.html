@@ -1,0 +1,352 @@
+<!--
+    Event Details Page - USIU Events Management System
+    
+    Comprehensive individual event profile page displaying detailed information
+    about a specific event, including registration functionality, comments,
+    and social sharing capabilities.
+    
+    Page Features:
+    - Dynamic event header with title, date, location, and category
+    - Detailed event description and information
+    - Event registration with progress tracking and capacity management
+    - Comments system with authentication-based access
+    - Social media sharing integration
+    - Event gallery and tags (if available)
+    - Registration deadline and fee information
+    
+    Page States:
+    - Loading state: Skeleton while fetching event data
+    - Content state: Full event details display
+    - Error state: Event not found or access denied
+    
+    JavaScript Dependencies:
+    - event-details.js: Main page functionality and event management
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication and user state management
+    - utils.js: UI utilities and helper functions
+    - api.js: API communication for event data and actions
+    
+    Registration System:
+    - Registration progress bar showing current capacity
+    - Registration deadline tracking
+    - Fee information and payment status
+    - Registration status indicators (open, closed, full)
+    - Authentication-based registration access
+    
+    Comments System:
+    - Authenticated users can post comments
+    - Real-time comment loading and display
+    - Comment moderation support
+    - Login prompts for unauthenticated users
+    
+    Social Features:
+    - Share to Facebook, Twitter, Instagram
+    - Copy event link functionality
+    - Event gallery display (if available)
+    - Related events suggestions
+    
+    Responsive Design:
+    - Two-column layout (content + sidebar) on desktop
+    - Single column stacked layout on mobile
+    - Sticky registration card for easy access
+    - Mobile-optimized touch targets and spacing
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <div id="navbar-placeholder"></div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="pt-16 min-h-screen flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="mt-4 text-gray-600">Loading event details...</p>
+        </div>
+    </div>
+
+    <!-- Event Details Content -->
+    <div id="event-content" class="hidden">
+        <!-- Event Header -->
+        <section class="bg-gradient-to-r from-blue-600 to-purple-600 pt-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="text-white">
+                    <div id="event-featured" class="hidden mb-2">
+                        <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold">FEATURED EVENT</span>
+                    </div>
+                    <h1 id="event-title" class="text-3xl md:text-5xl font-bold mb-4"></h1>
+                    <div class="flex flex-wrap items-center gap-4 text-lg">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span id="event-date"></span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span id="event-location"></span>
+                        </div>
+                        <div id="event-category-badge" class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Event Content -->
+        <section class="py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Notification Messages -->
+                <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-md p-3 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p id="error-text" class="text-sm text-red-800"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-md p-3 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p id="success-text" class="text-sm text-green-800"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Main Content -->
+                    <div class="lg:col-span-2">
+                        <!-- Description -->
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-4">About This Event</h2>
+                            <div id="event-description" class="prose prose-lg text-gray-700"></div>
+                        </div>
+
+                        <!-- Event Gallery -->
+                        <div id="event-gallery-section" class="hidden bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-4">Event Gallery</h2>
+                            <div id="event-gallery" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div id="event-tags-section" class="hidden bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-4">Tags</h2>
+                            <div id="event-tags" class="flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-4">Comments</h2>
+                            
+                            <!-- Add Comment Form (Authenticated users only) -->
+                            <div id="comment-form-section" class="hidden mb-6">
+                                <form id="comment-form" class="space-y-4">
+                                    <div>
+                                        <label for="comment-text" class="block text-sm font-medium text-gray-700 mb-2">Add a comment</label>
+                                        <textarea id="comment-text" name="comment" rows="3" required
+                                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                  placeholder="Share your thoughts about this event..."></textarea>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200 disabled:opacity-50">
+                                            <span id="comment-submit-text">Post Comment</span>
+                                            <div id="comment-submit-spinner" class="hidden">
+                                                <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Posting...
+                                            </div>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Login prompt for guests -->
+                            <div id="comment-login-prompt" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                                <p class="text-blue-800">
+                                    <a href="./login.html" class="font-medium hover:underline">Login</a> or 
+                                    <a href="./register.html" class="font-medium hover:underline">register</a> to join the conversation.
+                                </p>
+                            </div>
+
+                            <!-- Comments List -->
+                            <div id="comments-list">
+                                <div class="text-center py-4 text-gray-500">
+                                    Loading comments...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="lg:col-span-1">
+                        <!-- Registration Card -->
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-6 sticky top-20">
+                            <div id="registration-section">
+                                <!-- Registration Info -->
+                                <div id="registration-info" class="hidden mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Event Registration</h3>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Registration Fee:</span>
+                                            <span id="registration-fee" class="font-semibold"></span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Capacity:</span>
+                                            <span id="event-capacity"></span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Registered:</span>
+                                            <span id="current-registrations"></span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Deadline:</span>
+                                            <span id="registration-deadline"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Progress Bar -->
+                                    <div class="mt-4">
+                                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                            <span>Registration Progress</span>
+                                            <span id="registration-percentage">0%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div id="registration-progress" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Registration Button -->
+                                <div id="registration-actions" class="space-y-3">
+                                    <button id="register-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <span id="register-text">Register for Event</span>
+                                        <div id="register-spinner" class="hidden">
+                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Registering...
+                                        </div>
+                                    </button>
+                                    
+                                    <div id="registration-status" class="hidden text-center p-3 rounded-md">
+                                        <span id="status-text"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event Info Card -->
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Event Information</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Date & Time</p>
+                                        <p id="event-datetime" class="text-sm text-gray-600"></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Location</p>
+                                        <p id="event-location-detail" class="text-sm text-gray-600"></p>
+                                    </div>
+                                </div>
+                                
+                                
+                                <div id="event-club-info" class="hidden flex items-start">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Club</p>
+                                        <a id="event-club-link" href="#" class="text-sm text-blue-600 hover:text-blue-800">
+                                            <span id="event-club-name"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Share Event -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Share Event</h3>
+                            <div class="space-y-3">
+                                <!-- Social Media Buttons Row -->
+                                <div class="flex space-x-3">
+                                    <button id="facebook-share-btn" class="flex-1 bg-blue-600 text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        Facebook
+                                    </button>
+                                    <button id="twitter-share-btn" class="flex-1 bg-blue-400 text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-blue-500 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        Twitter
+                                    </button>
+                                    <button id="instagram-share-btn" class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-3 rounded-md text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        Instagram
+                                    </button>
+                                </div>
+                                
+                                <!-- Copy Event Link Button - Full Width -->
+                                <button onclick="copyEventLink()" class="w-full bg-gray-600 text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-gray-700 transition duration-200">
+                                    Copy Event Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden pt-16 min-h-screen flex items-center justify-center">
+        <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.268 19c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Event not found</h3>
+            <p class="mt-1 text-sm text-gray-500">The event you're looking for doesn't exist or has been removed.</p>
+            <div class="mt-6">
+                <a href="./events.html" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
+                    Browse Events
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/utils.js" type="module"></script>
+    <script src="../assets/js/api.js" type="module"></script>
+    <script src="../assets/js/auth.js" type="module"></script>
+    <script src="../assets/js/component-loader.js" type="module"></script>
+    <script src="../assets/js/main.js" type="module"></script>
+    <script src="../assets/js/event-details.js" type="module"></script>
+</body>
+</html>

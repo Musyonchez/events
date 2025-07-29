@@ -1,0 +1,479 @@
+<!--
+    Admin Dashboard - USIU Events Management System
+    
+    Comprehensive administrative interface for managing the events platform.
+    Provides tabbed interface for managing events, users, clubs, and comments
+    with statistics overview and bulk operations.
+    
+    Key Features:
+    - Statistics dashboard with real-time metrics
+    - Tabbed interface for different management sections
+    - Comment moderation with approve/reject and flag/unflag
+    - Event management (publish, unpublish, feature, delete)
+    - User management with role assignments
+    - Club management and approval workflows
+    - Data export functionality (CSV)
+    - Role-based access control (admin only)
+    
+    JavaScript Dependencies:
+    - admin-dashboard.js: Main dashboard functionality
+    - admin-stats.js: Statistics calculation and display
+    - component-loader.js: Navbar component loading
+    - auth.js: Authentication and role verification
+    - http.js: API communication with authentication
+    
+    External Libraries:
+    - Chart.js: For statistics visualization and charts
+    - Tailwind CSS: For responsive design and styling
+    
+    Security Notes:
+    - Admin role verification on page load
+    - All operations require admin authentication
+    - CSRF protection via JWT tokens
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+  </head>
+  <body class="bg-gray-50">
+    <!-- Navbar component placeholder -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Success Message -->
+    <div
+      id="success-message"
+      class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50"
+    >
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <span id="success-text">Success message</span>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div
+      id="error-message"
+      class="hidden fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-md shadow-lg z-50"
+    >
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <span id="error-text">Error message</span>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="pt-16 min-h-screen">
+      <!-- Page Header -->
+      <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div
+            class="flex items-center justify-between flex-col md:flex-row max-md:space-y-3"
+          >
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p class="mt-1 text-sm text-gray-600">
+                Manage events, users, and platform settings
+              </p>
+            </div>
+            <div class="flex space-x-3">
+              <a
+                href="./create-event.html"
+                class="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700"
+              >
+                Create Event
+              </a>
+              <a
+                href="./create-club.html"
+                class="bg-purple-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-purple-700"
+              >
+                Create Club
+              </a>
+              <button
+                id="export-data-btn"
+                class="bg-green-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-green-700"
+              >
+                Export Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Content -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Overview Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center"
+                >
+                  <svg
+                    class="w-5 h-5 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Total Events</p>
+                <p
+                  id="total-events"
+                  class="text-2xl font-semibold text-gray-900"
+                >
+                  0
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center"
+                >
+                  <svg
+                    class="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Total Users</p>
+                <p
+                  id="total-users"
+                  class="text-2xl font-semibold text-gray-900"
+                >
+                  0
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center"
+                >
+                  <svg
+                    class="w-5 h-5 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Revenue</p>
+                <p
+                  id="total-revenue"
+                  class="text-2xl font-semibold text-gray-900"
+                >
+                  KSh 0
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center"
+                >
+                  <svg
+                    class="w-5 h-5 text-yellow-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Active Clubs</p>
+                <p
+                  id="active-clubs"
+                  class="text-2xl font-semibold text-gray-900"
+                >
+                  0
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="border-b border-gray-200 mb-6">
+          <nav class="-mb-px grid grid-cols-2 md:flex md:space-x-8">
+            <button
+              id="tab-events"
+              class="tab-button active border-b-2 border-blue-500 py-2 px-1 text-sm font-medium text-blue-600"
+            >
+              Events Management
+            </button>
+            <button
+              id="tab-users"
+              class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            >
+              Users Management
+            </button>
+            <button
+              id="tab-clubs"
+              class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            >
+              Clubs Management
+            </button>
+            <button
+              id="tab-comments"
+              class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            >
+              Comments Management
+            </button>
+          </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+          <!-- Events Management Tab -->
+          <div id="content-events" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md">
+              <div
+                class="px-6 py-4 border-b border-gray-200 flex justify-between items-center flex-col md:flex-row max-md:space-y-3 max-md:text-center"
+              >
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900">All Events</h3>
+                  <p class="mt-1 text-sm text-gray-600">
+                    Manage all events in the platform
+                  </p>
+                </div>
+                <div class="flex space-x-2">
+                  <select
+                    id="events-filter"
+                    class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm"
+                  >
+                    <option value="">All Events</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                  <a
+                    href="./create-event.html"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+                  >
+                    Create Event
+                  </a>
+                </div>
+              </div>
+              <div id="events-list" class="divide-y divide-gray-200">
+                <!-- Loading state -->
+                <div class="px-6 py-4 text-center text-gray-500">
+                  <div
+                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"
+                  ></div>
+                  Loading events...
+                </div>
+              </div>
+              <div class="px-6 py-4 border-t border-gray-200">
+                <button
+                  id="load-more-events"
+                  class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Load More Events
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Users Management Tab -->
+          <div id="content-users" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md">
+              <div
+                class="px-6 py-4 border-b border-gray-200 flex justify-between items-center flex-col md:flex-row max-md:space-y-3 max-md:text-center"
+              >
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900">All Users</h3>
+                  <p class="mt-1 text-sm text-gray-600">
+                    Manage user accounts and permissions
+                  </p>
+                </div>
+                <div class="flex space-x-2">
+                  <select
+                    id="users-filter"
+                    class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm"
+                  >
+                    <option value="">All Users</option>
+                    <option value="student">Students</option>
+                    <option value="club_leader">Club Leaders</option>
+                    <option value="admin">Admins</option>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                  </select>
+                  <button
+                    id="export-users"
+                    class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700"
+                  >
+                    Export Users
+                  </button>
+                </div>
+              </div>
+              <div id="users-list" class="divide-y divide-gray-200">
+                <!-- Content will be loaded here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Clubs Management Tab -->
+          <div id="content-clubs" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md">
+              <div
+                class="px-6 py-4 border-b border-gray-200 flex justify-between items-center flex-col md:flex-row max-md:space-y-3 max-md:text-center"
+              >
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900">All Clubs</h3>
+                  <p class="mt-1 text-sm text-gray-600">
+                    Manage student clubs and organizations
+                  </p>
+                </div>
+                <div class="flex space-x-2">
+                  <select
+                    id="clubs-filter"
+                    class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm"
+                  >
+                    <option value="">All Clubs</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                  <button
+                    id="create-club"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+                  >
+                    Create Club
+                  </button>
+                </div>
+              </div>
+              <div id="clubs-list" class="divide-y divide-gray-200">
+                <!-- Content will be loaded here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Comments Management Tab -->
+          <div id="content-comments" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md">
+              <div
+                class="px-6 py-4 border-b border-gray-200 flex justify-between items-center flex-col md:flex-row max-md:space-y-3 max-md:text-center"
+              >
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900">
+                    All Comments
+                  </h3>
+                  <p class="mt-1 text-sm text-gray-600">
+                    Moderate and manage user comments
+                  </p>
+                </div>
+                <div class="flex space-x-2">
+                  <select
+                    id="comments-filter"
+                    class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm"
+                  >
+                    <option value="">All Comments</option>
+                    <option value="approved">Approved</option>
+                    <option value="pending">Pending Review</option>
+                    <option value="flagged">Flagged</option>
+                    <option value="deleted">Deleted</option>
+                  </select>
+                  <button
+                    id="export-comments"
+                    class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700"
+                  >
+                    Export Comments
+                  </button>
+                </div>
+              </div>
+              <div id="comments-list" class="divide-y divide-gray-200">
+                <!-- Loading state -->
+                <div class="px-6 py-4 text-center text-gray-500">
+                  <div
+                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"
+                  ></div>
+                  Loading comments...
+                </div>
+              </div>
+              <div class="px-6 py-4 border-t border-gray-200">
+                <button
+                  id="load-more-comments"
+                  class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Load More Comments
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../assets/js/utils.js" type="module"></script>
+    <script src="../../assets/js/main.js" type="module"></script>
+    <script src="../../assets/js/component-loader.js" type="module"></script>
+    <script
+      src="../../assets/js/admin/admin-dashboard.js"
+      type="module"
+    ></script>
+  </body>
+</html>
+

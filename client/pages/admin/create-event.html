@@ -1,0 +1,385 @@
+<!--
+    Create Event Page - USIU Events Management System
+    
+    Comprehensive event creation interface for administrators and club leaders.
+    Provides multi-section form with advanced features including club selection,
+    registration settings, media uploads, and event management options.
+    
+    Page Features:
+    - Multi-section form with logical grouping
+    - Club search and selection with autocomplete
+    - Date/time pickers for event scheduling
+    - Registration settings with capacity management
+    - Media upload for banner images
+    - Tag system for event categorization
+    - Draft and publish options
+    
+    Form Sections:
+    - Basic Information: Title, description, category, club
+    - Date and Time: Start/end dates with validation
+    - Location: Venue and capacity information
+    - Registration Settings: Requirements, deadlines, fees
+    - Event Media: Banner upload and tags
+    - Event Settings: Status and featured options
+    
+    JavaScript Dependencies:
+    - admin-events.js: Form handling and event creation logic
+    - component-loader.js: Navbar component loading
+    - utils.js: UI utilities and form validation
+    - main.js: General application functionality
+    
+    Dynamic Features:
+    - Club search with real-time results
+    - Registration settings toggle
+    - Image preview for banner uploads
+    - Form validation with error messages
+    - Loading states for form submission
+    
+    Access Control:
+    - Requires admin or club leader privileges
+    - Club selection restricted to user's permissions
+    - Form validation ensures data integrity
+    
+    User Experience:
+    - Progressive disclosure for optional sections
+    - Clear field labels and validation hints
+    - Responsive layout adapting to screen size
+    - Save draft functionality for incomplete forms
+    - Success/error feedback for all operations
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event - USIU Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <div id="navbar-placeholder"></div>
+
+    <!-- Page Content -->
+    <div class="pt-16 min-h-screen">
+        <!-- Page Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 id="main-title" class="text-2xl font-bold text-gray-900">Create New Event</h1>
+                        <p class="mt-1 text-sm text-gray-600">Fill in the details below to create a new event</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="./admin-dashboard.html" class="bg-gray-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-700">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Form -->
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <form id="event-form" class="space-y-8">
+                <!-- Basic Information -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Basic Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label for="title" class="block text-sm font-medium text-gray-700">Event Title *</label>
+                            <input type="text" id="title" name="title" required
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Enter event title"
+                                   minlength="3" maxlength="200">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description *</label>
+                            <textarea id="description" name="description" rows="4" required
+                                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="Describe your event..."
+                                      minlength="10" maxlength="2000"></textarea>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+                            <select id="category" name="category"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select a category</option>
+                                <option value="Arts & Culture">Arts & Culture</option>
+                                <option value="Academic">Academic</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Business">Business</option>
+                                <option value="Community Service">Community Service</option>
+                                <option value="Religious">Religious</option>
+                                <option value="Professional">Professional</option>
+                                <option value="Recreation">Recreation</option>
+                                <option value="Special Interest">Special Interest</option>
+                            </select>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label for="club_search" class="block text-sm font-medium text-gray-700">Organizing Club *</label>
+                            
+                            <!-- Current Club Info (shown in edit mode) -->
+                            <div id="current_club_info" class="hidden mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <img id="current_club_logo" src="" alt="" class="w-8 h-8 rounded-full object-cover">
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-blue-900" id="current_club_name"></p>
+                                        <p class="text-xs text-blue-700" id="current_club_category"></p>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="text-xs text-blue-600">Currently selected</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="relative mt-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                                <input id="club_search" type="text" placeholder="Search and select a club..." 
+                                       class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                                       required autocomplete="off">
+                                <input type="hidden" id="club_id" name="club_id" required>
+                                
+                                <!-- Dropdown Results -->
+                                <div id="club_dropdown" class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                                    <div id="club_results" class="py-1">
+                                        <!-- Club search results will appear here -->
+                                    </div>
+                                    <div id="club_loading" class="hidden px-4 py-3 text-sm text-gray-500 text-center">
+                                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                                        Loading clubs...
+                                    </div>
+                                    <div id="club_no_results" class="hidden px-4 py-3 text-sm text-gray-500 text-center">
+                                        No clubs found. Try a different search term.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date and Time -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Date and Time</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="event_date" class="block text-sm font-medium text-gray-700">Start Date & Time *</label>
+                            <input type="datetime-local" id="event_date" name="event_date" required
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="end_date" class="block text-sm font-medium text-gray-700">End Date & Time</label>
+                            <input type="datetime-local" id="end_date" name="end_date"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Location</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700">Venue *</label>
+                            <input type="text" id="location" name="location" required
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="e.g., USIU Auditorium"
+                                   maxlength="200">
+                        </div>
+                        
+                        <div>
+                            <label for="venue_capacity" class="block text-sm font-medium text-gray-700">Venue Capacity</label>
+                            <input type="number" id="venue_capacity" name="venue_capacity" min="0" max="50000"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="0 for unlimited">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Settings -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Registration Settings</h2>
+                    
+                    <div class="mb-6">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="registration_required" name="registration_required"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="registration_required" class="ml-2 block text-sm text-gray-900">
+                                Require registration for this event
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="registration-settings" class="hidden space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="registration_deadline" class="block text-sm font-medium text-gray-700">Registration Deadline</label>
+                                <input type="datetime-local" id="registration_deadline" name="registration_deadline"
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <div>
+                                <label for="max_attendees" class="block text-sm font-medium text-gray-700">Maximum Attendees</label>
+                                <input type="number" id="max_attendees" name="max_attendees" min="0" max="50000"
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="0 for unlimited">
+                            </div>
+                            
+                            <div>
+                                <label for="registration_fee" class="block text-sm font-medium text-gray-700">Registration Fee (KSh)</label>
+                                <input type="number" id="registration_fee" name="registration_fee" min="0" max="10000" step="0.01"
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Event Media</h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label for="banner_image" class="block text-sm font-medium text-gray-700">Banner Image</label>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                                <div class="space-y-1 text-center">
+                                    <div id="banner-preview" class="hidden">
+                                        <img id="banner-preview-img" src="" alt="Banner preview" class="mx-auto h-32 w-auto rounded-md">
+                                    </div>
+                                    <div id="banner-upload-area">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <div class="flex text-sm text-gray-600">
+                                            <label for="banner_image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                <span>Upload a banner image</span>
+                                                <input id="banner_image" name="banner_image" type="file" accept="image/*" class="sr-only">
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="tags" class="block text-sm font-medium text-gray-700">Tags</label>
+                            <input type="text" id="tags" name="tags"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Enter tags separated by commas (e.g., tech, innovation, conference)">
+                            <p class="mt-1 text-xs text-gray-500">Separate multiple tags with commas. Maximum 10 tags.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Settings -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Event Settings</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="featured" name="featured"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="featured" class="ml-2 block text-sm text-gray-900">
+                                Mark as featured event
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700">Event Status</label>
+                            <select id="status" name="status"
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="draft">Draft</option>
+                                <option value="published">Published</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Draft events are not visible to users</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error/Success Messages -->
+                <div id="form-message" class="hidden">
+                    <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Error</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <p id="error-text"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-green-800">Success</h3>
+                                <div class="mt-2 text-sm text-green-700">
+                                    <p id="success-text"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a href="./admin-dashboard.html" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </a>
+                    <button type="button" id="save-draft" class="bg-gray-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="draft-text">Save as Draft</span>
+                        <div id="draft-spinner" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Saving...
+                        </div>
+                    </button>
+                    <button type="submit" id="submit-button" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="submit-text">Create Event</span>
+                        <div id="submit-spinner" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span id="submit-spinner-text">Creating...</span>
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../assets/js/utils.js" type="module"></script>
+    <script src="../../assets/js/main.js" type="module"></script>
+    <script src="../../assets/js/component-loader.js" type="module"></script>
+    <script src="../../assets/js/admin/admin-events.js" type="module"></script>
+</body>
+</html>
