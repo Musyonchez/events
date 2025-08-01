@@ -22,8 +22,6 @@ require_once __DIR__ . '/../schemas/Comment.php';
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use ValidationException;
-use CommentSchema;
 
 /**
  * Comment Model Class

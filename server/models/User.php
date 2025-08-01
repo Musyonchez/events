@@ -33,8 +33,6 @@ require_once __DIR__ . '/../utils/email.php';
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use ValidationException;
-use UserSchema;
 
 /**
  * User Model Class

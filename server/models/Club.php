@@ -22,8 +22,6 @@ require_once __DIR__ . '/../schemas/Club.php';
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use ValidationException;
-use ClubSchema;
 
 /**
  * Club Model Class
