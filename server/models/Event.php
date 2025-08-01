@@ -127,9 +127,18 @@ class EventModel
   public function updateWithValidation(string $id, array $data): array
   {
     try {
+      // Validate ObjectId format first
+      $objectId = new ObjectId($id);
+      
+      // Check if event exists
+      $existingEvent = $this->collection->findOne(['_id' => $objectId]);
+      if (!$existingEvent) {
+        return ['success' => false, 'errors' => ['event' => 'Event not found']];
+      }
+      
       $updateData = EventSchema::mapForUpdate($data);
       $updateResult = $this->collection->updateOne(
-        ['_id' => new ObjectId($id)],
+        ['_id' => $objectId],
         ['$set' => $updateData]
       );
 
@@ -139,6 +148,9 @@ class EventModel
       ];
     } catch (ValidationException $e) {
       return ['success' => false, 'errors' => $e->getErrors()];
+    } catch (\MongoDB\Driver\Exception\InvalidArgumentException $e) {
+      // Let ObjectId format errors throw as exceptions (don't catch them)
+      throw new Exception("Invalid event ID format: {$id}");
     } catch (Exception $e) {
       return ['success' => false, 'errors' => ['database' => $e->getMessage()]];
     }
