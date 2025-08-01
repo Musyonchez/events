@@ -96,22 +96,22 @@ echo "\n2. Creating test clubs for update testing...\n";
 $testClubs = [];
 $clubTemplates = [
     [
-        'name' => 'Update Test Club Basic ' . date('His'),
-        'description' => 'Basic club for testing standard updates',
+        'name' => 'Update Basic Society ' . date('His'),
+        'description' => 'Basic club for validation standard updates',
         'category' => 'Academic',
         'leader_index' => 0,
         'type' => 'basic'
     ],
     [
-        'name' => 'Update Test Club Advanced ' . date('His'),
-        'description' => 'Advanced club for testing complex updates',
+        'name' => 'Update Advanced Society ' . date('His'),
+        'description' => 'Advanced club for validation complex updates',
         'category' => 'Technology',
         'leader_index' => 0,
         'type' => 'advanced'
     ],
     [
-        'name' => 'Update Test Club Validation ' . date('His'),
-        'description' => 'Club for testing validation rules during updates',
+        'name' => 'Update Validation Society ' . date('His'),
+        'description' => 'Club for validation rules during updates',
         'category' => 'Arts & Culture',
         'leader_index' => 1,
         'type' => 'validation'
@@ -210,7 +210,7 @@ $advancedClubId = $advancedClub['_id']->__toString();
 
 // Test valid name update
 $validNameUpdate = [
-    'name' => 'Updated Advanced Club Name ' . date('His')
+    'name' => 'Updated Advanced Society Name ' . date('His')
 ];
 
 $validNameResult = $clubModel->update($advancedClubId, $validNameUpdate);
@@ -232,11 +232,16 @@ if ($validNameResult) {
 }
 
 // Test duplicate name update (should fail)
+$currentValidationClubName = $testClubs[2]['club']['name'];
 $duplicateNameUpdate = [
-    'name' => $testClubs[2]['club']['name'] // Try to use existing club's name
+    'name' => $currentValidationClubName // Try to use existing club's name
 ];
 
-$duplicateNameResult = $clubModel->update($advancedClubId, $duplicateNameUpdate);
+try {
+    $duplicateNameResult = $clubModel->update($advancedClubId, $duplicateNameUpdate);
+} catch (Exception $e) {
+    $duplicateNameResult = false; // Exception thrown means validation worked
+}
 
 if (!$duplicateNameResult) {
     echo "✓ Duplicate club name properly rejected\n";
@@ -364,7 +369,11 @@ $shortDescriptionData = [
     'description' => 'Too short' // Less than minimum required length
 ];
 
-$shortDescResult = $clubModel->update($validationClubId, $shortDescriptionData);
+try {
+    $shortDescResult = $clubModel->update($validationClubId, $shortDescriptionData);
+} catch (Exception $e) {
+    $shortDescResult = false; // Exception thrown means validation worked
+}
 
 if (!$shortDescResult) {
     echo "✓ Short description properly rejected\n";
@@ -377,7 +386,11 @@ $longDescriptionData = [
     'description' => str_repeat('A', 1100) // Exceeds maximum length
 ];
 
-$longDescResult = $clubModel->update($validationClubId, $longDescriptionData);
+try {
+    $longDescResult = $clubModel->update($validationClubId, $longDescriptionData);
+} catch (Exception $e) {
+    $longDescResult = false; // Exception thrown means validation worked
+}
 
 if (!$longDescResult) {
     echo "✓ Long description properly rejected\n";
@@ -390,7 +403,11 @@ $invalidCategoryData = [
     'category' => 'InvalidCategory'
 ];
 
-$invalidCatResult = $clubModel->update($validationClubId, $invalidCategoryData);
+try {
+    $invalidCatResult = $clubModel->update($validationClubId, $invalidCategoryData);
+} catch (Exception $e) {
+    $invalidCatResult = false; // Exception thrown means validation worked
+}
 
 if (!$invalidCatResult) {
     echo "✓ Invalid category properly rejected\n";
@@ -403,7 +420,11 @@ $invalidEmailData = [
     'contact_email' => 'invalid-email-format'
 ];
 
-$invalidEmailResult = $clubModel->update($validationClubId, $invalidEmailData);
+try {
+    $invalidEmailResult = $clubModel->update($validationClubId, $invalidEmailData);
+} catch (Exception $e) {
+    $invalidEmailResult = false; // Exception thrown means validation worked
+}
 
 if (!$invalidEmailResult) {
     echo "✓ Invalid email format properly rejected\n";
@@ -444,8 +465,8 @@ if ($partialResult) {
 echo "\n10. Testing multiple field updates...\n";
 
 $multiFieldUpdateData = [
-    'name' => 'Multi-Field Updated Club ' . date('His'),
-    'description' => 'Multiple fields updated simultaneously in this comprehensive test',
+    'name' => 'Multi-Field Updated Society ' . date('His'),
+    'description' => 'Multiple fields updated simultaneously in this comprehensive validation',
     'category' => 'Sports',
     'contact_email' => 'multifield@usiu.ac.ke',
     'status' => 'active'

@@ -104,22 +104,22 @@ echo "\n2. Creating test clubs with members for leave testing...\n";
 $testClubs = [];
 $clubTemplates = [
     [
-        'name' => 'Leave Test Club Standard ' . date('His'),
-        'description' => 'Standard club for testing regular member leaving',
+        'name' => 'Leave Standard Society ' . date('His'),
+        'description' => 'Standard club for validation regular member leaving',
         'category' => 'Academic',
         'leader_index' => 0,
         'type' => 'standard'
     ],
     [
-        'name' => 'Leave Test Club Leadership ' . date('His'),
-        'description' => 'Club for testing leader leaving scenarios',
+        'name' => 'Leave Leadership Society ' . date('His'),
+        'description' => 'Club for validation leader leaving scenarios',
         'category' => 'Professional',
         'leader_index' => 0,
         'type' => 'leadership'
     ],
     [
-        'name' => 'Leave Test Club Events ' . date('His'),
-        'description' => 'Club with events for testing leave restrictions',
+        'name' => 'Leave Events Society ' . date('His'),
+        'description' => 'Club with events for validation leave restrictions',
         'category' => 'Technology',
         'leader_index' => 3,
         'type' => 'events'
@@ -370,8 +370,8 @@ echo "\n10. Testing mass member leaving scenarios...\n";
 
 // Add multiple members for mass leaving test
 $massLeaveClubData = [
-    'name' => 'Mass Leave Test Club ' . date('His'),
-    'description' => 'Club for testing multiple members leaving',
+    'name' => 'Mass Leave Society ' . date('His'),
+    'description' => 'Club for validation multiple members leaving',
     'category' => 'Recreation',
     'contact_email' => 'massleave@usiu.ac.ke',
     'leader_id' => $testUsers[3]['_id']->__toString(),
@@ -421,8 +421,8 @@ echo "\n11. Testing club behavior when all members leave...\n";
 
 // Create small club with only leader
 $dissolutionClubData = [
-    'name' => 'Dissolution Test Club ' . date('His'),
-    'description' => 'Club for testing dissolution scenarios',
+    'name' => 'Dissolution Society ' . date('His'),
+    'description' => 'Club for validation dissolution scenarios',
     'category' => 'Special Interest',
     'contact_email' => 'dissolution@usiu.ac.ke',
     'leader_id' => $testUsers[1]['_id']->__toString(),

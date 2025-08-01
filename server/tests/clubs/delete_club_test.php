@@ -98,15 +98,15 @@ echo "\n2. Creating test clubs for deletion testing...\n";
 $testClubs = [];
 $clubTemplates = [
     [
-        'name' => 'Delete Test Club Simple ' . date('His'),
-        'description' => 'Simple club with no dependencies for deletion testing',
+        'name' => 'Deletion Simple Society ' . date('His'),
+        'description' => 'Simple club with no dependencies for deletion validation',
         'category' => 'Academic',
         'leader_index' => 0,
         'has_events' => false,
         'expected_deletable' => true
     ],
     [
-        'name' => 'Delete Test Club Events ' . date('His'),
+        'name' => 'Deletion Events Society ' . date('His'),
         'description' => 'Club with events that should prevent deletion',
         'category' => 'Technology',
         'leader_index' => 1,
@@ -114,16 +114,16 @@ $clubTemplates = [
         'expected_deletable' => false
     ],
     [
-        'name' => 'Delete Test Club Members ' . date('His'),
-        'description' => 'Club with members for testing member cleanup',
+        'name' => 'Deletion Members Society ' . date('His'),
+        'description' => 'Club with members for validation member cleanup',
         'category' => 'Community Service',
         'leader_index' => 0,
         'has_events' => false,
         'expected_deletable' => true
     ],
     [
-        'name' => 'Delete Test Club Inactive ' . date('His'),
-        'description' => 'Inactive club for status-based deletion testing',
+        'name' => 'Deletion Inactive Society ' . date('His'),
+        'description' => 'Inactive club for status-based deletion validation',
         'category' => 'Recreation',
         'leader_index' => 0,
         'has_events' => false,
@@ -343,9 +343,9 @@ try {
 // Test 10: Club statistics after deletions
 echo "\n10. Testing club statistics after deletions...\n";
 
-$totalClubs = $clubModel->count([]);
-$activeClubs = $clubModel->count(['status' => 'active']);
-$inactiveClubs = $clubModel->count(['status' => 'inactive']);
+$totalClubs = $clubModel->countClubs([]);
+$activeClubs = $clubModel->countClubs(['status' => 'active']);
+$inactiveClubs = $clubModel->countClubs(['status' => 'inactive']);
 
 echo "✓ Club statistics after deletions:\n";
 echo "  - Total clubs: $totalClubs\n";
@@ -363,10 +363,10 @@ echo "\n11. Testing dependency validation...\n";
 
 // Create additional club for dependency testing
 $depTestClubData = [
-    'name' => 'Dependency Test Club ' . date('His'),
-    'description' => 'Club for testing dependency validation during deletion',
+    'name' => 'Dependency Validation Society ' . date('His'),
+    'description' => 'Club for validation dependency validation during deletion',
     'category' => 'Academic',
-    'contact_email' => 'deptest@usiu.ac.ke',
+    'contact_email' => 'depvalidation@usiu.ac.ke',
     'leader_id' => $testUsers[0]['_id']->__toString(),
     'created_by' => $testUsers[0]['_id']->__toString(),
     'status' => 'active'
@@ -397,8 +397,8 @@ echo "\n12. Testing club deletion performance...\n";
 $perfClubs = [];
 for ($i = 1; $i <= 3; $i++) {
     $perfClubData = [
-        'name' => "Performance Test Club $i " . date('His'),
-        'description' => "Performance testing club number $i",
+        'name' => "Performance Society $i " . date('His'),
+        'description' => "Performance validation club number $i",
         'category' => 'Academic',
         'contact_email' => "perfclub$i@usiu.ac.ke",
         'leader_id' => $testUsers[0]['_id']->__toString(),
