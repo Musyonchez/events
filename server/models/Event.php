@@ -156,8 +156,13 @@ class EventModel
   }
 
   // List all events with optional filters, paging etc.
-  public function list(array $filters = [], int $limit = 50, int $skip = 0, array $sortOptions = ['event_date' => 1]): array
+  public function list(array $filters = [], int $limit = 50, int $skip = 0, array $sortOptions = ['created_at' => -1]): array
   {
+    // Handle edge case: limit 0 should return empty array
+    if ($limit === 0) {
+      return [];
+    }
+    
     $options = [
       'limit' => $limit,
       'skip' => $skip,
