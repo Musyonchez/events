@@ -208,7 +208,19 @@ class EventModel
       }
 
       // Check if user is already registered
-      if (in_array(new ObjectId($userId), $event['registered_users']->getArrayCopy())) {
+      $registeredUsers = $event['registered_users'] ?? [];
+      $userObjectId = new ObjectId($userId);
+      
+      // Convert to string for comparison since registered_users are now PHP arrays with ObjectId objects
+      $isAlreadyRegistered = false;
+      foreach ($registeredUsers as $registeredUserId) {
+        if ($registeredUserId instanceof ObjectId && $registeredUserId->__toString() === $userObjectId->__toString()) {
+          $isAlreadyRegistered = true;
+          break;
+        }
+      }
+      
+      if ($isAlreadyRegistered) {
         throw new Exception("User is already registered for this event");
       }
 
