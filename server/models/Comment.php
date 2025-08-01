@@ -506,11 +506,11 @@ class CommentModel
       return $errors;
     }
 
-    if (!$parentComment['event_id']->equals($eventId)) {
+    if ($parentComment['event_id']->__toString() !== $eventId->__toString()) {
       $errors['parent_comment_id'] = "Parent comment belongs to a different event";
     }
 
-    if ($parentComment['parent_comment_id'] !== null) {
+    if (isset($parentComment['parent_comment_id']) && $parentComment['parent_comment_id'] !== null) {
       $errors['parent_comment_id'] = "Cannot reply to a reply. Only one level of nesting is allowed";
     }
 
