@@ -96,7 +96,7 @@ class EventModel
   {
     try {
       $event = $this->collection->findOne(['_id' => new ObjectId($id)]);
-      return $event ? $event->getArrayCopy() : null;
+      return $event ? $this->convertBSONToArray($event->getArrayCopy()) : null;
     } catch (Exception $e) {
       throw new Exception("Invalid event ID format: {$id}");
     }
@@ -172,8 +172,8 @@ class EventModel
     $cursor = $this->collection->find($filters, $options);
     $events = iterator_to_array($cursor);
 
-    // Convert BSON documents to arrays
-    return array_map(fn($doc) => $doc->getArrayCopy(), $events);
+    // Convert BSON documents to arrays with proper nested array conversion
+    return array_map(fn($doc) => $this->convertBSONToArray($doc->getArrayCopy()), $events);
   }
 
   // Count all events with optional filters
@@ -212,5 +212,34 @@ class EventModel
     } catch (Exception $e) {
       throw new Exception("Failed to register user for event: " . $e->getMessage());
     }
+  }
+
+  /**
+   * Convert BSON document to proper PHP arrays, handling nested objects
+   * 
+   * @param array $data BSON document data
+   * @return array Converted data with proper PHP arrays
+   */
+  private function convertBSONToArray(array $data): array
+  {
+    $converted = [];
+    
+    foreach ($data as $key => $value) {
+      if ($value instanceof \MongoDB\Model\BSONArray) {
+        // Convert BSON array to PHP array
+        $converted[$key] = iterator_to_array($value);
+      } elseif ($value instanceof \MongoDB\Model\BSONDocument) {
+        // Convert BSON document to PHP array recursively
+        $converted[$key] = $this->convertBSONToArray($value->getArrayCopy());
+      } elseif (is_array($value)) {
+        // Recursively convert nested arrays
+        $converted[$key] = $this->convertBSONToArray($value);
+      } else {
+        // Keep primitive values as-is
+        $converted[$key] = $value;
+      }
+    }
+    
+    return $converted;
   }
 }
