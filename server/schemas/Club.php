@@ -19,29 +19,10 @@
  * @since 2024-01-01
  */
 
+require_once __DIR__ . '/../utils/exceptions.php';
+
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-
-/**
- * Validation Exception Class for Club Schema
- * 
- * Custom exception for handling validation errors with detailed error messages
- */
-class ValidationException extends Exception
-{
-  private array $errors;
-
-  public function __construct(array $errors, string $message = "Validation failed")
-  {
-    $this->errors = $errors;
-    parent::__construct($message);
-  }
-
-  public function getErrors(): array
-  {
-    return $this->errors;
-  }
-}
 
 /**
  * Club Schema Class

@@ -110,6 +110,12 @@ class EventSchema
       throw new ValidationException($errors);
     }
 
+    // Business logic validation
+    $businessErrors = self::validateBusinessLogic($event);
+    if (!empty($businessErrors)) {
+      throw new ValidationException($businessErrors);
+    }
+
     // Add timestamps
     $event['created_at'] = $now;
     $event['updated_at'] = $now;
@@ -163,6 +169,15 @@ class EventSchema
       throw new ValidationException($errors);
     }
 
+    // Business logic validation for updates (if applicable fields are being updated)
+    if (isset($updateData['event_date']) || isset($updateData['end_date']) || isset($updateData['registration_deadline']) || 
+        isset($updateData['venue_capacity']) || isset($updateData['max_attendees'])) {
+      $businessErrors = self::validateBusinessLogic($updateData);
+      if (!empty($businessErrors)) {
+        throw new ValidationException($businessErrors);
+      }
+    }
+
     $updateData['updated_at'] = new UTCDateTime();
     return $updateData;
   }
@@ -199,8 +214,12 @@ class EventSchema
           return new UTCDateTime($timestamp * 1000);
         } elseif (is_int($value)) {
           return new UTCDateTime($value * 1000);
+        } elseif ($value instanceof DateTime) {
+          return new UTCDateTime($value->getTimestamp() * 1000);
+        } elseif ($value instanceof UTCDateTime) {
+          return $value; // Already in correct format
         } else {
-          throw new InvalidArgumentException("Invalid date type for field '{$fieldName}', expected string or timestamp");
+          throw new InvalidArgumentException("Invalid date type for field '{$fieldName}', expected string, timestamp, or DateTime object");
         }
 
       case 'int':
@@ -337,5 +356,95 @@ class EventSchema
     } catch (ValidationException $e) {
       return $e->getErrors();
     }
+  }
+
+  /**
+   * Validate business logic rules for event data
+   * 
+   * @param array $event Event data to validate
+   * @return array Validation errors (empty if valid)
+   */
+  private static function validateBusinessLogic(array $event): array
+  {
+    $errors = [];
+
+    // 1. Event date must be in the future
+    if (isset($event['event_date'])) {
+      $eventDate = $event['event_date'];
+      if ($eventDate instanceof UTCDateTime) {
+        $eventDateTime = $eventDate->toDateTime();
+      } elseif ($eventDate instanceof DateTime) {
+        $eventDateTime = $eventDate;
+      } else {
+        $eventDateTime = new DateTime($eventDate);
+      }
+      
+      if ($eventDateTime <= new DateTime()) {
+        $errors['event_date'] = 'Event date must be in the future';
+      }
+    }
+
+    // 2. End date must be after event date
+    if (isset($event['end_date']) && isset($event['event_date'])) {
+      $eventDate = $event['event_date'];
+      $endDate = $event['end_date'];
+      
+      // Convert to DateTime objects for comparison
+      if ($eventDate instanceof UTCDateTime) {
+        $eventDateTime = $eventDate->toDateTime();
+      } elseif ($eventDate instanceof DateTime) {
+        $eventDateTime = $eventDate;
+      } else {
+        $eventDateTime = new DateTime($eventDate);
+      }
+      
+      if ($endDate instanceof UTCDateTime) {
+        $endDateTime = $endDate->toDateTime();
+      } elseif ($endDate instanceof DateTime) {
+        $endDateTime = $endDate;
+      } else {
+        $endDateTime = new DateTime($endDate);
+      }
+      
+      if ($endDateTime <= $eventDateTime) {
+        $errors['end_date'] = 'End date must be after event start date';
+      }
+    }
+
+    // 3. Registration deadline must be before event date
+    if (isset($event['registration_deadline']) && isset($event['event_date'])) {
+      $eventDate = $event['event_date'];
+      $deadline = $event['registration_deadline'];
+      
+      // Convert to DateTime objects for comparison
+      if ($eventDate instanceof UTCDateTime) {
+        $eventDateTime = $eventDate->toDateTime();
+      } elseif ($eventDate instanceof DateTime) {
+        $eventDateTime = $eventDate;
+      } else {
+        $eventDateTime = new DateTime($eventDate);
+      }
+      
+      if ($deadline instanceof UTCDateTime) {
+        $deadlineDateTime = $deadline->toDateTime();
+      } elseif ($deadline instanceof DateTime) {
+        $deadlineDateTime = $deadline;
+      } else {
+        $deadlineDateTime = new DateTime($deadline);
+      }
+      
+      if ($deadlineDateTime >= $eventDateTime) {
+        $errors['registration_deadline'] = 'Registration deadline must be before event date';
+      }
+    }
+
+    // 4. Max attendees cannot exceed venue capacity
+    if (isset($event['max_attendees']) && isset($event['venue_capacity'])) {
+      if ($event['max_attendees'] > $event['venue_capacity']) {
+        $errors['max_attendees'] = 'Maximum attendees cannot exceed venue capacity';
+      }
+    }
+
+    return $errors;
   }
 }
