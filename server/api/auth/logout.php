@@ -55,24 +55,45 @@ if (!defined('IS_AUTH_ROUTE')) {
 // Core dependencies for logout functionality
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/cors.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../middleware/auth.php';
 require_once __DIR__ . '/../../utils/response.php';
 
 // Set JSON response header
 header('Content-Type: application/json');
 
-// JWT-based logout implementation
+// Authenticate user to get user context for logout operations
+authenticate();
+$currentUser = getCurrentUser();
+
+if (!$currentUser) {
+    send_unauthorized('Authentication required for logout');
+}
+
+// Initialize user model for refresh token invalidation
+$userModel = new UserModel($db->users);
+
+// JWT-based logout implementation with refresh token invalidation
 // Since JWTs are stateless, logout is primarily a client-side operation
-// The client must discard both access and refresh tokens
+// However, we can invalidate refresh tokens to prevent token refresh
+
+try {
+    // Invalidate refresh token in database to prevent future token refresh
+    $refreshTokenInvalidated = $userModel->invalidateRefreshToken($currentUser->id);
+    
+    if (!$refreshTokenInvalidated) {
+        error_log("Warning: Failed to invalidate refresh token for user {$currentUser->id} during logout");
+    }
+} catch (Exception $e) {
+    // Log error but don't fail logout - client-side token removal is primary security
+    error_log("Error invalidating refresh token during logout: " . $e->getMessage());
+}
 
 // Optional: Clear HTTP-only cookies if using cookie-based token storage
 // This is commented out as the current implementation uses header-based tokens
 // setcookie("jwt_token", "", time() - 3600, "/", "", true, true); // Clear JWT cookie
 // setcookie("refresh_token", "", time() - 3600, "/", "", true, true); // Clear refresh token cookie
-
-// TODO: Future enhancement - Invalidate refresh token in database
-// This would require authentication middleware to extract user ID from JWT
-// $userModel = new UserModel($db->users);
-// $userModel->invalidateRefreshToken($userId);
 
 // TODO: Future enhancement - Add JWT to blacklist for immediate invalidation
 // This would require a blacklist storage mechanism (Redis, database, etc.)
@@ -86,5 +107,6 @@ send_success('Logged out successfully. Please discard your tokens.', 200, [
         'Remove refresh_token from storage',
         'Clear any cached user data',
         'Redirect to login page if needed'
-    ]
+    ],
+    'refresh_token_invalidated' => isset($refreshTokenInvalidated) ? $refreshTokenInvalidated : false
 ]);
