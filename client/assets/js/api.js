@@ -48,6 +48,15 @@ export async function registerForEvent(eventId) {
 }
 
 /**
+ * Unregisters a user from an event.
+ * @param {string} eventId - The ID of the event to unregister from.
+ * @returns {Promise<any>}
+ */
+export async function unregisterFromEvent(eventId) {
+    return await requestWithAuth('/events/index.php?action=unregister', 'POST', { event_id: eventId });
+}
+
+/**
  * Fetches club details.
  * @param {string} clubId - The ID of the club to fetch.
  * @returns {Promise<any>}
@@ -63,6 +72,24 @@ export async function getClubDetails(clubId) {
  */
 export async function createClub(clubData) {
     return await requestWithAuth('/clubs/index.php?action=create', 'POST', clubData);
+}
+
+/**
+ * Joins a club.
+ * @param {string} clubId - The ID of the club to join.
+ * @returns {Promise<any>}
+ */
+export async function joinClub(clubId) {
+    return await requestWithAuth('/clubs/index.php?action=join', 'POST', { club_id: clubId });
+}
+
+/**
+ * Leaves a club.
+ * @param {string} clubId - The ID of the club to leave.
+ * @returns {Promise<any>}
+ */
+export async function leaveClub(clubId) {
+    return await requestWithAuth('/clubs/index.php?action=leave', 'POST', { club_id: clubId });
 }
 
 /**

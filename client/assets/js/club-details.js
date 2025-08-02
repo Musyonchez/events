@@ -17,6 +17,7 @@
 
 import { request, requestWithAuth } from './http.js';
 import { isAuthenticated, getCurrentUser } from './auth.js';
+import { joinClub, leaveClub } from './api.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -158,18 +159,22 @@ function updateJoinButton(club) {
     }
 
     // Check if user is already a member
-    const userId = currentUser._id?.$oid || currentUser._id;
+    const userId = currentUser._id || currentUser.userId || currentUser.id;
     const isMember = club.members && Array.isArray(club.members) && club.members.some(memberId => {
         const memberIdStr = memberId.$oid || memberId;
         return memberIdStr === userId;
     });
 
     if (isMember) {
-        joinStatus.classList.remove('hidden');
-        joinStatus.className = 'text-center p-3 rounded-md bg-green-50 border border-green-200';
-        joinStatus.querySelector('#status-text').textContent = 'You are a member of this club';
-        joinBtn.classList.add('hidden');
+        // User is a member - show leave button
+        joinBtn.classList.remove('hidden');
+        joinStatus.classList.add('hidden');
+        joinBtn.innerHTML = 'Leave Club';
+        joinBtn.disabled = false;
+        joinBtn.className = 'w-full bg-red-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-red-700 transition duration-200';
+        joinBtn.onclick = handleClubLeave;
     } else {
+        // User is not a member - show join button
         joinBtn.classList.remove('hidden');
         joinStatus.classList.add('hidden');
         joinBtn.innerHTML = `
@@ -184,13 +189,12 @@ function updateJoinButton(club) {
         `;
         joinBtn.disabled = false;
         joinBtn.className = 'w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+        joinBtn.onclick = handleClubJoin;
     }
 }
 
 async function handleClubJoin() {
     const joinBtn = document.getElementById('join-btn');
-    const joinText = document.getElementById('join-text');
-    const joinSpinner = document.getElementById('join-spinner');
     const clubId = new URLSearchParams(window.location.search).get('id');
     
     try {
@@ -200,32 +204,54 @@ async function handleClubJoin() {
         }
         
         // Show loading state
+        const originalText = joinBtn.textContent;
         joinBtn.disabled = true;
-        joinText.classList.add('hidden');
-        joinSpinner.classList.remove('hidden');
+        joinBtn.textContent = 'Joining...';
         
-        await requestWithAuth(`/clubs/index.php?action=join`, 'POST', { club_id: clubId });
+        await joinClub(clubId);
         
-        // Show success state
-        const joinStatus = document.getElementById('join-status');
-        joinStatus.classList.remove('hidden');
-        joinStatus.className = 'text-center p-3 rounded-md bg-green-50 border border-green-200';
-        joinStatus.querySelector('#status-text').textContent = 'Welcome to the club!';
-        joinBtn.classList.add('hidden');
+        showSuccessMessage('Successfully joined the club!');
         
-        // Update member count
-        const membersCount = document.getElementById('club-members-count');
-        const currentCount = parseInt(membersCount.textContent);
-        membersCount.textContent = `${currentCount + 1} members`;
-        document.getElementById('club-members-detail').textContent = `${currentCount + 1} members`;
+        // Reload club details to update membership status and count
+        loadClubDetails(clubId);
         
     } catch (error) {
         showErrorMessage('Failed to join club: ' + error.message);
         
         // Reset button state
         joinBtn.disabled = false;
-        joinText.classList.remove('hidden');
-        joinSpinner.classList.add('hidden');
+        joinBtn.textContent = 'Join Club';
+    }
+}
+
+async function handleClubLeave() {
+    const joinBtn = document.getElementById('join-btn');
+    const clubId = new URLSearchParams(window.location.search).get('id');
+    
+    // Confirm leaving
+    if (!confirm('Are you sure you want to leave this club?')) {
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const originalText = joinBtn.textContent;
+        joinBtn.disabled = true;
+        joinBtn.textContent = 'Leaving...';
+        
+        await leaveClub(clubId);
+        
+        showSuccessMessage('Successfully left the club!');
+        
+        // Reload club details to update membership status and count
+        loadClubDetails(clubId);
+        
+    } catch (error) {
+        showErrorMessage('Failed to leave club: ' + error.message);
+        
+        // Reset button state
+        joinBtn.disabled = false;
+        joinBtn.textContent = 'Leave Club';
     }
 }
 

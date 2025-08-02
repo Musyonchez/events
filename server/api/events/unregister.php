@@ -130,7 +130,7 @@ try {
     $isRegistered = false;
     if (isset($event['registered_users'])) {
         foreach ($event['registered_users'] as $registeredUser) {
-            if ($registeredUser->equals($userId)) {
+            if ($registeredUser->__toString() === $userId->__toString()) {
                 $isRegistered = true;
                 break;
             }

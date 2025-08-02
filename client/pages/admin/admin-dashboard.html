@@ -1,12 +1,13 @@
 <!--
     Admin Dashboard - USIU Events Management System
+    Developed by: 2020-2022 USIU Events Management Team
     
     Comprehensive administrative interface for managing the events platform.
     Provides tabbed interface for managing events, users, clubs, and comments
     with statistics overview and bulk operations.
     
     Key Features:
-    - Statistics dashboard with real-time metrics
+    - .Statistics dashboard with real-time metrics
     - Tabbed interface for different management sections
     - Comment moderation with approve/reject and flag/unflag
     - Event management (publish, unpublish, feature, delete)
@@ -326,13 +327,8 @@
                   Loading events...
                 </div>
               </div>
-              <div class="px-6 py-4 border-t border-gray-200">
-                <button
-                  id="load-more-events"
-                  class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  Load More Events
-                </button>
+              <div id="events-pagination" class="px-6 py-4 border-t border-gray-200">
+                <!-- Pagination will be inserted here -->
               </div>
             </div>
           </div>
@@ -372,6 +368,9 @@
               <div id="users-list" class="divide-y divide-gray-200">
                 <!-- Content will be loaded here -->
               </div>
+              <div id="users-pagination" class="px-6 py-4 border-t border-gray-200">
+                <!-- Pagination will be inserted here -->
+              </div>
             </div>
           </div>
 
@@ -406,6 +405,9 @@
               </div>
               <div id="clubs-list" class="divide-y divide-gray-200">
                 <!-- Content will be loaded here -->
+              </div>
+              <div id="clubs-pagination" class="px-6 py-4 border-t border-gray-200">
+                <!-- Pagination will be inserted here -->
               </div>
             </div>
           </div>
@@ -452,13 +454,8 @@
                   Loading comments...
                 </div>
               </div>
-              <div class="px-6 py-4 border-t border-gray-200">
-                <button
-                  id="load-more-comments"
-                  class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  Load More Comments
-                </button>
+              <div id="comments-pagination" class="px-6 py-4 border-t border-gray-200">
+                <!-- Pagination will be inserted here -->
               </div>
             </div>
           </div>

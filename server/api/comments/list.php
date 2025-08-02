@@ -169,7 +169,7 @@ try {
         // Add comment timing information
         if (isset($comment['created_at'])) {
             $createdDate = $comment['created_at']->toDateTime();
-            $comment['time_ago'] = $this->calculateTimeAgo($createdDate);
+            $comment['time_ago'] = calculateTimeAgo($createdDate);
             $comment['formatted_date'] = $createdDate->format('Y-m-d H:i:s');
         }
         

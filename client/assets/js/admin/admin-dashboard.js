@@ -20,6 +20,14 @@
 import { request, requestWithAuth } from '../http.js';
 import { isAuthenticated, getCurrentUser } from '../auth.js';
 
+// Pagination state management
+const paginationState = {
+    events: { currentPage: 1, totalPages: 1, limit: 10 },
+    users: { currentPage: 1, totalPages: 1, limit: 10 },
+    clubs: { currentPage: 1, totalPages: 1, limit: 10 },
+    comments: { currentPage: 1, totalPages: 1, limit: 10 }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Check admin authentication
     if (!checkAdminAccess()) {
@@ -72,25 +80,25 @@ function setupFilterEventListeners() {
 
     if (eventsFilter) {
         eventsFilter.addEventListener('change', function() {
-            loadAllEvents(this.value);
+            loadAllEvents(this.value, 1);
         });
     }
 
     if (usersFilter) {
         usersFilter.addEventListener('change', function() {
-            loadAllUsers(this.value);
+            loadAllUsers(this.value, 1);
         });
     }
 
     if (clubsFilter) {
         clubsFilter.addEventListener('change', function() {
-            loadAllClubs(this.value);
+            loadAllClubs(this.value, 1);
         });
     }
 
     if (commentsFilter) {
         commentsFilter.addEventListener('change', function() {
-            loadAllComments(this.value);
+            loadAllComments(this.value, 1);
         });
     }
 }
@@ -173,7 +181,7 @@ async function loadDashboardData() {
         updateStatCard('active-clubs', stats.active_clubs);
 
         // Load initial tab content (events)
-        loadAllEvents();
+        loadAllEvents('', 1);
 
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -197,30 +205,33 @@ function updateStatCard(elementId, value) {
 function loadTabContent(tabId) {
     switch (tabId) {
         case 'events':
-            loadAllEvents();
+            loadAllEvents('', 1);
             break;
         case 'users':
-            loadAllUsers();
+            loadAllUsers('', 1);
             break;
         case 'clubs':
-            loadAllClubs();
+            loadAllClubs('', 1);
             break;
         case 'comments':
-            loadAllComments();
+            loadAllComments('', 1);
             break;
     }
 }
 
-async function loadAllEvents(statusFilter = '') {
+async function loadAllEvents(statusFilter = '', page = 1) {
     const container = document.getElementById('events-list');
     if (!container) return;
 
     showLoadingState(container, 'Loading events...');
     
     try {
+        const limit = paginationState.events.limit;
         const params = new URLSearchParams({
             action: 'list',
-            limit: 50
+            limit: limit,
+            page: page,
+            sort: 'recent'
         });
 
         if (statusFilter) {
@@ -229,6 +240,11 @@ async function loadAllEvents(statusFilter = '') {
 
         const response = await requestWithAuth(`/events/index.php?${params.toString()}`, 'GET');
         const events = response.data?.events || [];
+        const pagination = response.data?.pagination || {};
+
+        // Update pagination state
+        paginationState.events.currentPage = page;
+        paginationState.events.totalPages = pagination.total_pages || 1;
 
         if (events.length === 0) {
             container.innerHTML = createEmptyState(
@@ -240,22 +256,28 @@ async function loadAllEvents(statusFilter = '') {
             container.innerHTML = events.map(event => createEventAdminItem(event)).join('');
         }
 
+        // Render pagination
+        renderPagination('events', paginationState.events, (newPage) => loadAllEvents(statusFilter, newPage));
+
     } catch (error) {
         console.error('Error loading events:', error);
         showErrorState(container, 'Failed to load events from database. Check your connection and refresh the page.');
     }
 }
 
-async function loadAllUsers(roleFilter = '') {
+async function loadAllUsers(roleFilter = '', page = 1) {
     const container = document.getElementById('users-list');
     if (!container) return;
 
     showLoadingState(container, 'Loading users...');
 
     try {
+        const limit = paginationState.users.limit;
+        const skip = (page - 1) * limit;
         const params = new URLSearchParams({
             action: 'list',
-            limit: 50
+            limit: limit,
+            skip: skip
         });
 
         if (roleFilter) {
@@ -264,6 +286,11 @@ async function loadAllUsers(roleFilter = '') {
 
         const response = await requestWithAuth(`/users/index.php?${params.toString()}`, 'GET');
         const users = response.data?.users || [];
+        const pagination = response.data?.pagination || {};
+
+        // Update pagination state
+        paginationState.users.currentPage = page;
+        paginationState.users.totalPages = pagination.total_pages || 1;
 
         if (users.length === 0) {
             container.innerHTML = createEmptyState('No users found', 'No users match the selected criteria.');
@@ -271,22 +298,27 @@ async function loadAllUsers(roleFilter = '') {
             container.innerHTML = users.map(user => createUserAdminItem(user)).join('');
         }
 
+        // Render pagination
+        renderPagination('users', paginationState.users, (newPage) => loadAllUsers(roleFilter, newPage));
+
     } catch (error) {
         console.error('Error loading users:', error);
         showErrorState(container, 'Failed to load user accounts from database. Check your connection and refresh the page.');
     }
 }
 
-async function loadAllClubs(statusFilter = '') {
+async function loadAllClubs(statusFilter = '', page = 1) {
     const container = document.getElementById('clubs-list');
     if (!container) return;
 
     showLoadingState(container, 'Loading clubs...');
 
     try {
+        const limit = paginationState.clubs.limit;
         const params = new URLSearchParams({
             action: 'list',
-            limit: 50
+            limit: limit,
+            page: page
         });
 
         if (statusFilter) {
@@ -295,6 +327,14 @@ async function loadAllClubs(statusFilter = '') {
 
         const response = await requestWithAuth(`/clubs/index.php?${params.toString()}`, 'GET');
         const clubs = response.clubs || [];
+        
+        // Calculate pagination from clubs API response structure
+        const totalClubs = response.total_clubs || clubs.length;
+        const totalPages = Math.ceil(totalClubs / limit);
+
+        // Update pagination state
+        paginationState.clubs.currentPage = page;
+        paginationState.clubs.totalPages = totalPages;
 
         if (clubs.length === 0) {
             container.innerHTML = createEmptyState(
@@ -313,6 +353,9 @@ async function loadAllClubs(statusFilter = '') {
         } else {
             container.innerHTML = clubs.map(club => createClubAdminItem(club)).join('');
         }
+
+        // Render pagination
+        renderPagination('clubs', paginationState.clubs, (newPage) => loadAllClubs(statusFilter, newPage));
 
     } catch (error) {
         console.error('Error loading clubs:', error);
@@ -515,6 +558,83 @@ function createActivityItem(activity) {
     `;
 }
 
+// Pagination rendering function
+function renderPagination(section, state, onPageChange) {
+    const container = document.getElementById(`${section}-pagination`);
+    if (!container) return;
+
+    const { currentPage, totalPages } = state;
+    
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    // Calculate page range to show
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust startPage if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    let paginationHTML = `
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-700">
+                    Page ${currentPage} of ${totalPages}
+                </span>
+            </div>
+            <div class="flex items-center space-x-1">
+    `;
+
+    // Previous button
+    if (currentPage > 1) {
+        paginationHTML += `
+            <button onclick="changePage${section.charAt(0).toUpperCase() + section.slice(1)}(${currentPage - 1})" 
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                Previous
+            </button>
+        `;
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        const isActive = i === currentPage;
+        paginationHTML += `
+            <button onclick="changePage${section.charAt(0).toUpperCase() + section.slice(1)}(${i})" 
+                    class="px-3 py-2 text-sm font-medium ${isActive 
+                        ? 'text-blue-600 bg-blue-50 border border-blue-300 rounded-md' 
+                        : 'text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50'
+                    }">
+                ${i}
+            </button>
+        `;
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+        paginationHTML += `
+            <button onclick="changePage${section.charAt(0).toUpperCase() + section.slice(1)}(${currentPage + 1})" 
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                Next
+            </button>
+        `;
+    }
+
+    paginationHTML += `
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = paginationHTML;
+
+    // Store the callback for global access
+    window[`changePage${section.charAt(0).toUpperCase() + section.slice(1)}`] = onPageChange;
+}
+
 // Utility functions
 function formatUserDate(dateObj) {
     if (!dateObj) return 'Unknown';
@@ -603,7 +723,7 @@ window.toggleEventStatus = async function(eventId, currentStatus) {
             status: newStatus 
         });
         showSuccessMessage(`Event ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
-        loadAllEvents();
+        loadAllEvents('', paginationState.events.currentPage);
     } catch (error) {
         showErrorMessage('Failed to update event status: ' + error.message);
     }
@@ -616,7 +736,7 @@ window.toggleEventFeatured = async function(eventId, currentFeatured) {
             featured: newFeatured 
         });
         showSuccessMessage(`Event ${newFeatured ? 'featured' : 'unfeatured'} successfully`);
-        loadAllEvents();
+        loadAllEvents('', paginationState.events.currentPage);
     } catch (error) {
         showErrorMessage('Failed to update event featured status: ' + error.message);
     }
@@ -627,7 +747,7 @@ window.deleteEvent = async function(eventId) {
         try {
             await requestWithAuth(`/events/index.php?action=delete&id=${eventId}`, 'DELETE');
             showSuccessMessage('Event deleted successfully');
-            loadAllEvents();
+            loadAllEvents('', paginationState.events.currentPage);
             loadDashboardData(); // Refresh stats
         } catch (error) {
             showErrorMessage('Failed to delete event: ' + error.message);
@@ -761,7 +881,7 @@ window.toggleUserStatus = async function(userId, currentStatus) {
                 status: newStatus 
             });
             showSuccessMessage(`User ${newStatus === 'suspended' ? 'suspended' : 'activated'} successfully`);
-            loadAllUsers();
+            loadAllUsers('', paginationState.users.currentPage);
         } catch (error) {
             showErrorMessage('Failed to update user status: ' + error.message);
         }
@@ -773,7 +893,7 @@ window.deleteUser = async function(userId) {
         try {
             await requestWithAuth(`/users/index.php?action=delete&id=${userId}`, 'DELETE');
             showSuccessMessage('User deleted successfully');
-            loadAllUsers();
+            loadAllUsers('', paginationState.users.currentPage);
             loadDashboardData(); // Refresh stats
         } catch (error) {
             showErrorMessage('Failed to delete user: ' + error.message);
@@ -796,7 +916,7 @@ window.toggleClubStatus = async function(clubId, currentStatus) {
             status: newStatus 
         });
         showSuccessMessage(`Club ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
-        loadAllClubs();
+        loadAllClubs('', paginationState.clubs.currentPage);
     } catch (error) {
         showErrorMessage('Failed to update club status: ' + error.message);
     }
@@ -807,7 +927,7 @@ window.deleteClub = async function(clubId) {
         try {
             await requestWithAuth(`/clubs/index.php?action=delete&id=${clubId}`, 'DELETE');
             showSuccessMessage('Club deleted successfully');
-            loadAllClubs();
+            loadAllClubs('', paginationState.clubs.currentPage);
             loadDashboardData(); // Refresh stats
         } catch (error) {
             showErrorMessage('Failed to delete club: ' + error.message);
@@ -867,16 +987,19 @@ async function exportPlatformData() {
     }
 }
 
-async function loadAllComments(statusFilter = '') {
+async function loadAllComments(statusFilter = '', page = 1) {
     const container = document.getElementById('comments-list');
     if (!container) return;
 
     showLoadingState(container, 'Loading comments...');
     
     try {
+        const limit = paginationState.comments.limit;
+        const skip = (page - 1) * limit;
         const params = new URLSearchParams({
             action: 'list',
-            limit: 50
+            limit: limit,
+            skip: skip
         });
 
         if (statusFilter) {
@@ -885,12 +1008,20 @@ async function loadAllComments(statusFilter = '') {
 
         const response = await requestWithAuth(`/comments/index.php?${params.toString()}`, 'GET');
         const comments = response.data?.comments || [];
+        const pagination = response.data?.pagination || {};
+
+        // Update pagination state
+        paginationState.comments.currentPage = page;
+        paginationState.comments.totalPages = pagination.total_pages || 1;
 
         if (comments.length === 0) {
             container.innerHTML = createEmptyState('No comments found', 'No comments match the selected criteria.');
         } else {
             container.innerHTML = comments.map(comment => createCommentAdminItem(comment)).join('');
         }
+
+        // Render pagination
+        renderPagination('comments', paginationState.comments, (newPage) => loadAllComments(statusFilter, newPage));
 
     } catch (error) {
         console.error('Error loading comments:', error);
@@ -982,7 +1113,7 @@ window.toggleCommentApproval = async function(commentId, currentStatus) {
     try {
         await requestWithAuth(`/comments/index.php?action=${action}&id=${commentId}`, 'PATCH', {});
         showSuccessMessage(`Comment ${newStatus} successfully`);
-        loadAllComments();
+        loadAllComments('', paginationState.comments.currentPage);
     } catch (error) {
         showErrorMessage(`Failed to ${action} comment: ` + error.message);
     }
@@ -995,7 +1126,7 @@ window.toggleCommentFlag = async function(commentId, currentFlagged) {
     try {
         await requestWithAuth(`/comments/index.php?action=${action}&id=${commentId}`, 'PATCH', {});
         showSuccessMessage(`Comment ${actionText} successfully`);
-        loadAllComments();
+        loadAllComments('', paginationState.comments.currentPage);
     } catch (error) {
         showErrorMessage(`Failed to ${action} comment: ` + error.message);
     }
@@ -1006,7 +1137,7 @@ window.deleteComment = async function(commentId) {
         try {
             await requestWithAuth(`/comments/index.php?action=delete&id=${commentId}`, 'DELETE');
             showSuccessMessage('Comment deleted successfully');
-            loadAllComments();
+            loadAllComments('', paginationState.comments.currentPage);
         } catch (error) {
             showErrorMessage('Failed to delete comment: ' + error.message);
         }
