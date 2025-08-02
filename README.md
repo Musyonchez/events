@@ -1,4 +1,6 @@
 # USIU Events Management System
+![usiu_landing](https://github.com/user-attachments/assets/c8eb3723-5a84-410a-a1eb-3fdc8972084a)
+
 
 A comprehensive university events management platform for USIU Kenya campus, allowing departments and clubs to create, manage, and display campus events. Students can register for events, leave comments, and receive email notifications.
 
