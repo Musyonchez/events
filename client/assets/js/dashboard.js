@@ -244,37 +244,23 @@ async function loadCreatedEvents(page = 1) {
 
     try {
         const currentUser = getCurrentUser();
-        const userRole = currentUser?.role || 'user';
         const limit = dashboardPaginationState.created.limit;
         
-        let response;
-        if (userRole === 'admin') {
-            // Admins see all events with pagination
-            const params = new URLSearchParams({
-                action: 'list',
-                limit: limit,
-                page: page,
-                sort: 'recent'
-            });
-            response = await request(`/events/index.php?${params.toString()}`, 'GET');
-        } else {
-            // Others see events they created with pagination
-            const skip = (page - 1) * limit;
-            const params = new URLSearchParams({
-                action: 'created',
-                limit: limit,
-                skip: skip
-            });
-            response = await requestWithAuth(`/events/index.php?${params.toString()}`, 'GET');
-        }
+        // Always use the 'created' endpoint for user dashboard - shows only events user actually created
+        // This is different from admin dashboard where admins see all events
+        const skip = (page - 1) * limit;
+        const params = new URLSearchParams({
+            action: 'created',
+            limit: limit,
+            skip: skip
+        });
         
+        const response = await requestWithAuth(`/events/index.php?${params.toString()}`, 'GET');
         let events = response.data?.events || [];
         const pagination = response.data?.pagination || {};
         
-        // For non-admins, filter events they can actually manage
-        if (userRole !== 'admin') {
-            events = events.filter(event => canUserManageEvent(currentUser, event));
-        }
+        // Apply additional filtering for club leaders - they can only manage events from their clubs
+        events = events.filter(event => canUserManageEvent(currentUser, event));
 
         // Update pagination state
         dashboardPaginationState.created.currentPage = page;
