@@ -220,7 +220,8 @@ async function loadAllEvents(statusFilter = '') {
     try {
         const params = new URLSearchParams({
             action: 'list',
-            limit: 50
+            limit: 50,
+            sort: 'recent'
         });
 
         if (statusFilter) {
