@@ -148,7 +148,7 @@ try {
     $leaderObjectId = new MongoDB\BSON\ObjectId($data['leader_id']);
     
     // Get current user information to verify role and existence
-    $currentUser = $db->users->findOne(['_id' => $leaderObjectId]);
+    $currentUser = $db->users->findOne(['_id' => $leaderObjectId]); 
     
     if ($currentUser && $currentUser['role'] === 'student') {
         // Only promote students to club_leader, preserve higher roles
@@ -166,7 +166,7 @@ try {
         // User already has admin or club_leader role, no promotion needed
         error_log("Info: User ID " . $data['leader_id'] . " is already " . $currentUser['role'] . ", no role change needed");
     } else {
-        // User not found - this is a validation issue
+        // User not found - this is a validation error
         error_log("Warning: Could not find user with ID: " . $data['leader_id'] . " for role promotion");
     }
 } catch (Exception $e) {
