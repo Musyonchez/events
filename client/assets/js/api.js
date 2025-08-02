@@ -48,6 +48,15 @@ export async function registerForEvent(eventId) {
 }
 
 /**
+ * Unregisters a user from an event.
+ * @param {string} eventId - The ID of the event to unregister from.
+ * @returns {Promise<any>}
+ */
+export async function unregisterFromEvent(eventId) {
+    return await requestWithAuth('/events/index.php?action=unregister', 'POST', { event_id: eventId });
+}
+
+/**
  * Fetches club details.
  * @param {string} clubId - The ID of the club to fetch.
  * @returns {Promise<any>}
