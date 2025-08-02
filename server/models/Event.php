@@ -285,7 +285,7 @@ class EventModel
   {
     try {
       $result = $this->collection->findOne(['title' => $title]);
-      return $result ? $this->convertBSONToArray($result->toArray()) : null;
+      return $result ? $this->convertBSONToArray($result->getArrayCopy()) : null;
     } catch (Exception $e) {
       return null;
     }
