@@ -75,6 +75,24 @@ export async function createClub(clubData) {
 }
 
 /**
+ * Joins a club.
+ * @param {string} clubId - The ID of the club to join.
+ * @returns {Promise<any>}
+ */
+export async function joinClub(clubId) {
+    return await requestWithAuth('/clubs/index.php?action=join', 'POST', { club_id: clubId });
+}
+
+/**
+ * Leaves a club.
+ * @param {string} clubId - The ID of the club to leave.
+ * @returns {Promise<any>}
+ */
+export async function leaveClub(clubId) {
+    return await requestWithAuth('/clubs/index.php?action=leave', 'POST', { club_id: clubId });
+}
+
+/**
  * Fetches comments for an event.
  * @param {string} eventId - The ID of the event.
  * @returns {Promise<any>}

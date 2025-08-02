@@ -131,6 +131,15 @@ switch ($action) {
         }
         break;
         
+    case 'leave':
+        // Club leave management - requires POST method
+        if ($method === 'POST') {
+            require __DIR__ . '/leave.php';
+        } else {
+            send_method_not_allowed('Club leave actions require POST method. Use: POST /api/clubs/?action=leave');
+        }
+        break;
+        
     default:
         // Handle invalid or missing action parameters
         if ($method === 'GET') {
