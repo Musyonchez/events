@@ -238,6 +238,59 @@ class EventModel
     }
   }
 
+  // Unregister a user from an event
+  public function unregisterUserFromEvent(string $eventId, string $userId): array
+  {
+    try {
+      $event = $this->findById($eventId);
+      if (!$event) {
+        return ['success' => false, 'error' => 'Event not found'];
+      }
+
+      // Check if user is registered
+      $registeredUsers = $event['registered_users'] ?? [];
+      $userObjectId = new ObjectId($userId);
+      $isRegistered = false;
+
+      foreach ($registeredUsers as $registeredUserId) {
+        if ($registeredUserId instanceof ObjectId && $registeredUserId->__toString() === $userObjectId->__toString()) {
+          $isRegistered = true;
+          break;
+        }
+      }
+
+      if (!$isRegistered) {
+        return ['success' => false, 'error' => 'User is not registered for this event'];
+      }
+
+      $updateResult = $this->collection->updateOne(
+        ['_id' => new ObjectId($eventId)],
+        [
+          '$pull' => ['registered_users' => new ObjectId($userId)],
+          '$inc' => ['current_registrations' => -1]
+        ]
+      );
+
+      return [
+        'success' => $updateResult->getModifiedCount() > 0,
+        'message' => $updateResult->getModifiedCount() > 0 ? 'User unregistered successfully' : 'Failed to unregister user'
+      ];
+    } catch (Exception $e) {
+      return ['success' => false, 'error' => 'Failed to unregister user: ' . $e->getMessage()];
+    }
+  }
+
+  // Find event by title
+  public function findByTitle(string $title): ?array
+  {
+    try {
+      $result = $this->collection->findOne(['title' => $title]);
+      return $result ? $this->convertBSONToArray($result->toArray()) : null;
+    } catch (Exception $e) {
+      return null;
+    }
+  }
+
   /**
    * Convert BSON document to proper PHP arrays, handling nested objects
    * 
