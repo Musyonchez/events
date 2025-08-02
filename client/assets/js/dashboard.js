@@ -19,6 +19,14 @@
 import { isAuthenticated, getCurrentUser } from './auth.js';
 import { request, requestWithAuth } from './http.js';
 
+// Pagination state management for user dashboard
+const dashboardPaginationState = {
+    registered: { currentPage: 1, totalPages: 1, limit: 10 },
+    upcoming: { currentPage: 1, totalPages: 1, limit: 10 },
+    created: { currentPage: 1, totalPages: 1, limit: 10 },
+    history: { currentPage: 1, totalPages: 1, limit: 10 }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Authentication is handled by getCurrentUser() check in loadUserData()
 
@@ -26,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadUserData();
     
     // Load content for the initially active tab
-    loadTabContent('registered');
+    loadTabContent('registered', 1);
 });
 
 function setupTabNavigation() {
@@ -54,7 +62,7 @@ function setupTabNavigation() {
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
 
             // Load content for the selected tab
-            loadTabContent(tabId);
+            loadTabContent(tabId, 1);
         });
     });
 }
@@ -111,29 +119,42 @@ async function loadDashboardStats() {
     }
 }
 
-function loadTabContent(tabId) {
+function loadTabContent(tabId, page = 1) {
     switch (tabId) {
         case 'registered':
-            loadRegisteredEvents();
+            loadRegisteredEvents(page);
             break;
         case 'upcoming':
-            loadUpcomingEvents();
+            loadUpcomingEvents(page);
             break;
         case 'created':
-            loadCreatedEvents();
+            loadCreatedEvents(page);
             break;
         case 'history':
-            loadEventHistory();
+            loadEventHistory(page);
             break;
     }
 }
 
-async function loadRegisteredEvents() {
+async function loadRegisteredEvents(page = 1) {
     const container = document.getElementById('registered-events-list');
     
     try {
-        const response = await requestWithAuth('/events/index.php?action=registered', 'GET');
-        const events = response.data.events || [];
+        const limit = dashboardPaginationState.registered.limit;
+        const skip = (page - 1) * limit;
+        const params = new URLSearchParams({
+            action: 'registered',
+            limit: limit,
+            skip: skip
+        });
+
+        const response = await requestWithAuth(`/events/index.php?${params.toString()}`, 'GET');
+        const events = response.data?.events || [];
+        const pagination = response.data?.pagination || {};
+
+        // Update pagination state
+        dashboardPaginationState.registered.currentPage = page;
+        dashboardPaginationState.registered.totalPages = pagination.total_pages || 1;
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -154,6 +175,9 @@ async function loadRegisteredEvents() {
             container.innerHTML = events.map(event => createEventListItem(event)).join('');
         }
 
+        // Render pagination
+        renderDashboardPagination('registered', dashboardPaginationState.registered, (newPage) => loadRegisteredEvents(newPage));
+
     } catch (error) {
         console.error('Error loading registered events:', error);
         container.innerHTML = `
@@ -165,13 +189,26 @@ async function loadRegisteredEvents() {
     }
 }
 
-async function loadUpcomingEvents() {
+async function loadUpcomingEvents(page = 1) {
     const container = document.getElementById('upcoming-events-list');
     container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Loading upcoming events...</div>';
 
     try {
-        const response = await request('/events/index.php?action=list&date=upcoming&limit=10');
-        const events = response.data.events || [];
+        const limit = dashboardPaginationState.upcoming.limit;
+        const params = new URLSearchParams({
+            action: 'list',
+            date: 'upcoming',
+            limit: limit,
+            page: page
+        });
+
+        const response = await request(`/events/index.php?${params.toString()}`);
+        const events = response.data?.events || [];
+        const pagination = response.data?.pagination || {};
+
+        // Update pagination state
+        dashboardPaginationState.upcoming.currentPage = page;
+        dashboardPaginationState.upcoming.totalPages = pagination.total_pages || 1;
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -187,6 +224,9 @@ async function loadUpcomingEvents() {
             container.innerHTML = events.map(event => createEventListItem(event)).join('');
         }
 
+        // Render pagination
+        renderDashboardPagination('upcoming', dashboardPaginationState.upcoming, (newPage) => loadUpcomingEvents(newPage));
+
     } catch (error) {
         console.error('Error loading upcoming events:', error);
         container.innerHTML = `
@@ -198,29 +238,47 @@ async function loadUpcomingEvents() {
     }
 }
 
-async function loadCreatedEvents() {
+async function loadCreatedEvents(page = 1) {
     const container = document.getElementById('created-events-list');
     container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Loading manageable events...</div>';
 
     try {
         const currentUser = getCurrentUser();
         const userRole = currentUser?.role || 'user';
+        const limit = dashboardPaginationState.created.limit;
         
         let response;
         if (userRole === 'admin') {
-            // Admins see all events
-            response = await request('/events/index.php?action=list&limit=100', 'GET');
+            // Admins see all events with pagination
+            const params = new URLSearchParams({
+                action: 'list',
+                limit: limit,
+                page: page,
+                sort: 'recent'
+            });
+            response = await request(`/events/index.php?${params.toString()}`, 'GET');
         } else {
-            // Others see events they created (we'll filter for club leaders client-side)
-            response = await requestWithAuth('/events/index.php?action=created', 'GET');
+            // Others see events they created with pagination
+            const skip = (page - 1) * limit;
+            const params = new URLSearchParams({
+                action: 'created',
+                limit: limit,
+                skip: skip
+            });
+            response = await requestWithAuth(`/events/index.php?${params.toString()}`, 'GET');
         }
         
-        let events = response.data.events || [];
+        let events = response.data?.events || [];
+        const pagination = response.data?.pagination || {};
         
         // For non-admins, filter events they can actually manage
         if (userRole !== 'admin') {
             events = events.filter(event => canUserManageEvent(currentUser, event));
         }
+
+        // Update pagination state
+        dashboardPaginationState.created.currentPage = page;
+        dashboardPaginationState.created.totalPages = pagination.total_pages || 1;
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -241,6 +299,9 @@ async function loadCreatedEvents() {
             container.innerHTML = events.map(event => createEventListItem(event, true)).join('');
         }
 
+        // Render pagination
+        renderDashboardPagination('created', dashboardPaginationState.created, (newPage) => loadCreatedEvents(newPage));
+
     } catch (error) {
         console.error('Error loading created events:', error);
         container.innerHTML = `
@@ -252,13 +313,26 @@ async function loadCreatedEvents() {
     }
 }
 
-async function loadEventHistory() {
+async function loadEventHistory(page = 1) {
     const container = document.getElementById('history-events-list');
     container.innerHTML = '<div class="px-6 py-4 text-center text-gray-500">Loading event history...</div>';
 
     try {
-        const response = await requestWithAuth('/events/index.php?action=history', 'GET');
-        const events = response.data.events || [];
+        const limit = dashboardPaginationState.history.limit;
+        const skip = (page - 1) * limit;
+        const params = new URLSearchParams({
+            action: 'history',
+            limit: limit,
+            skip: skip
+        });
+
+        const response = await requestWithAuth(`/events/index.php?${params.toString()}`, 'GET');
+        const events = response.data?.events || [];
+        const pagination = response.data?.pagination || {};
+
+        // Update pagination state
+        dashboardPaginationState.history.currentPage = page;
+        dashboardPaginationState.history.totalPages = pagination.total_pages || 1;
 
         if (events.length === 0) {
             container.innerHTML = `
@@ -273,6 +347,9 @@ async function loadEventHistory() {
         } else {
             container.innerHTML = events.map(event => createEventListItem(event)).join('');
         }
+
+        // Render pagination
+        renderDashboardPagination('history', dashboardPaginationState.history, (newPage) => loadEventHistory(newPage));
 
     } catch (error) {
         console.error('Error loading event history:', error);
@@ -384,7 +461,7 @@ window.deleteEvent = async function(eventId) {
             await requestWithAuth(`/events/index.php?action=delete&id=${eventId}`, 'DELETE');
             
             showSuccessMessage('Event deleted successfully');
-            loadCreatedEvents(); // Reload the list
+            loadCreatedEvents(dashboardPaginationState.created.currentPage); // Reload the list
             loadDashboardStats(); // Update stats
         } catch (error) {
             showErrorMessage('Failed to delete event: ' + error.message);
@@ -398,7 +475,7 @@ window.unregisterFromEvent = async function(eventId) {
             await requestWithAuth(`/events/index.php?action=unregister`, 'POST', { event_id: eventId });
             
             showSuccessMessage('Successfully unregistered from event');
-            loadRegisteredEvents(); // Reload the list
+            loadRegisteredEvents(dashboardPaginationState.registered.currentPage); // Reload the list
             loadDashboardStats(); // Update stats
         } catch (error) {
             showErrorMessage('Failed to unregister: ' + error.message);
@@ -467,4 +544,81 @@ function showSuccessMessage(message) {
 function hideMessages() {
     document.getElementById('error-message').classList.add('hidden');
     document.getElementById('success-message').classList.add('hidden');
+}
+
+// Pagination rendering function for user dashboard
+function renderDashboardPagination(section, state, onPageChange) {
+    const container = document.getElementById(`${section}-pagination`);
+    if (!container) return;
+
+    const { currentPage, totalPages } = state;
+    
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    // Calculate page range to show
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust startPage if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    let paginationHTML = `
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-700">
+                    Page ${currentPage} of ${totalPages}
+                </span>
+            </div>
+            <div class="flex items-center space-x-1">
+    `;
+
+    // Previous button
+    if (currentPage > 1) {
+        paginationHTML += `
+            <button onclick="changeDashboardPage${section.charAt(0).toUpperCase() + section.slice(1)}(${currentPage - 1})" 
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                Previous
+            </button>
+        `;
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        const isActive = i === currentPage;
+        paginationHTML += `
+            <button onclick="changeDashboardPage${section.charAt(0).toUpperCase() + section.slice(1)}(${i})" 
+                    class="px-3 py-2 text-sm font-medium ${isActive 
+                        ? 'text-blue-600 bg-blue-50 border border-blue-300 rounded-md' 
+                        : 'text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50'
+                    }">
+                ${i}
+            </button>
+        `;
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+        paginationHTML += `
+            <button onclick="changeDashboardPage${section.charAt(0).toUpperCase() + section.slice(1)}(${currentPage + 1})" 
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                Next
+            </button>
+        `;
+    }
+
+    paginationHTML += `
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = paginationHTML;
+
+    // Store the callback for global access
+    window[`changeDashboardPage${section.charAt(0).toUpperCase() + section.slice(1)}`] = onPageChange;
 }
