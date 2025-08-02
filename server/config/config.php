@@ -48,9 +48,15 @@ $dotenv->load();
 
 // General Application Settings
 // These constants are used throughout the application for consistent behavior
-define('APP_NAME', 'USIU Events API');
-define('DEFAULT_PAGINATION_LIMIT', 20);  // Default number of items per page
-define('MAX_PAGINATION_LIMIT', 100);     // Maximum items per page to prevent performance issues
+if (!defined('APP_NAME')) {
+    define('APP_NAME', 'USIU Events API');
+}
+if (!defined('DEFAULT_PAGINATION_LIMIT')) {
+    define('DEFAULT_PAGINATION_LIMIT', 20);  // Default number of items per page
+}
+if (!defined('MAX_PAGINATION_LIMIT')) {
+    define('MAX_PAGINATION_LIMIT', 100);     // Maximum items per page to prevent performance issues
+}
 
 // Database Configuration
 // MongoDB connection settings with fallback to empty strings

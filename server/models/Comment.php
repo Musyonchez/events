@@ -22,8 +22,6 @@ require_once __DIR__ . '/../schemas/Comment.php';
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use ValidationException;
-use CommentSchema;
 
 /**
  * Comment Model Class
@@ -328,6 +326,29 @@ class CommentModel
   public function count(array $filters = []): int
   {
     return $this->collection->countDocuments($filters);
+  }
+
+  // Count comments for a specific event
+  public function countByEventId(string $eventId, array $options = []): int
+  {
+    try {
+      $filter = ['event_id' => new ObjectId($eventId)];
+      
+      // Add status filter if specified
+      if (isset($options['status']) && $options['status'] !== 'all') {
+        $filter['status'] = $options['status'];
+      }
+      
+      return $this->collection->countDocuments($filter);
+    } catch (Exception $e) {
+      throw new Exception("Invalid event ID format: {$eventId}");
+    }
+  }
+
+  // Count comments with filters (alias for count method for consistency)
+  public function countWithFilters(array $filters = []): int
+  {
+    return $this->count($filters);
   }
 
   // Moderation methods
