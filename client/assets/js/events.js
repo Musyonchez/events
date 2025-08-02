@@ -39,17 +39,15 @@ import { isAuthenticated, logout, refreshToken } from './auth.js';
 document.addEventListener('DOMContentLoaded', function() {
     // Application state management
     let currentPage = 1;           // Current pagination page
+    let totalPages = 1;            // Total number of pages
     let currentFilters = {};       // Active filter criteria
-    let allEvents = [];           // Cached events data
     let isLoading = false;        // Loading state prevention
 
     // DOM element references for events page functionality
     const eventsGrid = document.getElementById('events-grid');
     const resultsCount = document.getElementById('results-count');
     const noResults = document.getElementById('no-results');
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    const loadMoreText = document.getElementById('load-more-text');
-    const loadMoreSpinner = document.getElementById('load-more-spinner');
+    const paginationContainer = document.getElementById('events-pagination');
     
     // Filter and search controls
     const searchInput = document.getElementById('search-input');
@@ -250,15 +248,101 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     /**
+     * Pagination rendering function
+     * 
+     * Creates numbered pagination with Previous/Next buttons and page numbers.
+     * Shows up to 5 page numbers with intelligent range calculation.
+     * 
+     * @param {number} currentPage - Current active page
+     * @param {number} totalPages - Total number of pages
+     */
+    function renderPagination(currentPage, totalPages) {
+        if (!paginationContainer) return;
+
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        // Calculate page range to show
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        // Adjust startPage if we're near the end
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        let paginationHTML = `
+            <div class="flex items-center justify-center space-x-1">
+        `;
+
+        // Previous button
+        if (currentPage > 1) {
+            paginationHTML += `
+                <button onclick="changePage(${currentPage - 1})" 
+                        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition duration-200">
+                    Previous
+                </button>
+            `;
+        }
+
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            const isActive = i === currentPage;
+            paginationHTML += `
+                <button onclick="changePage(${i})" 
+                        class="px-3 py-2 text-sm font-medium transition duration-200 ${isActive 
+                            ? 'text-blue-600 bg-blue-50 border border-blue-300 rounded-md' 
+                            : 'text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50'
+                        }">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Next button
+        if (currentPage < totalPages) {
+            paginationHTML += `
+                <button onclick="changePage(${currentPage + 1})" 
+                        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition duration-200">
+                    Next
+                </button>
+            `;
+        }
+
+        paginationHTML += `
+            </div>
+        `;
+
+        paginationContainer.innerHTML = paginationHTML;
+    }
+
+    /**
+     * Page change handler
+     * 
+     * @param {number} page - Page number to navigate to
+     */
+    window.changePage = function(page) {
+        if (page < 1 || page > totalPages || page === currentPage || isLoading) return;
+        currentPage = page;
+        loadEvents(false);
+        
+        // Scroll to top of events grid
+        eventsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    /**
      * Main events loading function
      * 
      * Fetches events from the API based on current filters and pagination.
-     * Handles both initial loading and "Load More" functionality with
-     * appropriate loading states and error handling.
+     * Handles both initial loading and page navigation with appropriate
+     * loading states and error handling.
      * 
      * Loading States:
-     * - Initial/Filter: Shows skeleton cards
-     * - Load More: Shows spinner in load more button
+     * - Initial/Filter: Shows skeleton cards and resets pagination
+     * - Page Navigation: Shows loading spinner and maintains grid
      * - Prevents multiple simultaneous requests
      * 
      * @param {boolean} reset - If true, resets pagination and shows skeletons
@@ -271,12 +355,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Handle reset scenario (initial load or filter change)
         if (reset) {
             currentPage = 1;
-            allEvents = [];
             noResults.classList.add('hidden');
             
             // Display skeleton loading cards
             let skeletonHTML = '';
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < 12; i++) {
                 skeletonHTML += createSkeletonCard();
             }
             eventsGrid.innerHTML = skeletonHTML;
@@ -297,17 +380,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentFilters.sort) params.append('sort', currentFilters.sort);
             
             const response = await request(`/events/index.php?${params.toString()}`, 'GET');
-            const fetchedEvents = response.data.events || [];
-            const totalEvents = response.data.total;
+            const fetchedEvents = response.data?.events || [];
+            const pagination = response.data?.pagination || {};
+            
+            // Update pagination state
+            totalPages = pagination.total_pages || 1;
+            const totalEvents = pagination.total || 0;
 
-            if (currentPage === 1) {
-                eventsGrid.innerHTML = ''; // Clear skeletons
-            }
+            // Clear grid for new content
+            eventsGrid.innerHTML = '';
 
             if (fetchedEvents.length === 0 && currentPage === 1) {
                 noResults.classList.remove('hidden');
                 resultsCount.textContent = 'No events found';
-                loadMoreBtn.parentElement.classList.add('hidden');
+                paginationContainer.innerHTML = '';
             } else {
                 noResults.classList.add('hidden');
                 
@@ -316,26 +402,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     eventsGrid.insertAdjacentHTML('beforeend', eventCardHTML);
                 });
                 
-                allEvents = [...allEvents, ...fetchedEvents];
-                resultsCount.textContent = `Showing ${allEvents.length} of ${totalEvents} events`;
+                // Update results count
+                const startItem = (currentPage - 1) * 12 + 1;
+                const endItem = Math.min(currentPage * 12, totalEvents);
+                resultsCount.textContent = `Showing ${startItem}-${endItem} of ${totalEvents} events`;
                 
-                if (allEvents.length >= totalEvents) {
-                    loadMoreBtn.parentElement.classList.add('hidden');
-                } else {
-                    loadMoreBtn.parentElement.classList.remove('hidden');
-                }
+                // Render pagination
+                renderPagination(currentPage, totalPages);
             }
             
         } catch (error) {
-            console.error('Failed to load events from server. Please check your connection and refresh the page.:', error);
+            console.error('Failed to load events from server:', error);
             resultsCount.textContent = 'Failed to load events from server. Please check your connection and refresh the page.';
-            eventsGrid.innerHTML = ''; // Clear skeletons on error
+            eventsGrid.innerHTML = ''; // Clear loading state on error
             noResults.classList.remove('hidden');
+            paginationContainer.innerHTML = '';
         } finally {
             isLoading = false;
-            loadMoreText.classList.remove('hidden');
-            loadMoreSpinner.classList.add('hidden');
-            loadMoreBtn.disabled = false;
         }
     }
 
@@ -373,17 +456,8 @@ document.addEventListener('DOMContentLoaded', function() {
         loadEvents(true);
     });
 
-    // Load more events
-    loadMoreBtn.addEventListener('click', function() {
-        if (isLoading) return;
-        
-        loadMoreText.classList.add('hidden');
-        loadMoreSpinner.classList.remove('hidden');
-        this.disabled = true;
-        
-        currentPage++;
-        loadEvents();
-    });
+    // Event registration now handles pagination refresh
+    // No more "Load More" functionality - replaced with numbered pagination
 
     // Show notification function
     function showNotification(message, isError = false) {

@@ -16,8 +16,8 @@
  */
 
 import { request, requestWithAuth } from './http.js';
-import { isAuthenticated } from './auth.js';
-import { getEventDetails, getEventComments, postComment, registerForEvent, getClubDetails } from './api.js';
+import { isAuthenticated, getCurrentUser } from './auth.js';
+import { getEventDetails, getEventComments, postComment, registerForEvent, unregisterFromEvent, getClubDetails } from './api.js';
 
 let currentEventId = null;
 
@@ -39,11 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         commentForm.addEventListener('submit', handleCommentSubmission);
     }
 
-    // Registration button
-    const registerBtn = document.getElementById('register-btn');
-    if (registerBtn) {
-        registerBtn.addEventListener('click', handleEventRegistration);
-    }
+    // Registration button - event listener will be set dynamically in updateRegistrationButton
 });
 
 // Show notification function
@@ -312,22 +308,63 @@ function updateRegistrationButton(event) {
     
     const deadline = new Date(getTimestamp(event.registration_deadline));
     
+    // Remove all existing event listeners by cloning the button
+    const newRegisterBtn = registerBtn.cloneNode(true);
+    registerBtn.parentNode.replaceChild(newRegisterBtn, registerBtn);
+    const cleanBtn = document.getElementById('register-btn');
+    
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+        cleanBtn.textContent = 'Login to Register';
+        cleanBtn.onclick = () => window.location.href = './login.html';
+        return;
+    }
+    
+    // Check if user is already registered
+    const currentUser = getCurrentUser();
+    let isUserRegistered = false;
+    
+    if (event.registered_users && currentUser) {
+        const userId = currentUser._id || currentUser.userId || currentUser.id;
+        
+        isUserRegistered = event.registered_users.some(registeredUserId => {
+            // Handle different ID formats
+            const regId = registeredUserId.$oid || registeredUserId;
+            return regId === userId;
+        });
+    }
+    
+    if (isUserRegistered) {
+        // User is registered - show unregister button
+        cleanBtn.textContent = 'Unregister from Event';
+        cleanBtn.className = 'w-full bg-red-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-red-700 transition duration-200';
+        cleanBtn.disabled = false;
+        cleanBtn.onclick = handleEventUnregistration;
+        return;
+    }
+    
     // Check if registration is still open
     if (deadline < now) {
-        registerBtn.disabled = true;
-        registerBtn.textContent = 'Registration Closed';
-        registerBtn.className = 'w-full bg-gray-400 text-white py-3 px-4 rounded-md font-semibold cursor-not-allowed';
+        cleanBtn.disabled = true;
+        cleanBtn.textContent = 'Registration Closed';
+        cleanBtn.className = 'w-full bg-gray-400 text-white py-3 px-4 rounded-md font-semibold cursor-not-allowed';
+        cleanBtn.onclick = null;
     } else if (event.max_attendees > 0 && event.current_registrations >= event.max_attendees) {
-        registerBtn.disabled = true;
-        registerBtn.textContent = 'Event Full';
-        registerBtn.className = 'w-full bg-red-400 text-white py-3 px-4 rounded-md font-semibold cursor-not-allowed';
+        cleanBtn.disabled = true;
+        cleanBtn.textContent = 'Event Full';
+        cleanBtn.className = 'w-full bg-red-400 text-white py-3 px-4 rounded-md font-semibold cursor-not-allowed';
+        cleanBtn.onclick = null;
+    } else {
+        // User can register - show register button
+        cleanBtn.textContent = 'Register for Event';
+        cleanBtn.className = 'w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition duration-200';
+        cleanBtn.disabled = false;
+        cleanBtn.onclick = handleEventRegistration;
     }
 }
 
 async function handleEventRegistration() {
     const registerBtn = document.getElementById('register-btn');
-    const registerText = document.getElementById('register-text');
-    const registerSpinner = document.getElementById('register-spinner');
     
     try {
         if (!isAuthenticated()) {
@@ -336,22 +373,15 @@ async function handleEventRegistration() {
         }
         
         // Show loading state
+        const originalText = registerBtn.textContent;
         registerBtn.disabled = true;
-        registerText.classList.add('hidden');
-        registerSpinner.classList.remove('hidden');
+        registerBtn.textContent = 'Registering...';
         
         await registerForEvent(currentEventId);
         
-        // Show success state
-        const registrationStatus = document.getElementById('registration-status');
-        registrationStatus.classList.remove('hidden');
-        registrationStatus.className = 'text-center p-3 rounded-md bg-green-50 border border-green-200';
-        registrationStatus.querySelector('#status-text').textContent = 'Registration successful!';
-        registerBtn.classList.add('hidden');
-        
         showNotification('Registration successful!');
         
-        // Reload event details to update registration count
+        // Reload event details to update registration count and button state
         loadEventDetails(currentEventId);
         
     } catch (error) {
@@ -359,8 +389,37 @@ async function handleEventRegistration() {
         
         // Reset button state
         registerBtn.disabled = false;
-        registerText.classList.remove('hidden');
-        registerSpinner.classList.add('hidden');
+        registerBtn.textContent = 'Register for Event';
+    }
+}
+
+async function handleEventUnregistration() {
+    const registerBtn = document.getElementById('register-btn');
+    
+    // Confirm unregistration
+    if (!confirm('Are you sure you want to unregister from this event?')) {
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const originalText = registerBtn.textContent;
+        registerBtn.disabled = true;
+        registerBtn.textContent = 'Unregistering...';
+        
+        await unregisterFromEvent(currentEventId);
+        
+        showNotification('Successfully unregistered from event!');
+        
+        // Reload event details to update registration count and button state
+        loadEventDetails(currentEventId);
+        
+    } catch (error) {
+        showNotification('Unregistration failed: ' + error.message, true);
+        
+        // Reset button state
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Unregister from Event';
     }
 }
 

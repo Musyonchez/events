@@ -1,32 +1,30 @@
 <?php
 /**
- * USIU Events Management System - User Statistics Endpoint
+ * USIU Events Management System - User Dashboard Statistics Endpoint
  * 
- * Provides comprehensive user statistics and analytics for administrative
- * dashboards and reporting purposes. Generates real-time metrics about
- * user activity, registration trends, and system usage patterns.
+ * Provides personal user statistics for individual user dashboards.
+ * Generates real-time metrics about the authenticated user's activity,
+ * event participation, and personal engagement statistics.
  * 
  * Features:
- * - Total and active user counts
- * - Monthly registration statistics
- * - Email verification rates
- * - User role distribution analysis
- * - Growth and activity metrics
+ * - Personal registered events count
+ * - Attended events count
+ * - Created events count  
+ * - Upcoming events count
+ * - User-specific analytics
  * - Real-time data aggregation
  * 
  * Security Features:
  * - Route access control (requires IS_USER_ROUTE)
- * - Administrative data access (recommend auth check)
- * - Privacy-aware statistics (no personal data)
- * - Aggregated data only
+ * - Authentication required (user-specific data)
+ * - Personal data access only
+ * - User-scoped statistics
  * 
  * Statistics Provided:
- * - Total registered users
- * - Active users (non-suspended)
- * - New users this month
- * - Email verification rate
- * - Role distribution (student, club_leader, admin)
- * - Monthly growth indicators
+ * - registered_events: Events user is registered for
+ * - attended_events: Events user has attended (past events)
+ * - created_events: Events user has created
+ * - upcoming_events: Future events user is registered for
  * 
  * Request Format:
  * GET /api/users/?action=stats
@@ -36,12 +34,10 @@
  *   "success": true,
  *   "message": "User statistics retrieved successfully",
  *   "data": {
- *     "total_users": 1250,
- *     "active_users": 1180,
- *     "new_users_month": 45,
- *     "verification_rate": 89,
- *     "role_distribution": { ... },
- *     "current_month": "December 2024"
+ *     "registered_events": 5,
+ *     "attended_events": 3,
+ *     "created_events": 2,
+ *     "upcoming_events": 2
  *   }
  * }
  * 
@@ -51,8 +47,10 @@
  */
 
 // Core dependencies for user statistics functionality
-require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../middleware/auth.php';
 require_once __DIR__ . '/../../utils/response.php';
+
+use MongoDB\BSON\ObjectId;
 
 // Security check to ensure this endpoint is accessed through the users router
 if (!defined('IS_USER_ROUTE')) {
@@ -62,104 +60,65 @@ if (!defined('IS_USER_ROUTE')) {
 // Set JSON response header
 header('Content-Type: application/json');
 
+// Authenticate user and get user context
+$user = authenticate();
+$userId = $user->userId;
+$userObjectId = new ObjectId($userId);
+
 // === Date and Time Configuration ===
 
 // Get current date information for time-based statistics
 $currentDate = new DateTime();
-$currentMonth = $currentDate->format('n');    // 1-12 (numeric month)
-$currentYear = $currentDate->format('Y');     // Full year
+$currentTimestamp = $currentDate->getTimestamp() * 1000; // Convert to milliseconds for MongoDB
 
-// Calculate first day of current month for monthly statistics
-$monthStart = new DateTime("$currentYear-$currentMonth-01");
-$monthStartTimestamp = $monthStart->getTimestamp() * 1000; // Convert to milliseconds for MongoDB
+// === Personal User Statistics Aggregation ===
 
-// === User Statistics Aggregation ===
+try {
+    // Count events user is registered for (all events with user in registered_users)
+    $registeredEventsCount = $db->events->countDocuments([
+        'registered_users' => $userObjectId,
+        'status' => ['$ne' => 'cancelled']
+    ]);
 
-// Total registered users across the platform
-$totalUsersResult = $db->users->countDocuments([]);
+    // Count events user has attended (past events user was registered for)
+    $attendedEventsCount = $db->events->countDocuments([
+        'registered_users' => $userObjectId,
+        'event_date' => ['$lt' => new MongoDB\BSON\UTCDateTime($currentTimestamp)],
+        'status' => ['$ne' => 'cancelled']
+    ]);
 
-// Active users count (excluding suspended accounts)
-$activeUsersResult = $db->users->countDocuments([
-    'status' => ['$ne' => 'suspended']
-]);
+    // Count events user has created
+    $createdEventsCount = $db->events->countDocuments([
+        'created_by' => $userObjectId
+    ]);
 
-// New user registrations this month
-$newUsersThisMonthResult = $db->users->countDocuments([
-    'created_at' => [
-        '$gte' => new MongoDB\BSON\UTCDateTime($monthStartTimestamp)
-    ]
-]);
+    // Count upcoming events user is registered for
+    $upcomingEventsCount = $db->events->countDocuments([
+        'registered_users' => $userObjectId,
+        'event_date' => ['$gte' => new MongoDB\BSON\UTCDateTime($currentTimestamp)],
+        'status' => ['$ne' => 'cancelled']
+    ]);
 
-// Email verification statistics
-$verifiedUsersResult = $db->users->countDocuments([
-    'is_email_verified' => true
-]);
+    // Prepare personal statistics response
+    $stats = [
+        'registered_events' => $registeredEventsCount,
+        'attended_events' => $attendedEventsCount,
+        'created_events' => $createdEventsCount,
+        'upcoming_events' => $upcomingEventsCount
+    ];
 
-// Calculate email verification rate as percentage
-$verificationRate = $totalUsersResult > 0 ? 
-    round(($verifiedUsersResult / $totalUsersResult) * 100) : 0;
+    // Send successful response with personal user statistics
+    send_success('User statistics retrieved successfully', 200, $stats);
 
-// === User Role Distribution Analysis ===
-
-// Initialize role distribution tracking
-$roleDistribution = [];
-$roles = ['student', 'club_leader', 'admin'];
-
-// Count users by role for distribution analysis
-foreach ($roles as $role) {
-    $count = $db->users->countDocuments(['role' => $role]);
-    $roleDistribution[$role] = $count;
+} catch (Exception $e) {
+    // Log the error for debugging
+    error_log('User stats error: ' . $e->getMessage());
+    
+    // Send error response with default values
+    send_error('Failed to load user statistics: ' . $e->getMessage(), 500, [
+        'registered_events' => 0,
+        'attended_events' => 0,
+        'created_events' => 0,
+        'upcoming_events' => 0
+    ]);
 }
-
-// Calculate role percentages for better insights
-$rolePercentages = [];
-foreach ($roleDistribution as $role => $count) {
-    $rolePercentages[$role] = $totalUsersResult > 0 ? 
-        round(($count / $totalUsersResult) * 100, 1) : 0;
-}
-
-// === Enhanced Statistics Compilation ===
-
-// Calculate additional useful metrics
-$suspendedUsers = $db->users->countDocuments(['status' => 'suspended']);
-$unverifiedUsers = $totalUsersResult - $verifiedUsersResult;
-$inactiveUsers = $totalUsersResult - $activeUsersResult;
-
-// Prepare comprehensive response data
-$stats = [
-    // Basic user counts
-    'total_users' => $totalUsersResult,
-    'active_users' => $activeUsersResult,
-    'inactive_users' => $inactiveUsers,
-    'suspended_users' => $suspendedUsers,
-    
-    // Monthly growth statistics
-    'new_users_month' => $newUsersThisMonthResult,
-    'current_month' => $currentDate->format('F Y'),
-    
-    // Email verification metrics
-    'verification_stats' => [
-        'verified_users' => $verifiedUsersResult,
-        'unverified_users' => $unverifiedUsers,
-        'verification_rate' => $verificationRate
-    ],
-    
-    // Role distribution with counts and percentages
-    'role_distribution' => [
-        'counts' => $roleDistribution,
-        'percentages' => $rolePercentages
-    ],
-    
-    // Additional insights
-    'activity_rate' => $totalUsersResult > 0 ? 
-        round(($activeUsersResult / $totalUsersResult) * 100, 1) : 0,
-    'suspension_rate' => $totalUsersResult > 0 ? 
-        round(($suspendedUsers / $totalUsersResult) * 100, 1) : 0,
-    
-    // Metadata
-    'generated_at' => $currentDate->format('Y-m-d H:i:s'),
-    'timezone' => $currentDate->getTimezone()->getName()
-];
-
-// Send successful response with comprehensive user statistics
-send_success('User statistics retrieved successfully', 200, $stats);

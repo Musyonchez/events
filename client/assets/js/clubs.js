@@ -21,8 +21,8 @@ import { isAuthenticated } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     let currentPage = 1;
+    let totalPages = 1;
     let currentFilters = {};
-    let allClubs = [];
     let isLoading = false;
     let currentView = 'grid';
 
@@ -30,9 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const clubsList = document.getElementById('clubs-list');
     const resultsCount = document.getElementById('results-count');
     const noResults = document.getElementById('no-results');
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    const loadMoreText = document.getElementById('load-more-text');
-    const loadMoreSpinner = document.getElementById('load-more-spinner');
+    const paginationContainer = document.getElementById('clubs-pagination');
     const searchInput = document.getElementById('search-input');
     const categoryFilter = document.getElementById('category-filter');
     const statusFilter = document.getElementById('status-filter');
@@ -176,6 +174,93 @@ function createClubListItem(club) {
         `;
     }
 
+    /**
+     * Pagination rendering function
+     * 
+     * Creates numbered pagination with Previous/Next buttons and page numbers.
+     * Shows up to 5 page numbers with intelligent range calculation.
+     * 
+     * @param {number} currentPage - Current active page
+     * @param {number} totalPages - Total number of pages
+     */
+    function renderPagination(currentPage, totalPages) {
+        if (!paginationContainer) return;
+
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        // Calculate page range to show
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        // Adjust startPage if we're near the end
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        let paginationHTML = `
+            <div class="flex items-center justify-center space-x-1">
+        `;
+
+        // Previous button
+        if (currentPage > 1) {
+            paginationHTML += `
+                <button onclick="changePage(${currentPage - 1})" 
+                        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition duration-200">
+                    Previous
+                </button>
+            `;
+        }
+
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            const isActive = i === currentPage;
+            paginationHTML += `
+                <button onclick="changePage(${i})" 
+                        class="px-3 py-2 text-sm font-medium transition duration-200 ${isActive 
+                            ? 'text-blue-600 bg-blue-50 border border-blue-300 rounded-md' 
+                            : 'text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50'
+                        }">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Next button
+        if (currentPage < totalPages) {
+            paginationHTML += `
+                <button onclick="changePage(${currentPage + 1})" 
+                        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition duration-200">
+                    Next
+                </button>
+            `;
+        }
+
+        paginationHTML += `
+            </div>
+        `;
+
+        paginationContainer.innerHTML = paginationHTML;
+    }
+
+    /**
+     * Page change handler
+     * 
+     * @param {number} page - Page number to navigate to
+     */
+    window.changePage = function(page) {
+        if (page < 1 || page > totalPages || page === currentPage || isLoading) return;
+        currentPage = page;
+        loadClubs(false);
+        
+        // Scroll to top of clubs grid
+        const scrollTarget = currentView === 'grid' ? clubsGrid : clubsList;
+        scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
     // Show skeletons
     function showSkeletons() {
         clubsGrid.innerHTML = '';
@@ -200,101 +285,112 @@ function createClubListItem(club) {
         if (isLoading) return;
         isLoading = true;
 
+        // Handle reset scenario (initial load or filter change)
         if (reset) {
             currentPage = 1;
-            allClubs = [];
-            clubsGrid.innerHTML = '';
-            clubsList.innerHTML = '';
             noResults.classList.add('hidden');
-            showSkeletons(); // Show skeletons when resetting/loading
+            
+            // Display skeleton loading cards
+            showSkeletons();
         }
 
         try {
-            const params = {
+            const params = new URLSearchParams({
+                action: 'list',
                 page: currentPage,
-                limit: 12,
-            };
+                limit: 12
+            });
 
             if (currentFilters.search) {
-                params.search = currentFilters.search;
+                params.append('search', currentFilters.search);
             }
             if (currentFilters.category) {
-                params.category = currentFilters.category;
+                params.append('category', currentFilters.category);
             }
             if (currentFilters.status) {
-                params.status = currentFilters.status;
+                params.append('status', currentFilters.status);
             }
             if (currentFilters.size) {
                 // Handle size filter: convert to min/max members
                 switch (currentFilters.size) {
                     case 'small':
-                        params.min_members = 1;
-                        params.max_members = 25;
+                        params.append('min_members', '1');
+                        params.append('max_members', '25');
                         break;
                     case 'medium':
-                        params.min_members = 26;
-                        params.max_members = 100;
+                        params.append('min_members', '26');
+                        params.append('max_members', '100');
                         break;
                     case 'large':
-                        params.min_members = 101;
+                        params.append('min_members', '101');
                         break;
                 }
             }
 
             if (currentFilters.sort) {
                 const [sortByField, sortOrder] = currentFilters.sort.split('-');
-                params.sort_by = sortByField === 'members' ? 'members_count' : sortByField;
-                params.sort_order = sortOrder;
+                params.append('sort_by', sortByField === 'members' ? 'members_count' : sortByField);
+                params.append('sort_order', sortOrder);
             }
 
-            const response = await request(`/clubs/index.php?action=list`, 'GET', params);
-            const { clubs, total_clubs } = response;
+            const response = await request(`/clubs/index.php?${params.toString()}`, 'GET');
+            console.log('Clubs API Response:', response); // Debug log
             
-            if (reset) {
-                clubsGrid.innerHTML = '';
-                clubsList.innerHTML = '';
-            }
-            hideSkeletons();
+            const clubs = response.data?.clubs || response.clubs || [];
+            const pagination = response.data?.pagination || response.pagination || {};
+            const totalClubs = pagination.total_clubs || pagination.total || 0;
+            
+            // Update pagination state
+            totalPages = pagination.total_pages || Math.ceil(totalClubs / 12) || 1;
+            
+            // Clear content for new results
+            clubsGrid.innerHTML = '';
+            clubsList.innerHTML = '';
             
             if (clubs.length === 0 && currentPage === 1) {
                 noResults.classList.remove('hidden');
                 resultsCount.textContent = 'No clubs found';
-                loadMoreBtn.parentElement.classList.add('hidden');
+                paginationContainer.innerHTML = '';
             } else {
                 noResults.classList.add('hidden');
-                allClubs = [...allClubs, ...clubs];
                 
+                // Populate clubs based on current view
                 if (currentView === 'grid') {
                     clubs.forEach(club => {
                         const clubCard = document.createElement('div');
                         clubCard.innerHTML = createClubCard(club);
                         clubsGrid.appendChild(clubCard.firstElementChild);
                     });
+                    clubsGrid.classList.remove('hidden');
+                    clubsList.classList.add('hidden');
                 } else {
                     clubs.forEach(club => {
                         const clubItem = document.createElement('div');
                         clubItem.innerHTML = createClubListItem(club);
                         clubsList.appendChild(clubItem.firstElementChild);
                     });
+                    clubsList.classList.remove('hidden');
+                    clubsGrid.classList.add('hidden');
                 }
                 
-                resultsCount.textContent = `Showing ${allClubs.length} of ${total_clubs} clubs`;
+                // Update results count
+                const startItem = (currentPage - 1) * 12 + 1;
+                const endItem = Math.min(currentPage * 12, totalClubs);
+                resultsCount.textContent = `Showing ${startItem}-${endItem} of ${totalClubs} clubs`;
                 
-                if (allClubs.length >= total_clubs) {
-                    loadMoreBtn.parentElement.classList.add('hidden');
-                } else {
-                    loadMoreBtn.parentElement.classList.remove('hidden');
-                }
+                // Render pagination
+                renderPagination(currentPage, totalPages);
             }
             
         } catch (error) {
             console.error('Error loading clubs:', error);
-            resultsCount.textContent = 'Error loading clubs';
+            resultsCount.textContent = 'Failed to load clubs. Please check your connection and refresh the page.';
+            clubsGrid.innerHTML = '';
+            clubsList.innerHTML = '';
+            noResults.classList.remove('hidden');
+            paginationContainer.innerHTML = '';
         } finally {
             isLoading = false;
-            loadMoreText.classList.remove('hidden');
-            loadMoreSpinner.classList.add('hidden');
-            loadMoreBtn.disabled = false;
         }
     }
 
@@ -308,16 +404,8 @@ function createClubListItem(club) {
                 listViewBtn.classList.remove('bg-blue-600', 'text-white');
                 listViewBtn.classList.add('bg-white', 'text-gray-700');
                 
-                clubsGrid.classList.remove('hidden');
-                clubsList.classList.add('hidden');
-                
-                // Repopulate grid view
-                clubsGrid.innerHTML = '';
-                allClubs.forEach(club => {
-                    const clubCard = document.createElement('div');
-                    clubCard.innerHTML = createClubCard(club);
-                    clubsGrid.appendChild(clubCard.firstElementChild);
-                });
+                // Reload current page data in grid view
+                loadClubs(false);
             }
         });
 
@@ -329,16 +417,8 @@ function createClubListItem(club) {
                 gridViewBtn.classList.remove('bg-blue-600', 'text-white');
                 gridViewBtn.classList.add('bg-white', 'text-gray-700');
                 
-                clubsList.classList.remove('hidden');
-                clubsGrid.classList.add('hidden');
-                
-                // Repopulate list view
-                clubsList.innerHTML = '';
-                allClubs.forEach(club => {
-                    const clubItem = document.createElement('div');
-                    clubItem.innerHTML = createClubListItem(club);
-                    clubsList.appendChild(clubItem.firstElementChild);
-                });
+                // Reload current page data in list view
+                loadClubs(false);
             }
         });
     }
@@ -377,17 +457,7 @@ function createClubListItem(club) {
         loadClubs(true);
     });
 
-    // Load more clubs
-    loadMoreBtn.addEventListener('click', function() {
-        if (isLoading) return;
-        
-        loadMoreText.classList.add('hidden');
-        loadMoreSpinner.classList.remove('hidden');
-        this.disabled = true;
-        
-        currentPage++;
-        loadClubs();
-    });
+    // Club joining now refreshes current page instead of full reload
 
     // Show notification function
     function showNotification(message, isError = false) {
@@ -422,7 +492,7 @@ function createClubListItem(club) {
             await requestWithAuth(`/clubs/index.php?action=join`, 'POST', { club_id: clubId });
             
             showNotification('Successfully joined club!');
-            loadClubs(true);
+            loadClubs(false); // Refresh current page to update join status
             
         } catch (error) {
             showNotification('Failed to join club: ' + error.message, true);
